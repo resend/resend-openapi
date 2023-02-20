@@ -78,9 +78,6 @@ components:
         text:
           type: string
           description: The plain text version of the message.
-        react:
-          type: string
-          description: The React component used to write the message. Only available in the Node.js SDK.
     SendEmailResponse:
       type: object
       required:
