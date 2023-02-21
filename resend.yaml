@@ -17,16 +17,6 @@ paths:
         - email
       summary: Send an email
       operationId: sendEmail
-      x-speakeasy-retries:
-        strategy: backoff
-        backoff:
-          initialInterval: 5000       # 5 seconds
-          maxInterval: 60000          # 60 seconds
-          maxElapsedTime: 3600000     # 5 minutes
-          exponent: 1.5
-        statusCodes:
-          - 500
-        retryConnectionErrors: true
       requestBody:
         description: Email to send
         required: true
