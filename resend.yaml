@@ -3,6 +3,10 @@ info:
   title: Resend
   version: 0.1.1
   description: "Resend is the email platform for developers."
+  contact:
+      name: Plus Five Five, Inc.
+      url: https://resend.com/
+      email: support@resend.com
 servers:
   - url: https://api.resend.com
 tags:
@@ -90,4 +94,3 @@ components:
           type: string
           format: date-time
           description: The date and time the email was sent.
-
