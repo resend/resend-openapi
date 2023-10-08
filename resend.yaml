@@ -1,93 +1,548 @@
-openapi: 3.1.0
+openapi: 3.0.3
 info:
   title: Resend
   version: 0.1.1
-  description: "Resend is the email platform for developers."
+  description: 'Resend is the email platform for developers.'
 servers:
   - url: https://api.resend.com
-tags:
-  - name: email
-    description: Email operations
 security:
   - bearerAuth: []
+tags:
+  - name: Email
+    description: Start sending emails through the Resend Email API.
+  - name: Domains
+    description: Create and manage domains through the Resend Email API.
+  - name: API Keys
+    description: Create and manage API Keys through the Resend Email API.
 paths:
-  /email:
+  /emails:
     post:
       tags:
-        - email
-      summary: Send an email
-      operationId: sendEmail
+        - Email
+      summary: Sends an email
       requestBody:
-        description: Email to send
-        required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Email'
+              $ref: '#/components/schemas/SendEmailRequest'
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/SendEmailResponse'
+  /emails/{email_id}:
+    get:
+      tags:
+        - Email
+      summary: Retrieve a single email.
+      parameters:
+        - name: email_id
+          in: path
+          required: true
+          schema:
+            type: string
+            description: The ID of the email.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Email'
+  /emails/batch:
+    post:
+      tags:
+        - Email
+      summary: Trigger up to 100 batch emails at once.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/SendEmailRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateBatchEmailsResponse'
+  /domains:
+    post:
+      tags:
+        - Domains
+      summary: Creates a new domain.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateDomainRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateDomainResponse'
+    get:
+      tags:
+        - Domains
+      summary: Retrieve a list of domains for the authenticated user.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListDomainsResponse'
+  /domains/{domain_id}:
+    get:
+      tags:
+        - Domains
+      summary: Retrieve a single domain for the authenticated user.
+      parameters:
+        - name: domain_id
+          in: path
+          required: true
+          schema:
+            type: string
+            description: The ID of the domain.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Domain'
+    delete:
+      tags:
+        - Domains
+      summary: Remove an existing domain.
+      parameters:
+        - name: domain_id
+          in: path
+          required: true
+          schema:
+            type: string
+            description: The ID of the domain.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeleteDomainResponse'
+  /domains/{domain_id}/verify:
+    post:
+      tags:
+        - Domains
+      summary: Verify an existing domain.
+      parameters:
+        - name: domain_id
+          in: path
+          required: true
+          schema:
+            type: string
+            description: The ID of the domain.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VerifyDomainResponse'
+  /api-keys:
+    post:
+      tags:
+        - API Keys
+      summary: Creates a new API key.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateApiKeyRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateApiKeyResponse'
+    get:
+      tags:
+        - API Keys
+      summary: Retrieve a list of API keys for the authenticated user.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListApiKeysResponse'
+  /api-keys/{api_key_id}:
+    delete:
+      tags:
+        - API Keys
+      summary: Remove an existing API key.
+      parameters:
+        - name: api_key_id
+          in: path
+          required: true
+          schema:
+            type: string
+            description: The API key ID.
+      responses:
+        '200':
+          description: OK
 components:
   securitySchemes:
     bearerAuth:
       type: http
       scheme: bearer
   schemas:
-    Email:
+    SendEmailRequest:
       type: object
       required:
-        - to
         - from
+        - to
         - subject
       properties:
-        to:
-          type: string
-          description: Recipient email address. Multiple addresses are comma separated. Max 50.
         from:
           type: string
           description: Sender email address. To include a friendly name, use the format "Your Name <sender@domain.com>".
+        to:
+          type: array
+          items:
+            type: string
+            description: Recipient email address. For multiple addresses, send as an array of strings. Max 50.
         subject:
           type: string
           description: Email subject.
         bcc:
           type: string
-          description: Bcc recipient email address. Multiple addresses are comma separated. Max 50.
+          description: Bcc recipient email address. For multiple addresses, send as an array of strings.
         cc:
           type: string
-          description: Cc recipient email address. Multiple addresses are comma separated. Max 50.
+          description: Cc recipient email address. For multiple addresses, send as an array of strings.
         reply_to:
           type: string
-          description: Reply-to email address.
+          description: Reply-to email address. For multiple addresses, send as an array of strings.
         html:
           type: string
           description: The HTML version of the message.
         text:
           type: string
           description: The plain text version of the message.
+        react:
+          type: string
+          description: The React component used to write the message. Only available in the Node.js SDK.
+        headers:
+          type: object
+          description: Custom headers to add to the email.
+        attachments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Attachment'
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/Tag'
+    Attachment:
+      type: object
+      properties:
+        content:
+          type: string
+          format: binary
+          description: Content of an attached file.
+        filename:
+          type: string
+          description: Name of attached file.
+        path:
+          type: string
+          description: Path where the attachment file is hosted
+    Tag:
+      type: object
+      properties:
+        name:
+          type: string
+          description: The name of the email tag. It can only contain ASCII letters (a–z, A–Z), numbers (0–9), underscores (_), or dashes (-). It can contain no more than 256 characters.
+        value:
+          type: string
+          description: The value of the email tag.It can only contain ASCII letters (a–z, A–Z), numbers (0–9), underscores (_), or dashes (-). It can contain no more than 256 characters.
     SendEmailResponse:
       type: object
-      required:
-        - id
-        - from
-        - to
-        - created_at
       properties:
         id:
           type: string
-          format: uuid
-          description: The unique identifier of the sent email.
+          description: The ID of the sent email.
+    Email:
+      type: object
+      properties:
+        object:
+          type: string
+          description: The type of object.
+          example: 'email'
+        id:
+          type: string
+          description: The ID of the email.
+          example: '4ef9a417-02e9-4d39-ad75-9611e0fcc33c'
+        to:
+          type: array
+          items:
+            type: string
+            description: The email addresses of the recipients.
+          example: ['delivered@resend.dev']
         from:
           type: string
-          description: The sender email address.
-        to:
-          type: string
-          description: The recipient email address.
+          description: The email address of the sender.
+          example: 'Acme <onboarding@resend.dev>'
         created_at:
           type: string
           format: date-time
-          description: The date and time the email was sent.
-
+          description: The date and time the email was created.
+          example: '2023-04-03T22:13:42.674981+00:00'
+        subject:
+          type: string
+          description: The subject line of the email.
+          example: 'Hello World'
+        html:
+          type: string
+          description: The HTML body of the email.
+          example: 'Congrats on sending your <strong>first email</strong>!'
+        text:
+          type: string
+          description: The plain text body of the email.
+        bcc:
+          type: array
+          items:
+            type: string
+          description: The email addresses of the blind carbon copy recipients.
+        cc:
+          type: array
+          items:
+            type: string
+          description: The email addresses of the carbon copy recipients.
+        reply_to:
+          type: array
+          items:
+            type: string
+          description: The email addresses to which replies should be sent.
+        last_event:
+          type: string
+          description: The status of the email.
+          example: 'delivered'
+    CreateBatchEmailsResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                description: The ID of the sent email.
+    CreateDomainRequest:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          description: The name of the domain you want to create.
+        region:
+          type: string
+          enum:
+            - us-east-1
+            - eu-west-1
+            - sa-east-1
+          default: us-east-1
+          description: The region where emails will be sent from. Possible values are us-east-1' | 'eu-west-1' | 'sa-east-1
+    CreateDomainResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The ID of the domain.
+        name:
+          type: string
+          description: The name of the domain.
+        created_at:
+          type: string
+          format: date-time
+          description: The date and time the domain was created.
+        status:
+          type: string
+          description: The status of the domain.
+        records:
+          type: array
+          items:
+            $ref: '#/components/schemas/DomainRecord'
+        region:
+          type: string
+          description: The region where the domain is hosted.
+        dnsProvider:
+          type: string
+          description: The DNS provider for the domain.
+    DomainRecord:
+      type: object
+      properties:
+        record:
+          type: string
+          description: The type of record.
+        name:
+          type: string
+          description: The name of the record.
+        type:
+          type: string
+          description: The type of record.
+        ttl:
+          type: string
+          description: The time to live for the record.
+        status:
+          type: string
+          description: The status of the record.
+        value:
+          type: string
+          description: The value of the record.
+        priority:
+          type: integer
+          description: The priority of the record.
+    Domain:
+      type: object
+      properties:
+        object:
+          type: string
+          description: The type of object.
+          example: 'domain'
+        id:
+          type: string
+          description: The ID of the domain.
+          example: 'd91cd9bd-1176-453e-8fc1-35364d380206'
+        name:
+          type: string
+          description: The name of the domain.
+          example: 'example.com'
+        status:
+          type: string
+          description: The status of the domain.
+          example: 'not_started'
+        created_at:
+          type: string
+          format: date-time
+          description: The date and time the domain was created.
+          example: '2023-04-26T20:21:26.347412+00:00'
+        region:
+          type: string
+          description: The region where the domain is hosted.
+          example: 'us-east-1'
+        records:
+          type: array
+          items:
+            $ref: '#/components/schemas/DomainRecord'
+    VerifyDomainResponse:
+      type: object
+      properties:
+        object:
+          type: string
+          description: The type of object.
+          example: 'domain'
+        id:
+          type: string
+          description: The ID of the domain.
+          example: 'd91cd9bd-1176-453e-8fc1-35364d380206'
+    ListDomainsResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ListDomainsItem'
+    ListDomainsItem:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The ID of the domain.
+          example: 'd91cd9bd-1176-453e-8fc1-35364d380206'
+        name:
+          type: string
+          description: The name of the domain.
+          example: 'example.com'
+        status:
+          type: string
+          description: The status of the domain.
+          example: 'not_started'
+        created_at:
+          type: string
+          format: date-time
+          description: The date and time the domain was created.
+          example: '2023-04-26T20:21:26.347412+00:00'
+        region:
+          type: string
+          description: The region where the domain is hosted.
+          example: 'us-east-1'
+    DeleteDomainResponse:
+      type: object
+      properties:
+        object:
+          type: string
+          description: The type of object.
+          example: 'domain'
+        id:
+          type: string
+          description: The ID of the domain.
+          example: 'd91cd9bd-1176-453e-8fc1-35364d380206'
+        deleted:
+          type: boolean
+          description: Indicates whether the domain was deleted successfully.
+          example: true
+    CreateApiKeyRequest:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          description: The API key name.
+        permission:
+          type: string
+          enum:
+            - full_access
+            - sending_access
+          description: The API key can have full access to Resend’s API or be only restricted to send emails. * full_access - Can create, delete, get, and update any resource. * sending_access - Can only send emails.
+        domain_id:
+          type: string
+          description: Restrict an API key to send emails only from a specific domain. Only used when the permission is sending_acces.
+    CreateApiKeyResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The ID of the API key.
+        token:
+          type: string
+          description: The token of the API key.
+    ListApiKeysResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ApiKey'
+    ApiKey:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The ID of the API key.
+        name:
+          type: string
+          description: The name of the API key.
+        created_at:
+          type: string
+          format: date-time
+          description: The date and time the API key was created.
