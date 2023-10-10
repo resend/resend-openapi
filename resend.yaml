@@ -236,9 +236,6 @@ components:
         text:
           type: string
           description: The plain text version of the message.
-        react:
-          type: string
-          description: The React component used to write the message. Only available in the Node.js SDK.
         headers:
           type: object
           description: Custom headers to add to the email.
@@ -384,9 +381,6 @@ components:
         region:
           type: string
           description: The region where the domain is hosted.
-        dnsProvider:
-          type: string
-          description: The DNS provider for the domain.
     DomainRecord:
       type: object
       properties:
