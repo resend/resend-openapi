@@ -81,7 +81,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CreateDomainRequest'
       responses:
-        '200':
+        '201':
           description: OK
           content:
             application/json:
@@ -165,7 +165,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CreateApiKeyRequest'
       responses:
-        '200':
+        '201':
           description: OK
           content:
             application/json:
