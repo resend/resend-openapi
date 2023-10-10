@@ -8,18 +8,18 @@ servers:
 security:
   - bearerAuth: []
 tags:
-  - name: Email
-    description: Start sending emails through the Resend Email API.
+  - name: Emails
+    description: Start sending emails through the Resend API.
   - name: Domains
-    description: Create and manage domains through the Resend Email API.
+    description: Create and manage domains through the Resend API.
   - name: API Keys
-    description: Create and manage API Keys through the Resend Email API.
+    description: Create and manage API Keys through the Resend API.
 paths:
   /emails:
     post:
       tags:
-        - Email
-      summary: Sends an email
+        - Emails
+      summary: Send an email
       requestBody:
         content:
           application/json:
@@ -35,8 +35,8 @@ paths:
   /emails/{email_id}:
     get:
       tags:
-        - Email
-      summary: Retrieve a single email.
+        - Emails
+      summary: Retrieve a single email
       parameters:
         - name: email_id
           in: path
@@ -54,7 +54,7 @@ paths:
   /emails/batch:
     post:
       tags:
-        - Email
+        - Emails
       summary: Trigger up to 100 batch emails at once.
       requestBody:
         content:
@@ -74,7 +74,7 @@ paths:
     post:
       tags:
         - Domains
-      summary: Creates a new domain.
+      summary: Create a new domain
       requestBody:
         content:
           application/json:
@@ -90,7 +90,7 @@ paths:
     get:
       tags:
         - Domains
-      summary: Retrieve a list of domains for the authenticated user.
+      summary: Retrieve a list of domains
       responses:
         '200':
           description: OK
@@ -102,7 +102,7 @@ paths:
     get:
       tags:
         - Domains
-      summary: Retrieve a single domain for the authenticated user.
+      summary: Retrieve a single domain
       parameters:
         - name: domain_id
           in: path
@@ -120,7 +120,7 @@ paths:
     delete:
       tags:
         - Domains
-      summary: Remove an existing domain.
+      summary: Remove an existing domain
       parameters:
         - name: domain_id
           in: path
@@ -139,7 +139,7 @@ paths:
     post:
       tags:
         - Domains
-      summary: Verify an existing domain.
+      summary: Verify an existing domain
       parameters:
         - name: domain_id
           in: path
@@ -158,7 +158,7 @@ paths:
     post:
       tags:
         - API Keys
-      summary: Creates a new API key.
+      summary: Create a new API key
       requestBody:
         content:
           application/json:
@@ -174,7 +174,7 @@ paths:
     get:
       tags:
         - API Keys
-      summary: Retrieve a list of API keys for the authenticated user.
+      summary: Retrieve a list of API keys
       responses:
         '200':
           description: OK
@@ -186,7 +186,7 @@ paths:
     delete:
       tags:
         - API Keys
-      summary: Remove an existing API key.
+      summary: Remove an existing API key
       parameters:
         - name: api_key_id
           in: path
