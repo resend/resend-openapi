@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: Resend
-  version: 0.1.1
+  version: 1.0.0
   description: 'Resend is the email platform for developers.'
 servers:
   - url: https://api.resend.com
