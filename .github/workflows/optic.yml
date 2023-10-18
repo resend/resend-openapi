@@ -1,0 +1,22 @@
+name: optic
+on:
+  pull_request:
+  push:
+    branches:
+      - "main"
+ 
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+ 
+      - name: Install Optic
+        run: npm install --location global @useoptic/optic
+ 
+      - name: Run Optic
+        env:
+          OPTIC_TOKEN: ${{ secrets.OPTIC_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: optic run
