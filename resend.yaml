@@ -768,46 +768,56 @@ components:
         id:
           type: string
           description: The ID of the audience.
+          example: 78261eea-8f8b-4381-83c6-79fa7120f1cf
         object:
           type: string
           description: The object of the audience.
+          example: audience
         name:
           type: string
           description: The name of the audience.
+          example: Registered Users
     GetAudienceResponseSuccess:
       type: object
       properties:
         id:
           type: string
           description: The ID of the audience.
+          example: 78261eea-8f8b-4381-83c6-79fa7120f1cf
         object:
           type: string
           description: The object of the audience.
+          example: audience
         name:
           type: string
           description: The name of the audience.
+          example: Registered Users
         created_at:
           type: string
           description: The date that the object was created.
+          example: 2023-10-06T22:59:55.977Z
     RemoveAudienceResponseSuccess:
       type: object
       properties:
         id:
           type: string
           description: The ID of the audience.
+          example: 78261eea-8f8b-4381-83c6-79fa7120f1cf
         object:
           type: string
           description: The object of the audience.
+          example: audience
         deleted:
           type: boolean
           description: The deleted attribute indicates that the corresponding audience has been deleted.
+          example: true
     ListAudiencesResponseSuccess:
       type: object
       properties:
         object:
           type: string
           description: Type of the response object.
-          example: audience
+          example: list
         data:
           type: array
           description: Array containing audience information.
