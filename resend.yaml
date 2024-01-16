@@ -14,6 +14,10 @@ tags:
     description: Create and manage domains through the Resend API.
   - name: API Keys
     description: Create and manage API Keys through the Resend API.
+  - name: Audiences
+    description: Create and manage Audiences through the Resend API.
+  - name: Contacts
+    description: Create and manage Contacts through the Resend API.
 paths:
   /emails:
     post:
@@ -197,6 +201,71 @@ paths:
       responses:
         '200':
           description: OK
+  /audiences:
+    post:
+      tags:
+        - Audiences
+      summary: Create a list of contacts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAudienceOptions'
+      responses:
+        '201':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateAudienceResponseSuccess'
+    get:
+      tags:
+        - Audiences
+      summary: Retrieve a list of audiences
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListAudiencesResponseSuccess'
+  /audiences/{id}:
+    delete:
+      tags:
+        - Audiences
+      summary: Remove an existing audience
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            description: The Audience ID.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RemoveAudienceResponseSuccess'
+    get:
+      tags:
+        - Audiences
+      summary: Retrieve a single audience
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            description: The Audience ID.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetAudienceResponseSuccess'
 components:
   securitySchemes:
     bearerAuth:
@@ -540,3 +609,77 @@ components:
           type: string
           format: date-time
           description: The date and time the API key was created.
+    CreateAudienceOptions:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          description: The name of the audience you want to create.
+    CreateAudienceResponseSuccess:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The ID of the audience.
+        object:
+          type: string
+          description: The object of the audience.
+        name:
+          type: string
+          description: The name of the audience.
+    GetAudienceResponseSuccess:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The ID of the audience.
+        object:
+          type: string
+          description: The object of the audience.
+        name:
+          type: string
+          description: The name of the audience.
+        created_at:
+          type: string
+          description: The date that the object was created.
+    RemoveAudienceResponseSuccess:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The ID of the audience.
+        object:
+          type: string
+          description: The object of the audience.
+        deleted:
+          type: boolean
+          description: The deleted attribute indicates that the corresponding audience has been deleted.
+    ListAudiencesResponseSuccess:
+      type: object
+      properties:
+        object:
+          type: string
+          description: Type of the response object.
+          example: audience
+        data:
+          type: array
+          description: Array containing audience information.
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                description: Unique identifier for the audience.
+                example: 78261eea-8f8b-4381-83c6-79fa7120f1cf
+              name:
+                type: string
+                description: Name of the audience.
+                example: Registered Users
+              created_at:
+                type: string
+                format: date-time
+                description: Timestamp indicating when the audience was created.
+                example: "2023-10-06T22:59:55.977Z"
+            
