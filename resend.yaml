@@ -266,6 +266,112 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GetAudienceResponseSuccess'
+  /audiences/{audience_id/contacts:
+    post:
+      tags:
+        - Contacts
+      summary: Create a new contact
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateContactOptions'
+      responses:
+        '201':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateContactResponseSuccess'
+    get:
+      tags:
+        - Contacts
+      summary: Retrieve a list of contacts
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListContactsResponseSuccess'
+  /audiences/{audience_id}/contacts/{id}:
+    delete:
+      tags:
+        - Contacts
+      summary: Remove an existing contact
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            description: The Contact ID.
+        - name: audience_id
+          in: path
+          required: true
+          schema:
+            type: string
+            description: The Audience ID.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RemoveContactResponseSuccess'
+    get:
+      tags:
+        - Contacts
+      summary: Retrieve a single contact
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            description: The Contact ID.
+        - name: audience_id
+          in: path
+          required: true
+          schema:
+            type: string
+            description: The Audience ID.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetContactResponseSuccess'
+    patch:
+      tags:
+        - Contacts
+      summary: Update a single contact
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            description: The Contact ID.
+        - name: audience_id
+          in: path
+          required: true
+          schema:
+            type: string
+            description: The Audience ID.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateContactOptions'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateContactResponseSuccess'
 components:
   securitySchemes:
     bearerAuth:
@@ -682,4 +788,154 @@ components:
                 format: date-time
                 description: Timestamp indicating when the audience was created.
                 example: "2023-10-06T22:59:55.977Z"
-            
+    CreateContactOptions:
+      type: object
+      required:
+        - email
+      properties:
+        email:
+          type: string
+          description: Email address of the contact.
+          example: steve.wozniak@gmail.com
+        first_name:
+          type: string
+          description: First name of the contact.
+          example: Steve
+        last_name:
+          type: string
+          description: Last name of the contact.
+          example: Wozniak
+        unsubscribed:
+          type: boolean
+          description: Indicates if the contact is unsubscribed.
+          example: false
+        audience_id:
+          type: string
+          description: Unique identifier of the audience to which the contact belongs.
+          example: 78261eea-8f8b-4381-83c6-79fa7120f1cf
+    CreateContactResponseSuccess:
+      type: object
+      properties:
+        object:
+          type: string
+          description: Type of the response object.
+          example: contact
+        id:
+          type: string
+          description: Unique identifier for the created contact.
+          example: 479e3145-dd38-476b-932c-529ceb705947
+    GetContactResponseSuccess:
+      type: object
+      properties:
+        object:
+          type: string
+          description: Type of the response object.
+          example: contact
+        id:
+          type: string
+          description: Unique identifier for the contact.
+          example: e169aa45-1ecf-4183-9955-b1499d5701d3
+        email:
+          type: string
+          description: Email address of the contact.
+          example: steve.wozniak@gmail.com
+        first_name:
+          type: string
+          description: First name of the contact.
+          example: Steve
+        last_name:
+          type: string
+          description: Last name of the contact.
+          example: Wozniak
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp indicating when the contact was created.
+          example: "2023-10-06T23:47:56.678Z"
+        unsubscribed:
+          type: boolean
+          description: Indicates if the contact is unsubscribed.
+          example: false
+    UpdateContactOptions:
+      type: object
+      properties:
+        email:
+          type: string
+          description: Email address of the contact.
+          example: steve.wozniak@gmail.com
+        first_name:
+          type: string
+          description: First name of the contact.
+          example: Steve
+        last_name:
+          type: string
+          description: Last name of the contact.
+          example: Wozniak
+        unsubscribed:
+          type: boolean
+          description: Indicates the subscription status of the contact.
+          example: false
+    UpdateContactResponseSuccess:
+      type: object
+      properties:
+        object:
+          type: string
+          description: Type of the response object.
+          example: contact
+        id:
+          type: string
+          description: Unique identifier for the updated contact.
+          example: 479e3145-dd38-476b-932c-529ceb705947
+    RemoveContactResponseSuccess:
+      type: object
+      properties:
+        object:
+          type: string
+          description: Type of the response object.
+          example: contact
+        id:
+          type: string
+          description: Unique identifier for the removed contact.
+          example: 520784e2-887d-4c25-b53c-4ad46ad38100
+        deleted:
+          type: boolean
+          description: Indicates whether the contact was successfully deleted.
+          example: true
+    ListContactsResponseSuccess:
+      type: object
+      properties:
+        object:
+          type: string
+          description: Type of the response object.
+          example: list
+        data:
+          type: array
+          description: Array containing contact information.
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                description: Unique identifier for the contact.
+                example: e169aa45-1ecf-4183-9955-b1499d5701d3
+              email:
+                type: string
+                description: Email address of the contact.
+                example: steve.wozniak@gmail.com
+              first_name:
+                type: string
+                description: First name of the contact.
+                example: Steve
+              last_name:
+                type: string
+                description: Last name of the contact.
+                example: Wozniak
+              created_at:
+                type: string
+                format: date-time
+                description: Timestamp indicating when the contact was created.
+                example: "2023-10-06T23:47:56.678Z"
+              unsubscribed:
+                type: boolean
+                description: Indicates if the contact is unsubscribed.
+                example: false
