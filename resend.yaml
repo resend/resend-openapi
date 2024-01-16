@@ -266,11 +266,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GetAudienceResponseSuccess'
-  /audiences/{audience_id/contacts:
+  /audiences/{audience_id}/contacts:
     post:
       tags:
         - Contacts
       summary: Create a new contact
+      parameters:
+        - name: audience_id
+          in: path
+          required: true
+          schema:
+            type: string
+            description: The Audience ID.
       requestBody:
         content:
           application/json:
@@ -287,6 +294,13 @@ paths:
       tags:
         - Contacts
       summary: Retrieve a list of contacts
+      parameters:
+        - name: audience_id
+          in: path
+          required: true
+          schema:
+            type: string
+            description: The Audience ID.
       responses:
         '200':
           description: OK
