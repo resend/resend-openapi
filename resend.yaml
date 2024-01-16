@@ -14,6 +14,10 @@ tags:
     description: Create and manage domains through the Resend API.
   - name: API Keys
     description: Create and manage API Keys through the Resend API.
+  - name: Audiences
+    description: Create and manage Audiences through the Resend API.
+  - name: Contacts
+    description: Create and manage Contacts through the Resend API.
 paths:
   /emails:
     post:
@@ -197,6 +201,216 @@ paths:
       responses:
         '200':
           description: OK
+  /audiences:
+    post:
+      tags:
+        - Audiences
+      summary: Create a list of contacts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAudienceOptions'
+      responses:
+        '201':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateAudienceResponseSuccess'
+    get:
+      tags:
+        - Audiences
+      summary: Retrieve a list of audiences
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListAudiencesResponseSuccess'
+  /audiences/{id}:
+    delete:
+      tags:
+        - Audiences
+      summary: Remove an existing audience
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            description: The Audience ID.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RemoveAudienceResponseSuccess'
+    get:
+      tags:
+        - Audiences
+      summary: Retrieve a single audience
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            description: The Audience ID.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetAudienceResponseSuccess'
+  /audiences/{audience_id}/contacts:
+    post:
+      tags:
+        - Contacts
+      summary: Create a new contact
+      parameters:
+        - name: audience_id
+          in: path
+          required: true
+          schema:
+            type: string
+            description: The Audience ID.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateContactOptions'
+      responses:
+        '201':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateContactResponseSuccess'
+    get:
+      tags:
+        - Contacts
+      summary: Retrieve a list of contacts
+      parameters:
+        - name: audience_id
+          in: path
+          required: true
+          schema:
+            type: string
+            description: The Audience ID.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListContactsResponseSuccess'
+  /audiences/{audience_id}/contacts/{email}:
+    delete:
+      tags:
+        - Contacts
+      summary: Remove an existing contact by email
+      parameters:
+        - name: email
+          in: path
+          required: true
+          schema:
+            type: string
+            description: The Contact ID.
+        - name: audience_id
+          in: path
+          required: true
+          schema:
+            type: string
+            description: The Audience ID.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RemoveContactResponseSuccess'
+  /audiences/{audience_id}/contacts/{id}:
+    delete:
+      tags:
+        - Contacts
+      summary: Remove an existing contact by id
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            description: The Contact ID.
+        - name: audience_id
+          in: path
+          required: true
+          schema:
+            type: string
+            description: The Audience ID.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RemoveContactResponseSuccess'
+    get:
+      tags:
+        - Contacts
+      summary: Retrieve a single contact
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            description: The Contact ID.
+        - name: audience_id
+          in: path
+          required: true
+          schema:
+            type: string
+            description: The Audience ID.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetContactResponseSuccess'
+    patch:
+      tags:
+        - Contacts
+      summary: Update a single contact
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            description: The Contact ID.
+        - name: audience_id
+          in: path
+          required: true
+          schema:
+            type: string
+            description: The Audience ID.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateContactOptions'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateContactResponseSuccess'
 components:
   securitySchemes:
     bearerAuth:
@@ -540,3 +754,227 @@ components:
           type: string
           format: date-time
           description: The date and time the API key was created.
+    CreateAudienceOptions:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          description: The name of the audience you want to create.
+    CreateAudienceResponseSuccess:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The ID of the audience.
+        object:
+          type: string
+          description: The object of the audience.
+        name:
+          type: string
+          description: The name of the audience.
+    GetAudienceResponseSuccess:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The ID of the audience.
+        object:
+          type: string
+          description: The object of the audience.
+        name:
+          type: string
+          description: The name of the audience.
+        created_at:
+          type: string
+          description: The date that the object was created.
+    RemoveAudienceResponseSuccess:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The ID of the audience.
+        object:
+          type: string
+          description: The object of the audience.
+        deleted:
+          type: boolean
+          description: The deleted attribute indicates that the corresponding audience has been deleted.
+    ListAudiencesResponseSuccess:
+      type: object
+      properties:
+        object:
+          type: string
+          description: Type of the response object.
+          example: audience
+        data:
+          type: array
+          description: Array containing audience information.
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                description: Unique identifier for the audience.
+                example: 78261eea-8f8b-4381-83c6-79fa7120f1cf
+              name:
+                type: string
+                description: Name of the audience.
+                example: Registered Users
+              created_at:
+                type: string
+                format: date-time
+                description: Timestamp indicating when the audience was created.
+                example: "2023-10-06T22:59:55.977Z"
+    CreateContactOptions:
+      type: object
+      required:
+        - email
+      properties:
+        email:
+          type: string
+          description: Email address of the contact.
+          example: steve.wozniak@gmail.com
+        first_name:
+          type: string
+          description: First name of the contact.
+          example: Steve
+        last_name:
+          type: string
+          description: Last name of the contact.
+          example: Wozniak
+        unsubscribed:
+          type: boolean
+          description: Indicates if the contact is unsubscribed.
+          example: false
+        audience_id:
+          type: string
+          description: Unique identifier of the audience to which the contact belongs.
+          example: 78261eea-8f8b-4381-83c6-79fa7120f1cf
+    CreateContactResponseSuccess:
+      type: object
+      properties:
+        object:
+          type: string
+          description: Type of the response object.
+          example: contact
+        id:
+          type: string
+          description: Unique identifier for the created contact.
+          example: 479e3145-dd38-476b-932c-529ceb705947
+    GetContactResponseSuccess:
+      type: object
+      properties:
+        object:
+          type: string
+          description: Type of the response object.
+          example: contact
+        id:
+          type: string
+          description: Unique identifier for the contact.
+          example: e169aa45-1ecf-4183-9955-b1499d5701d3
+        email:
+          type: string
+          description: Email address of the contact.
+          example: steve.wozniak@gmail.com
+        first_name:
+          type: string
+          description: First name of the contact.
+          example: Steve
+        last_name:
+          type: string
+          description: Last name of the contact.
+          example: Wozniak
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp indicating when the contact was created.
+          example: "2023-10-06T23:47:56.678Z"
+        unsubscribed:
+          type: boolean
+          description: Indicates if the contact is unsubscribed.
+          example: false
+    UpdateContactOptions:
+      type: object
+      properties:
+        email:
+          type: string
+          description: Email address of the contact.
+          example: steve.wozniak@gmail.com
+        first_name:
+          type: string
+          description: First name of the contact.
+          example: Steve
+        last_name:
+          type: string
+          description: Last name of the contact.
+          example: Wozniak
+        unsubscribed:
+          type: boolean
+          description: Indicates the subscription status of the contact.
+          example: false
+    UpdateContactResponseSuccess:
+      type: object
+      properties:
+        object:
+          type: string
+          description: Type of the response object.
+          example: contact
+        id:
+          type: string
+          description: Unique identifier for the updated contact.
+          example: 479e3145-dd38-476b-932c-529ceb705947
+    RemoveContactResponseSuccess:
+      type: object
+      properties:
+        object:
+          type: string
+          description: Type of the response object.
+          example: contact
+        id:
+          type: string
+          description: Unique identifier for the removed contact.
+          example: 520784e2-887d-4c25-b53c-4ad46ad38100
+        deleted:
+          type: boolean
+          description: Indicates whether the contact was successfully deleted.
+          example: true
+    ListContactsResponseSuccess:
+      type: object
+      properties:
+        object:
+          type: string
+          description: Type of the response object.
+          example: list
+        data:
+          type: array
+          description: Array containing contact information.
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                description: Unique identifier for the contact.
+                example: e169aa45-1ecf-4183-9955-b1499d5701d3
+              email:
+                type: string
+                description: Email address of the contact.
+                example: steve.wozniak@gmail.com
+              first_name:
+                type: string
+                description: First name of the contact.
+                example: Steve
+              last_name:
+                type: string
+                description: Last name of the contact.
+                example: Wozniak
+              created_at:
+                type: string
+                format: date-time
+                description: Timestamp indicating when the contact was created.
+                example: "2023-10-06T23:47:56.678Z"
+              unsubscribed:
+                type: boolean
+                description: Indicates if the contact is unsubscribed.
+                example: false
