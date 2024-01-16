@@ -308,11 +308,36 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ListContactsResponseSuccess'
+  /audiences/{audience_id}/contacts/{email}:
+    delete:
+      tags:
+        - Contacts
+      summary: Remove an existing contact by email
+      parameters:
+        - name: email
+          in: path
+          required: true
+          schema:
+            type: string
+            description: The Contact ID.
+        - name: audience_id
+          in: path
+          required: true
+          schema:
+            type: string
+            description: The Audience ID.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RemoveContactResponseSuccess'
   /audiences/{audience_id}/contacts/{id}:
     delete:
       tags:
         - Contacts
-      summary: Remove an existing contact
+      summary: Remove an existing contact by id
       parameters:
         - name: id
           in: path
