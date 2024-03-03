@@ -139,6 +139,29 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/DeleteDomainResponse'
+    patch:
+      tags:
+        - Domains
+      summary: Updates an existing domain
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateDomainOptions'
+      parameters:
+        - name: domain_id
+          in: path
+          required: true
+          schema:
+            type: string
+            description: The ID of the domain.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateDomainResponseSuccess'
   /domains/{domain_id}/verify:
     post:
       tags:
@@ -693,6 +716,32 @@ components:
           type: string
           description: The region where the domain is hosted.
           example: 'us-east-1'
+    UpdateDomainOptions:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The ID of the domain.
+          example: 'd91cd9bd-1176-453e-8fc1-35364d380206'
+        click_tracking:
+          type: boolean
+          description: Enable or disable click tracking for the domain.
+          example: true
+        open_tracking:
+          type: boolean
+          description: Enable or disable open tracking for the domain.
+          example: true
+    UpdateDomainResponseSuccess:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The ID of the updated domain.
+          example: 'd91cd9bd-1176-453e-8fc1-35364d380206'
+        object:
+          type: string
+          description: The object type representing the updated domain.
+          example: 'domain'
     DeleteDomainResponse:
       type: object
       properties:
