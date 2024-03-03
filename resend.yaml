@@ -142,7 +142,7 @@ paths:
     patch:
       tags:
         - Domains
-      summary: Updates an existing domain
+      summary: Update an existing domain
       requestBody:
         content:
           application/json:
@@ -719,10 +719,6 @@ components:
     UpdateDomainOptions:
       type: object
       properties:
-        id:
-          type: string
-          description: The ID of the domain.
-          example: 'd91cd9bd-1176-453e-8fc1-35364d380206'
         click_tracking:
           type: boolean
           description: Enable or disable click tracking for the domain.
