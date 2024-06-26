@@ -497,6 +497,9 @@ components:
         path:
           type: string
           description: Path where the attachment file is hosted
+        content_type:
+          type: string
+          description: Optional content type for the attachment, if not set it will be derived from the filename property
     Tag:
       type: object
       properties:
