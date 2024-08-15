@@ -158,6 +158,24 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Domain'
+    patch:
+      tags:
+        - Domains
+      summary: Update a single domain
+      parameters:
+        - name: domain_id
+          in: path
+          required: true
+          schema:
+            type: string
+            description: The ID of the domain.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateDomainOptions'
     delete:
       tags:
         - Domains
@@ -641,6 +659,19 @@ components:
         region:
           type: string
           description: The region where the domain is hosted.
+    UpdateDomainOptions:
+      type: object
+      properties:
+        open_tracking:
+          type: boolean
+          description: Track the open rate of each email.
+        click_tracking:
+          type: boolean
+          description: Track clicks within the body of each HTML email.
+        tls:
+          type: string
+          description: enforced | opportunistic.
+          default: "opportunistic"
     DomainRecord:
       type: object
       properties:
