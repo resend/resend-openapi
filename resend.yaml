@@ -55,6 +55,43 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Email'
+    patch:
+      tags:
+        - Emails
+      summary: Update a single email
+      parameters:
+        - name: email_id
+          in: path
+          required: true
+          schema:
+            type: string
+            description: The ID of the email.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateEmailOptions'
+  /emails/{email_id}/cancel:
+    post:
+      tags:
+        - Emails
+      summary: Cancel the schedule of the e-mail.
+      parameters:
+        - name: email_id
+          in: path
+          required: true
+          schema:
+            type: string
+            description: The ID of the email.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Email'
   /emails/batch:
     post:
       tags:
@@ -453,6 +490,9 @@ components:
         headers:
           type: object
           description: Custom headers to add to the email.
+        scheduled_at:
+          type: string
+          description: Schedule email to be sent later. The date should be in ISO 8601 format.
         attachments:
           type: array
           items:
@@ -489,6 +529,12 @@ components:
         id:
           type: string
           description: The ID of the sent email.
+    UpdateEmailOptions:
+      type: object
+      properties:
+        scheduled_at:
+          type: string
+          description: Schedule email to be sent later. The date should be in ISO 8601 format.
     Email:
       type: object
       properties:
