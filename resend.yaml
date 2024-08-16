@@ -161,42 +161,6 @@ paths:
     patch:
       tags:
         - Domains
-      summary: Update a single domain
-      parameters:
-        - name: domain_id
-          in: path
-          required: true
-          schema:
-            type: string
-            description: The ID of the domain.
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UpdateDomainOptions'
-    delete:
-      tags:
-        - Domains
-      summary: Remove an existing domain
-      parameters:
-        - name: domain_id
-          in: path
-          required: true
-          schema:
-            type: string
-            description: The ID of the domain.
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/DeleteDomainResponse'
-    patch:
-      tags:
-        - Domains
       summary: Update an existing domain
       requestBody:
         content:
@@ -217,6 +181,24 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UpdateDomainResponseSuccess'
+    delete:
+      tags:
+        - Domains
+      summary: Remove an existing domain
+      parameters:
+        - name: domain_id
+          in: path
+          required: true
+          schema:
+            type: string
+            description: The ID of the domain.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeleteDomainResponse'
   /domains/{domain_id}/verify:
     post:
       tags:
@@ -796,17 +778,6 @@ components:
           type: string
           description: The region where the domain is hosted.
           example: 'us-east-1'
-    UpdateDomainOptions:
-      type: object
-      properties:
-        click_tracking:
-          type: boolean
-          description: Enable or disable click tracking for the domain.
-          example: true
-        open_tracking:
-          type: boolean
-          description: Enable or disable open tracking for the domain.
-          example: true
     UpdateDomainResponseSuccess:
       type: object
       properties:
