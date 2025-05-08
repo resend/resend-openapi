@@ -577,22 +577,38 @@ components:
           type: string
           description: Sender email address. To include a friendly name, use the format "Your Name <sender@domain.com>".
         to:
-          type: array
-          items:
-            type: string
-            description: Recipient email address. For multiple addresses, send as an array of strings. Max 50.
+          description: Recipient email address. For multiple addresses, send as an array of strings. Max 50.
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+              minItems: 1
+              maxItems: 50
         subject:
           type: string
           description: Email subject.
         bcc:
-          type: string
           description: Bcc recipient email address. For multiple addresses, send as an array of strings.
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
         cc:
-          type: string
           description: Cc recipient email address. For multiple addresses, send as an array of strings.
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
         reply_to:
-          type: string
           description: Reply-to email address. For multiple addresses, send as an array of strings.
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
         html:
           type: string
           description: The HTML version of the message.
