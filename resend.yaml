@@ -55,7 +55,7 @@ paths:
           required: true
           schema:
             type: string
-            description: The ID of the email.
+          description: The ID of the email.
       responses:
         '200':
           description: OK
@@ -73,7 +73,7 @@ paths:
           required: true
           schema:
             type: string
-            description: The ID of the email.
+          description: The ID of the email.
       responses:
         '200':
           description: OK
@@ -92,7 +92,7 @@ paths:
           required: true
           schema:
             type: string
-            description: The ID of the email.
+          description: The ID of the email.
       responses:
         '200':
           description: OK
@@ -166,7 +166,7 @@ paths:
           required: true
           schema:
             type: string
-            description: The ID of the domain.
+          description: The ID of the domain.
       responses:
         '200':
           description: OK
@@ -189,7 +189,7 @@ paths:
           required: true
           schema:
             type: string
-            description: The ID of the domain.
+          description: The ID of the domain.
       responses:
         '200':
           description: OK
@@ -207,7 +207,7 @@ paths:
           required: true
           schema:
             type: string
-            description: The ID of the domain.
+          description: The ID of the domain.
       responses:
         '200':
           description: OK
@@ -226,7 +226,7 @@ paths:
           required: true
           schema:
             type: string
-            description: The ID of the domain.
+          description: The ID of the domain.
       responses:
         '200':
           description: OK
@@ -273,7 +273,7 @@ paths:
           required: true
           schema:
             type: string
-            description: The API key ID.
+          description: The API key ID.
       responses:
         '200':
           description: OK
@@ -316,7 +316,7 @@ paths:
           required: true
           schema:
             type: string
-            description: The Audience ID.
+          description: The Audience ID.
       responses:
         '200':
           description: OK
@@ -334,7 +334,7 @@ paths:
           required: true
           schema:
             type: string
-            description: The Audience ID.
+          description: The Audience ID.
       responses:
         '200':
           description: OK
@@ -353,7 +353,7 @@ paths:
           required: true
           schema:
             type: string
-            description: The Audience ID.
+          description: The Audience ID.
       requestBody:
         content:
           application/json:
@@ -376,7 +376,7 @@ paths:
           required: true
           schema:
             type: string
-            description: The Audience ID.
+          description: The Audience ID.
       responses:
         '200':
           description: OK
@@ -395,13 +395,13 @@ paths:
           required: true
           schema:
             type: string
-            description: The Contact ID.
+          description: The Contact email.
         - name: audience_id
           in: path
           required: true
           schema:
             type: string
-            description: The Audience ID.
+          description: The Audience ID.
       responses:
         '200':
           description: OK
@@ -419,13 +419,13 @@ paths:
           required: true
           schema:
             type: string
-            description: The Contact email.
+          description: The Contact email.
         - name: audience_id
           in: path
           required: true
           schema:
             type: string
-            description: The Audience ID.
+          description: The Audience ID.
       responses:
         '200':
           description: OK
@@ -443,12 +443,13 @@ paths:
           required: true
           schema:
             type: string
-            description: The Contact email.
+          description: The Contact email.
         - name: audience_id
           in: path
           required: true
           schema:
             type: string
+          description: The Audience ID.
       responses:
         '200':
           description: OK
@@ -467,13 +468,13 @@ paths:
           required: true
           schema:
             type: string
-            description: The Contact ID.
+          description: The Contact ID.
         - name: audience_id
           in: path
           required: true
           schema:
             type: string
-            description: The Audience ID.
+          description: The Audience ID.
       responses:
         '200':
           description: OK
@@ -491,13 +492,13 @@ paths:
           required: true
           schema:
             type: string
-            description: The Contact ID.
+          description: The Contact ID.
         - name: audience_id
           in: path
           required: true
           schema:
             type: string
-            description: The Audience ID.
+          description: The Audience ID.
       requestBody:
         content:
           application/json:
@@ -520,13 +521,13 @@ paths:
           required: true
           schema:
             type: string
-            description: The Contact ID.
+          description: The Contact ID.
         - name: audience_id
           in: path
           required: true
           schema:
             type: string
-            description: The Audience ID.
+          description: The Audience ID.
       responses:
         '200':
           description: OK
@@ -573,7 +574,7 @@ paths:
           required: true
           schema:
             type: string
-            description: The Broadcast ID.
+          description: The Broadcast ID.
       responses:
         '200':
           description: OK
@@ -591,7 +592,7 @@ paths:
           required: true
           schema:
             type: string
-            description: The Broadcast ID.
+          description: The Broadcast ID.
       responses:
         '200':
           description: OK
@@ -610,7 +611,7 @@ paths:
           required: true
           schema:
             type: string
-            description: The Broadcast ID.
+          description: The Broadcast ID.
       requestBody:
         content:
           application/json:
