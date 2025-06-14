@@ -24,6 +24,14 @@ paths:
       tags:
         - Emails
       summary: Send an email
+      parameters:
+        - in: header
+          name: Idempotency-Key
+          required: false
+          schema:
+            type: string
+            maxLength: 256
+          description: A unique identifier for the request to ensure emails are only sent once. [Learn more](https://resend.com/docs/dashboard/emails/idempotency-keys)
       requestBody:
         content:
           application/json:
@@ -97,6 +105,14 @@ paths:
       tags:
         - Emails
       summary: Trigger up to 100 batch emails at once.
+      parameters:
+        - in: header
+          name: Idempotency-Key
+          required: false
+          schema:
+            type: string
+            maxLength: 256
+          description: A unique identifier for the request to ensure emails are only sent once. [Learn more](https://resend.com/docs/dashboard/emails/idempotency-keys)
       requestBody:
         content:
           application/json:
@@ -393,6 +409,53 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RemoveContactResponseSuccess'
+    get:
+      tags:
+        - Contacts
+      summary: 'Retrieves a single contact by email'
+      parameters:
+        - name: email
+          in: path
+          required: true
+          schema:
+            type: string
+            description: The Contact email.
+        - name: audience_id
+          in: path
+          required: true
+          schema:
+            type: string
+            description: The Audience ID.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetContactResponseSuccess'
+    patch:
+      tags:
+        - Contacts
+      summary: Update a single contact by email
+      parameters:
+        - name: email
+          in: path
+          required: true
+          schema:
+            type: string
+            description: The Contact email.
+        - name: audience_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateContactResponseSuccess'
   /audiences/{audience_id}/contacts/{id}:
     delete:
       tags:
@@ -418,34 +481,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RemoveContactResponseSuccess'
-    get:
-      tags:
-        - Contacts
-      summary: Retrieve a single contact
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-            description: The Contact ID.
-        - name: audience_id
-          in: path
-          required: true
-          schema:
-            type: string
-            description: The Audience ID.
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/GetContactResponseSuccess'
     patch:
       tags:
         - Contacts
-      summary: Update a single contact
+      summary: Update a single contact by id
       parameters:
         - name: id
           in: path
@@ -471,6 +510,30 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UpdateContactResponseSuccess'
+    get:
+      tags:
+        - Contacts
+      summary: Retrieve a single contact by id
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            description: The Contact ID.
+        - name: audience_id
+          in: path
+          required: true
+          schema:
+            type: string
+            description: The Audience ID.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetContactResponseSuccess'
   /broadcasts:
     post:
       tags:
