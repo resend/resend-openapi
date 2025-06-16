@@ -24,6 +24,14 @@ paths:
       tags:
         - Emails
       summary: Send an email
+      parameters:
+        - in: header
+          name: Idempotency-Key
+          required: false
+          schema:
+            type: string
+            maxLength: 256
+          description: A unique identifier for the request to ensure emails are only sent once. [Learn more](https://resend.com/docs/dashboard/emails/idempotency-keys)
       requestBody:
         content:
           application/json:
@@ -47,7 +55,7 @@ paths:
           required: true
           schema:
             type: string
-            description: The ID of the email.
+          description: The ID of the email.
       responses:
         '200':
           description: OK
@@ -65,7 +73,7 @@ paths:
           required: true
           schema:
             type: string
-            description: The ID of the email.
+          description: The ID of the email.
       responses:
         '200':
           description: OK
@@ -84,7 +92,7 @@ paths:
           required: true
           schema:
             type: string
-            description: The ID of the email.
+          description: The ID of the email.
       responses:
         '200':
           description: OK
@@ -97,6 +105,14 @@ paths:
       tags:
         - Emails
       summary: Trigger up to 100 batch emails at once.
+      parameters:
+        - in: header
+          name: Idempotency-Key
+          required: false
+          schema:
+            type: string
+            maxLength: 256
+          description: A unique identifier for the request to ensure emails are only sent once. [Learn more](https://resend.com/docs/dashboard/emails/idempotency-keys)
       requestBody:
         content:
           application/json:
@@ -150,7 +166,7 @@ paths:
           required: true
           schema:
             type: string
-            description: The ID of the domain.
+          description: The ID of the domain.
       responses:
         '200':
           description: OK
@@ -173,7 +189,7 @@ paths:
           required: true
           schema:
             type: string
-            description: The ID of the domain.
+          description: The ID of the domain.
       responses:
         '200':
           description: OK
@@ -191,7 +207,7 @@ paths:
           required: true
           schema:
             type: string
-            description: The ID of the domain.
+          description: The ID of the domain.
       responses:
         '200':
           description: OK
@@ -210,7 +226,7 @@ paths:
           required: true
           schema:
             type: string
-            description: The ID of the domain.
+          description: The ID of the domain.
       responses:
         '200':
           description: OK
@@ -257,7 +273,7 @@ paths:
           required: true
           schema:
             type: string
-            description: The API key ID.
+          description: The API key ID.
       responses:
         '200':
           description: OK
@@ -300,7 +316,7 @@ paths:
           required: true
           schema:
             type: string
-            description: The Audience ID.
+          description: The Audience ID.
       responses:
         '200':
           description: OK
@@ -318,7 +334,7 @@ paths:
           required: true
           schema:
             type: string
-            description: The Audience ID.
+          description: The Audience ID.
       responses:
         '200':
           description: OK
@@ -337,7 +353,7 @@ paths:
           required: true
           schema:
             type: string
-            description: The Audience ID.
+          description: The Audience ID.
       requestBody:
         content:
           application/json:
@@ -360,7 +376,7 @@ paths:
           required: true
           schema:
             type: string
-            description: The Audience ID.
+          description: The Audience ID.
       responses:
         '200':
           description: OK
@@ -379,13 +395,13 @@ paths:
           required: true
           schema:
             type: string
-            description: The Contact ID.
+          description: The Contact email.
         - name: audience_id
           in: path
           required: true
           schema:
             type: string
-            description: The Audience ID.
+          description: The Audience ID.
       responses:
         '200':
           description: OK
@@ -393,6 +409,54 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RemoveContactResponseSuccess'
+    get:
+      tags:
+        - Contacts
+      summary: 'Retrieves a single contact by email'
+      parameters:
+        - name: email
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The Contact email.
+        - name: audience_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The Audience ID.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetContactResponseSuccess'
+    patch:
+      tags:
+        - Contacts
+      summary: Update a single contact by email
+      parameters:
+        - name: email
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The Contact email.
+        - name: audience_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The Audience ID.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateContactResponseSuccess'
   /audiences/{audience_id}/contacts/{id}:
     delete:
       tags:
@@ -404,13 +468,13 @@ paths:
           required: true
           schema:
             type: string
-            description: The Contact ID.
+          description: The Contact ID.
         - name: audience_id
           in: path
           required: true
           schema:
             type: string
-            description: The Audience ID.
+          description: The Audience ID.
       responses:
         '200':
           description: OK
@@ -418,47 +482,23 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RemoveContactResponseSuccess'
-    get:
-      tags:
-        - Contacts
-      summary: Retrieve a single contact
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-            description: The Contact ID.
-        - name: audience_id
-          in: path
-          required: true
-          schema:
-            type: string
-            description: The Audience ID.
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/GetContactResponseSuccess'
     patch:
       tags:
         - Contacts
-      summary: Update a single contact
+      summary: Update a single contact by id
       parameters:
         - name: id
           in: path
           required: true
           schema:
             type: string
-            description: The Contact ID.
+          description: The Contact ID.
         - name: audience_id
           in: path
           required: true
           schema:
             type: string
-            description: The Audience ID.
+          description: The Audience ID.
       requestBody:
         content:
           application/json:
@@ -471,6 +511,30 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UpdateContactResponseSuccess'
+    get:
+      tags:
+        - Contacts
+      summary: Retrieve a single contact by id
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The Contact ID.
+        - name: audience_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The Audience ID.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetContactResponseSuccess'
   /broadcasts:
     post:
       tags:
@@ -510,7 +574,7 @@ paths:
           required: true
           schema:
             type: string
-            description: The Broadcast ID.
+          description: The Broadcast ID.
       responses:
         '200':
           description: OK
@@ -528,7 +592,7 @@ paths:
           required: true
           schema:
             type: string
-            description: The Broadcast ID.
+          description: The Broadcast ID.
       responses:
         '200':
           description: OK
@@ -547,7 +611,7 @@ paths:
           required: true
           schema:
             type: string
-            description: The Broadcast ID.
+          description: The Broadcast ID.
       requestBody:
         content:
           application/json:
