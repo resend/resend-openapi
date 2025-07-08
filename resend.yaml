@@ -18,6 +18,10 @@ tags:
     description: Create and manage Audiences through the Resend API.
   - name: Contacts
     description: Create and manage Contacts through the Resend API.
+  - name: Topics
+    description: Create and manage email topics through the Resend API.
+  - name: Contact Topics
+    description: Manage contact topic subscriptions through the Resend API.
 paths:
   /emails:
     post:
@@ -624,6 +628,142 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SendBroadcastResponseSuccess'
+  /topics:
+    post:
+      tags:
+        - Topics
+      summary: Create a new topic
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTopicRequest'
+      responses:
+        '201':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateTopicResponse'
+    get:
+      tags:
+        - Topics
+      summary: Retrieve a list of topics
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TopicListResponse'
+  /topics/{topic_id}:
+    get:
+      tags:
+        - Topics
+      summary: Retrieve a single topic
+      parameters:
+        - name: topic_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The ID of the topic.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Topic'
+    patch:
+      tags:
+        - Topics
+      summary: Update a single topic
+      parameters:
+        - name: topic_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The ID of the topic.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchTopicRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PatchTopicResponse'
+    delete:
+      tags:
+        - Topics
+      summary: Remove an existing topic
+      parameters:
+        - name: topic_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The ID of the topic.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RemoveTopicResponse'
+  /contacts/{contact}/topics:
+    get:
+      tags:
+        - Contact Topics
+      summary: Retrieve contact topic subscriptions
+      parameters:
+        - name: contact
+          in: path
+          required: true
+          schema:
+            oneOf:
+              - type: string
+              - type: string
+                format: email
+          description: Contact ID or email address.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContactTopicSubscriptionsResponse'
+    patch:
+      tags:
+        - Contact Topics
+      summary: Update contact topic subscriptions
+      parameters:
+        - name: contact
+          in: path
+          required: true
+          schema:
+            oneOf:
+              - type: string
+              - type: string
+                format: email
+          description: Contact ID or email address.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchTopicSubscriptionsRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PatchTopicSubscriptionsResponse'
 components:
   securitySchemes:
     bearerAuth:
@@ -1404,3 +1544,160 @@ components:
           type: string
           description: The ID of the broadcast.
           example: 78261eea-8f8b-4381-83c6-79fa7120f1cf
+    Topic:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the topic.
+        name:
+          type: string
+          maxLength: 50
+          description: Topic name.
+        description:
+          type: string
+          maxLength: 200
+          nullable: true
+          description: Topic description.
+        default_subscription:
+          type: string
+          enum: [opt_in, opt_out]
+          description: Default subscription preference for new contacts.
+        created_at:
+          type: string
+          format: date-time
+          description: Topic creation timestamp.
+        updated_at:
+          type: string
+          format: date-time
+          description: Topic last update timestamp.
+      required:
+        - id
+        - name
+        - default_subscription
+        - created_at
+    CreateTopicRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 50
+          description: Topic name.
+        description:
+          type: string
+          maxLength: 200
+          nullable: true
+          description: Topic description.
+        default_subscription:
+          type: string
+          enum: [opt_in, opt_out]
+          description: Default subscription preference for new contacts.
+      required:
+        - name
+        - default_subscription
+    CreateTopicResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the created topic.
+      required:
+        - id
+    PatchTopicRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 50
+          description: Topic name.
+        description:
+          type: string
+          maxLength: 200
+          nullable: true
+          description: Topic description.
+      additionalProperties: false
+    PatchTopicResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the updated topic.
+      required:
+        - id
+    RemoveTopicResponse:
+      type: object
+      properties:
+        object:
+          type: string
+          enum: [topic]
+          description: Object type.
+        id:
+          type: string
+          description: Unique identifier for the deleted topic.
+        deleted:
+          type: boolean
+          description: Deletion status.
+      required:
+        - object
+        - id
+        - deleted
+    TopicListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Topic'
+          description: List of topics.
+      required:
+        - data
+    TopicSubscription:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Topic ID.
+        subscription:
+          type: string
+          enum: [opt_in, opt_out]
+          description: Subscription preference.
+      required:
+        - id
+        - subscription
+    ContactTopicSubscriptionsResponse:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          description: Contact email address.
+        topics:
+          type: array
+          items:
+            $ref: '#/components/schemas/TopicSubscription'
+          description: List of topic subscriptions for the contact.
+      required:
+        - email
+        - topics
+    PatchTopicSubscriptionsRequest:
+      type: object
+      properties:
+        opt_in:
+          type: array
+          items:
+            type: string
+          description: Topic ID(s) to opt-in to.
+        opt_out:
+          type: array
+          items:
+            type: string
+          description: Topic ID(s) to opt-out of.
+      additionalProperties: false
+    PatchTopicSubscriptionsResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Contact ID.
+      required:
+        - id
