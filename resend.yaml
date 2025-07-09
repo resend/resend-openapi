@@ -1683,14 +1683,18 @@ components:
       type: object
       properties:
         opt_in:
-          type: array
-          items:
-            type: string
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
           description: Topic ID(s) to opt-in to.
         opt_out:
-          type: array
-          items:
-            type: string
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
           description: Topic ID(s) to opt-out of.
       additionalProperties: false
     PatchTopicSubscriptionsResponse:
