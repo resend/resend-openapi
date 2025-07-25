@@ -817,6 +817,9 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Tag'
+        topic_id:
+          type: string
+          description: The ID of the topic to send the email to.
     Attachment:
       type: object
       properties:
@@ -1411,6 +1414,9 @@ components:
         text:
           type: string
           description: The plain text version of the message.
+        topic_id:
+          type: string
+          description: The ID of the topic to send the email to.
     CreateBroadcastResponseSuccess:
       type: object
       properties:
@@ -1516,6 +1522,10 @@ components:
           format: date-time
           description: Timestamp indicating when the broadcast was sent.
           example: "2023-10-06T22:59:55.977Z"
+        topic_id:
+          type: string
+          description: The ID of the topic.
+          example: 78261eea-8f8b-4381-83c6-79fa7120f1cf
     RemoveBroadcastResponseSuccess:
       type: object
       properties:
@@ -1674,29 +1684,46 @@ components:
         topics:
           type: array
           items:
-            $ref: '#/components/schemas/TopicSubscription'
+            type: object
+            properties:
+              id:
+                type: string
+                description: Topic ID.
+              name:
+                type: string
+                description: Topic name.
+              description:
+                type: string
+                nullable: true
+                description: Topic description.
+              subscription:
+                type: string
+                enum: [opt_in, opt_out]
+                description: Subscription preference for the topic.
+            required:
+              - id
+              - name
+              - subscription
           description: List of topic subscriptions for the contact.
       required:
         - email
         - topics
     PatchTopicSubscriptionsRequest:
-      type: object
-      properties:
-        opt_in:
-          oneOf:
-            - type: string
-            - type: array
-              items:
-                type: string
-          description: Topic ID(s) to opt-in to.
-        opt_out:
-          oneOf:
-            - type: string
-            - type: array
-              items:
-                type: string
-          description: Topic ID(s) to opt-out of.
-      additionalProperties: false
+      type: array
+      items:
+        type: object
+        properties:
+          id:
+            type: string
+            description: Topic ID.
+          subscription:
+            type: string
+            enum: [opt_in, opt_out]
+            description: Subscription preference for the topic.
+        required:
+          - id
+          - subscription
+      description: Array of topic subscriptions to update.
     PatchTopicSubscriptionsResponse:
       type: object
       properties:
