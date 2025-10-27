@@ -199,7 +199,7 @@ paths:
   /emails/receiving:
     get:
       tags:
-        - Receiving
+        - Receiving Emails
       summary: Retrieve a list of received emails
       parameters:
         - name: limit
@@ -232,7 +232,7 @@ paths:
   /emails/receiving/{email_id}:
     get:
       tags:
-        - Receiving
+        - Receiving Emails
       summary: Retrieve a single received email
       parameters:
         - name: email_id
@@ -252,7 +252,7 @@ paths:
   /emails/receiving/{email_id}/attachments:
     get:
       tags:
-        - Receiving
+        - Receiving Emails
       summary: Retrieve a list of attachments for a received email
       parameters:
         - name: email_id
@@ -292,7 +292,7 @@ paths:
   /emails/receiving/{email_id}/attachments/{attachment_id}:
     get:
       tags:
-        - Receiving
+        - Receiving Emails
       summary: Retrieve a single attachment for a received email
       parameters:
         - name: email_id
