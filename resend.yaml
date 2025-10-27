@@ -18,6 +18,8 @@ tags:
     description: Create and manage Audiences through the Resend API.
   - name: Contacts
     description: Create and manage Contacts through the Resend API.
+  - name: Attachments
+    description: Retrieve email attachments through the Resend API.
 paths:
   /emails:
     post:
@@ -100,6 +102,94 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Email'
+  /emails/{email_id}/attachments:
+    get:
+      tags:
+        - Attachments
+      summary: Retrieve a list of email attachments from a sent email
+      parameters:
+        - name: email_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The ID of the email.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListAttachmentsResponse'
+  /emails/{email_id}/attachments/{id}:
+    get:
+      tags:
+        - Attachments
+      summary: Retrieve a single attachment from a sent email
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The Attachment ID.
+        - name: email_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The ID of the email.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AttachmentResponse'
+  /emails/receiving/{email_id}/attachments:
+    get:
+      tags:
+        - Attachments
+      summary: Retrieve a list of email attachments from a received email
+      parameters:
+        - name: email_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The ID of the email.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListAttachmentsResponse'
+  /emails/receiving/{email_id}/attachments/{id}:
+    get:
+      tags:
+        - Attachments
+      summary: Retrieve a single attachment from a received email
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The Attachment ID.
+        - name: email_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The ID of the email.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AttachmentResponse'
   /emails/batch:
     post:
       tags:
@@ -1404,3 +1494,93 @@ components:
           type: string
           description: The ID of the broadcast.
           example: 78261eea-8f8b-4381-83c6-79fa7120f1cf
+    AttachmentResponse:
+      type: object
+      properties:
+        object:
+          type: string
+          description: The type of object.
+          example: 'attachment'
+        id:
+          type: string
+          description: The ID of the attachment.
+          example: '2a0c9ce0-3112-4728-976e-47ddcd16a318'
+        filename:
+          type: string
+          description: Name of the attachment file.
+          example: 'avatar.png'
+        size:
+          type: integer
+          description: Size of the attachment in bytes.
+          example: 4096
+        content_type:
+          type: string
+          description: MIME type of the attachment.
+          example: 'image/png'
+        content_disposition:
+          type: string
+          description: Content disposition of the attachment.
+          example: 'inline'
+        content_id:
+          type: string
+          description: Content ID of the attachment.
+          example: 'img001'
+        download_url:
+          type: string
+          description: URL to download the attachment.
+          example: 'https://outbound-cdn.resend.com/4ef9a417-02e9-4d39-ad75-9611e0fcc33c/attachments/2a0c9ce0-3112-4728-976e-47ddcd16a318?some-params=example&signature=sig-123'
+        expires_at:
+          type: string
+          format: date-time
+          description: Expiration date and time of the download URL.
+          example: '2025-10-17T14:29:41.521Z'
+    ListAttachmentsResponse:
+      type: object
+      properties:
+        object:
+          type: string
+          description: The type of object.
+          example: 'list'
+        has_more:
+          type: boolean
+          description: Indicates if there are more attachments to retrieve.
+          example: false
+        data:
+          type: array
+          description: Array containing attachment information.
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                description: The ID of the attachment.
+                example: '2a0c9ce0-3112-4728-976e-47ddcd16a318'
+              filename:
+                type: string
+                description: Name of the attachment file.
+                example: 'avatar.png'
+              size:
+                type: integer
+                description: Size of the attachment in bytes.
+                example: 4096
+              content_type:
+                type: string
+                description: MIME type of the attachment.
+                example: 'image/png'
+              content_disposition:
+                type: string
+                description: Content disposition of the attachment.
+                example: 'inline'
+              content_id:
+                type: string
+                description: Content ID of the attachment.
+                example: 'img001'
+              download_url:
+                type: string
+                description: URL to download the attachment.
+                example: 'https://outbound-cdn.resend.com/4ef9a417-02e9-4d39-ad75-9611e0fcc33c/attachments/2a0c9ce0-3112-4728-976e-47ddcd16a318?some-params=example&signature=sig-123'
+              expires_at:
+                type: string
+                format: date-time
+                description: Expiration date and time of the download URL.
+                example: '2025-10-17T14:29:41.521Z'
