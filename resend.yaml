@@ -795,8 +795,17 @@ components:
             - us-east-1
             - eu-west-1
             - sa-east-1
+            - ap-northeast-1
           default: us-east-1
-          description: The region where emails will be sent from. Possible values are us-east-1' | 'eu-west-1' | 'sa-east-1
+          description: The region where emails will be sent from. Possible values are us-east-1 | eu-west-1 | sa-east-1 | ap-northeast-1
+        capability:
+          type: string
+          enum:
+            - send
+            - receive
+            - send-and-receive
+          default: send
+          description: The capability of the domain. Determines which DNS records are needed.
     CreateDomainResponse:
       type: object
       properties:
@@ -820,6 +829,13 @@ components:
         region:
           type: string
           description: The region where the domain is hosted.
+        capability:
+          type: string
+          enum:
+            - send
+            - receive
+            - send-and-receive
+          description: The capability of the domain.
     UpdateDomainOptions:
       type: object
       properties:
@@ -838,25 +854,39 @@ components:
       properties:
         record:
           type: string
-          description: The type of record.
+          enum:
+            - SPF
+            - DKIM
+            - Receiving
+          description: The type of record (SPF for sending, DKIM for sending, Receiving for inbound emails).
         name:
           type: string
-          description: The name of the record.
+          description: The name of the DNS record.
         type:
           type: string
-          description: The type of record.
+          enum:
+            - MX
+            - TXT
+            - CNAME
+          description: The DNS record type.
         ttl:
           type: string
           description: The time to live for the record.
         status:
           type: string
+          enum:
+            - pending
+            - verified
+            - failed
+            - temporary_failure
+            - not_started
           description: The status of the record.
         value:
           type: string
           description: The value of the record.
         priority:
           type: integer
-          description: The priority of the record.
+          description: The priority of the record (only applicable for MX records).
     Domain:
       type: object
       properties:
@@ -885,6 +915,14 @@ components:
           type: string
           description: The region where the domain is hosted.
           example: 'us-east-1'
+        capability:
+          type: string
+          enum:
+            - send
+            - receive
+            - send-and-receive
+          description: The capability of the domain.
+          example: 'send'
         records:
           type: array
           items:
@@ -931,6 +969,14 @@ components:
           type: string
           description: The region where the domain is hosted.
           example: 'us-east-1'
+        capability:
+          type: string
+          enum:
+            - send
+            - receive
+            - send-and-receive
+          description: The capability of the domain.
+          example: 'send'
     UpdateDomainResponseSuccess:
       type: object
       properties:
