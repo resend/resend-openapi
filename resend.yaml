@@ -20,6 +20,8 @@ tags:
     description: Create and manage Contacts through the Resend API.
   - name: Receiving Emails
     description: Retrieve and manage received emails and attachments through the Resend API.
+  - name: Webhooks
+    description: Create and manage Webhooks through the Resend API.
 paths:
   /emails:
     post:
@@ -813,6 +815,118 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SendBroadcastResponseSuccess'
+  /webhooks:
+    post:
+      tags:
+        - Webhooks
+      summary: Create a new webhook
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateWebhookRequest'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateWebhookResponse'
+    get:
+      tags:
+        - Webhooks
+      summary: Retrieve a list of webhooks
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+          description: Maximum number of webhooks to return.
+        - name: after
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uuid
+          description: Pagination cursor to fetch results after this webhook ID. Cannot be used with 'before'.
+        - name: before
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uuid
+          description: Pagination cursor to fetch results before this webhook ID. Cannot be used with 'after'.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListWebhooksResponse'
+  /webhooks/{webhook_id}:
+    get:
+      tags:
+        - Webhooks
+      summary: Retrieve a single webhook
+      parameters:
+        - name: webhook_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The Webhook ID.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetWebhookResponse'
+    patch:
+      tags:
+        - Webhooks
+      summary: Update an existing webhook
+      parameters:
+        - name: webhook_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The Webhook ID.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateWebhookRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateWebhookResponse'
+    delete:
+      tags:
+        - Webhooks
+      summary: Remove an existing webhook
+      parameters:
+        - name: webhook_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The Webhook ID.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeleteWebhookResponse'
 components:
   securitySchemes:
     bearerAuth:
@@ -1882,3 +1996,163 @@ components:
                     size:
                       type: integer
                       description: Size of the attachment in bytes.
+    CreateWebhookRequest:
+      type: object
+      required:
+        - endpoint
+        - events
+      properties:
+        endpoint:
+          type: string
+          description: The URL where webhook events will be sent.
+          example: 'https://webhook.example.com/handler'
+        events:
+          type: array
+          items:
+            type: string
+          minItems: 1
+          description: Array of event types to subscribe to.
+          example: ['email.sent', 'email.delivered', 'email.bounced']
+    CreateWebhookResponse:
+      type: object
+      properties:
+        object:
+          type: string
+          description: The type of object.
+          example: 'webhook'
+        id:
+          type: string
+          format: uuid
+          description: The ID of the webhook.
+          example: '479e3145-dd38-476b-932c-529ceb705947'
+        signing_secret:
+          type: string
+          description: The secret key used to verify webhook payloads.
+          example: 'whsec_...'
+    GetWebhookResponse:
+      type: object
+      properties:
+        object:
+          type: string
+          description: The type of object.
+          example: 'webhook'
+        id:
+          type: string
+          format: uuid
+          description: The ID of the webhook.
+          example: '479e3145-dd38-476b-932c-529ceb705947'
+        endpoint:
+          type: string
+          description: The URL where webhook events are sent.
+          example: 'https://webhook.example.com/handler'
+        events:
+          type: array
+          items:
+            type: string
+          nullable: true
+          description: Array of event types subscribed to.
+          example: ['email.sent', 'email.delivered']
+        status:
+          type: string
+          description: The status of the webhook.
+          example: 'enabled'
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp indicating when the webhook was created.
+          example: '2023-10-06T23:47:56.678Z'
+        signing_secret:
+          type: string
+          description: The secret key used to verify webhook payloads.
+          example: 'whsec_...'
+    ListWebhooksResponse:
+      type: object
+      properties:
+        object:
+          type: string
+          description: Type of the response object.
+          example: 'list'
+        has_more:
+          type: boolean
+          description: Indicates if there are more results available.
+          example: false
+        data:
+          type: array
+          description: Array containing webhook information.
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                format: uuid
+                description: The ID of the webhook.
+                example: '479e3145-dd38-476b-932c-529ceb705947'
+              endpoint:
+                type: string
+                description: The URL where webhook events are sent.
+                example: 'https://webhook.example.com/handler'
+              events:
+                type: array
+                items:
+                  type: string
+                nullable: true
+                description: Array of event types subscribed to.
+                example: ['email.sent']
+              status:
+                type: string
+                description: The status of the webhook.
+                example: 'enabled'
+              created_at:
+                type: string
+                format: date-time
+                description: Timestamp indicating when the webhook was created.
+                example: '2023-10-06T23:47:56.678Z'
+    UpdateWebhookRequest:
+      type: object
+      properties:
+        endpoint:
+          type: string
+          description: The URL where webhook events will be sent.
+          example: 'https://webhook.example.com/new-handler'
+        events:
+          type: array
+          items:
+            type: string
+          minItems: 1
+          description: Array of event types to subscribe to.
+          example: ['email.sent', 'email.delivered']
+        status:
+          type: string
+          enum:
+            - enabled
+            - disabled
+          description: The status of the webhook.
+          example: 'enabled'
+    UpdateWebhookResponse:
+      type: object
+      properties:
+        object:
+          type: string
+          description: The type of object.
+          example: 'webhook'
+        id:
+          type: string
+          format: uuid
+          description: The ID of the updated webhook.
+          example: '479e3145-dd38-476b-932c-529ceb705947'
+    DeleteWebhookResponse:
+      type: object
+      properties:
+        object:
+          type: string
+          description: The type of object.
+          example: 'webhook'
+        id:
+          type: string
+          format: uuid
+          description: The ID of the deleted webhook.
+          example: '479e3145-dd38-476b-932c-529ceb705947'
+        deleted:
+          type: boolean
+          description: Indicates whether the webhook was successfully deleted.
+          example: true
