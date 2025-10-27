@@ -2288,12 +2288,6 @@ components:
           type: string
           description: The secret key used to verify webhook payloads.
           example: 'whsec_...'
-    CreateTemplateResponseSuccess:
-      type: object
-      properties:
-        id:
-          type: string
-          description: The ID of the template.
     ListWebhooksResponse:
       type: object
       properties:
@@ -2561,6 +2555,16 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/TemplateVariableInput'
+    CreateTemplateResponseSuccess:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The ID of the template.
+        object:
+          type: string
+          description: The object type of the response.
+          example: template
     ListTemplatesResponseSuccess:
       type: object
       properties:
@@ -2612,6 +2616,10 @@ components:
         id:
           type: string
           description: The ID of the template.
+        object: 
+          type: string
+          description: The object type of the response.
+          example: template
     RemoveTemplateResponseSuccess:
       type: object
       properties:
