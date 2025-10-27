@@ -18,6 +18,8 @@ tags:
     description: Create and manage Audiences through the Resend API.
   - name: Contacts
     description: Create and manage Contacts through the Resend API.
+  - name: Receiving Emails
+    description: Retrieve and manage received emails and attachments through the Resend API.
 paths:
   /emails:
     post:
@@ -127,6 +129,193 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CreateBatchEmailsResponse'
+  /emails/{email_id}/attachments:
+    get:
+      tags:
+        - Emails
+      summary: Retrieve a list of attachments for a sent email
+      parameters:
+        - name: email_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The ID of the email.
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+          description: Maximum number of attachments to return.
+        - name: after
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uuid
+          description: Pagination cursor to fetch results after this attachment ID. Cannot be used with 'before'.
+        - name: before
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uuid
+          description: Pagination cursor to fetch results before this attachment ID. Cannot be used with 'after'.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListAttachmentsResponse'
+  /emails/{email_id}/attachments/{attachment_id}:
+    get:
+      tags:
+        - Emails
+      summary: Retrieve a single attachment for a sent email
+      parameters:
+        - name: email_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The ID of the email.
+        - name: attachment_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The ID of the attachment.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RetrievedAttachment'
+  /emails/receiving:
+    get:
+      tags:
+        - Receiving
+      summary: Retrieve a list of received emails
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+          description: Maximum number of received emails to return.
+        - name: after
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uuid
+          description: Pagination cursor to fetch results after this email ID. Cannot be used with 'before'.
+        - name: before
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uuid
+          description: Pagination cursor to fetch results before this email ID. Cannot be used with 'after'.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListReceivedEmailsResponse'
+  /emails/receiving/{email_id}:
+    get:
+      tags:
+        - Receiving
+      summary: Retrieve a single received email
+      parameters:
+        - name: email_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The ID of the received email.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetReceivedEmailResponse'
+  /emails/receiving/{email_id}/attachments:
+    get:
+      tags:
+        - Receiving
+      summary: Retrieve a list of attachments for a received email
+      parameters:
+        - name: email_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The ID of the received email.
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+          description: Maximum number of attachments to return.
+        - name: after
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uuid
+          description: Pagination cursor to fetch results after this attachment ID. Cannot be used with 'before'.
+        - name: before
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uuid
+          description: Pagination cursor to fetch results before this attachment ID. Cannot be used with 'after'.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListAttachmentsResponse'
+  /emails/receiving/{email_id}/attachments/{attachment_id}:
+    get:
+      tags:
+        - Receiving
+      summary: Retrieve a single attachment for a received email
+      parameters:
+        - name: email_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The ID of the received email.
+        - name: attachment_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The ID of the attachment.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RetrievedAttachment'
   /domains:
     post:
       tags:
@@ -1404,3 +1593,292 @@ components:
           type: string
           description: The ID of the broadcast.
           example: 78261eea-8f8b-4381-83c6-79fa7120f1cf
+    RetrievedAttachment:
+      type: object
+      properties:
+        object:
+          type: string
+          description: The type of object.
+          example: 'attachment'
+        id:
+          type: string
+          format: uuid
+          description: The ID of the attachment.
+          example: '660e8400-e29b-41d4-a716-446655440000'
+        filename:
+          type: string
+          description: The filename of the attachment.
+          example: 'document.pdf'
+        content_type:
+          type: string
+          description: The MIME type of the attachment.
+          example: 'application/pdf'
+        content_id:
+          type: string
+          description: The content ID for inline attachments.
+          example: 'img001'
+        content_disposition:
+          type: string
+          enum:
+            - inline
+            - attachment
+          description: How the attachment should be displayed.
+          example: 'attachment'
+        download_url:
+          type: string
+          description: Signed URL to download the attachment content.
+          example: 'https://cloudfront.example.com/path?Signature=...'
+        expires_at:
+          type: string
+          format: date-time
+          description: Timestamp when the download URL expires.
+          example: '2024-10-27T18:30:00.000Z'
+        size:
+          type: integer
+          description: Size of the attachment in bytes.
+          example: 2048
+    ListAttachmentsResponse:
+      type: object
+      properties:
+        object:
+          type: string
+          description: Type of the response object.
+          example: 'list'
+        has_more:
+          type: boolean
+          description: Indicates if there are more results available.
+          example: false
+        data:
+          type: array
+          description: Array containing attachment information.
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                format: uuid
+                description: The ID of the attachment.
+                example: '660e8400-e29b-41d4-a716-446655440000'
+              filename:
+                type: string
+                description: The filename of the attachment.
+                example: 'document.pdf'
+              content_type:
+                type: string
+                description: The MIME type of the attachment.
+                example: 'application/pdf'
+              content_id:
+                type: string
+                description: The content ID for inline attachments.
+                example: 'img001'
+              content_disposition:
+                type: string
+                enum:
+                  - inline
+                  - attachment
+                description: How the attachment should be displayed.
+                example: 'attachment'
+              download_url:
+                type: string
+                description: Signed URL to download the attachment content.
+                example: 'https://cloudfront.example.com/path?Signature=...'
+              expires_at:
+                type: string
+                format: date-time
+                description: Timestamp when the download URL expires.
+                example: '2024-10-27T18:30:00.000Z'
+              size:
+                type: integer
+                description: Size of the attachment in bytes.
+                example: 2048
+    GetReceivedEmailResponse:
+      type: object
+      properties:
+        object:
+          type: string
+          description: The type of object.
+          example: 'email'
+        id:
+          type: string
+          format: uuid
+          description: The ID of the received email.
+          example: '550e8400-e29b-41d4-a716-446655440000'
+        to:
+          type: array
+          items:
+            type: string
+          description: The recipient email addresses.
+          example: ['delivered@resend.dev']
+        from:
+          type: string
+          description: The sender email address.
+          example: 'sender@example.com'
+        subject:
+          type: string
+          description: The email subject.
+          example: 'Hello World'
+        message_id:
+          type: string
+          description: The unique message ID from the email headers.
+          example: '<message-id@example.com>'
+        bcc:
+          type: array
+          items:
+            type: string
+          nullable: true
+          description: The BCC recipients.
+          example: []
+        cc:
+          type: array
+          items:
+            type: string
+          nullable: true
+          description: The CC recipients.
+          example: []
+        reply_to:
+          type: array
+          items:
+            type: string
+          nullable: true
+          description: The reply-to addresses.
+          example: []
+        html:
+          type: string
+          nullable: true
+          description: The HTML content of the email.
+          example: '<p>Email content</p>'
+        text:
+          type: string
+          nullable: true
+          description: The plain text content of the email.
+          example: 'Email content'
+        headers:
+          type: object
+          nullable: true
+          description: The email headers.
+          example: {'X-Custom-Header': 'value'}
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp when the email was received.
+          example: '2023-10-06T23:47:56.678Z'
+        attachments:
+          type: array
+          description: Array of attachments.
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                format: uuid
+                description: The ID of the attachment.
+              filename:
+                type: string
+                description: The filename of the attachment.
+              content_type:
+                type: string
+                description: The MIME type of the attachment.
+              content_id:
+                type: string
+                description: The content ID for inline attachments.
+              content_disposition:
+                type: string
+                enum:
+                  - inline
+                  - attachment
+                description: How the attachment should be displayed.
+              size:
+                type: integer
+                description: Size of the attachment in bytes.
+    ListReceivedEmailsResponse:
+      type: object
+      properties:
+        object:
+          type: string
+          description: Type of the response object.
+          example: 'list'
+        has_more:
+          type: boolean
+          description: Indicates if there are more results available.
+          example: false
+        data:
+          type: array
+          description: Array containing received email information.
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                format: uuid
+                description: The ID of the received email.
+                example: '550e8400-e29b-41d4-a716-446655440000'
+              to:
+                type: array
+                items:
+                  type: string
+                description: The recipient email addresses.
+                example: ['delivered@resend.dev']
+              from:
+                type: string
+                description: The sender email address.
+                example: 'sender@example.com'
+              subject:
+                type: string
+                nullable: true
+                description: The email subject.
+                example: 'Hello World'
+              message_id:
+                type: string
+                description: The unique message ID from the email headers.
+                example: '<message-id@example.com>'
+              bcc:
+                type: array
+                items:
+                  type: string
+                nullable: true
+                description: The BCC recipients.
+              cc:
+                type: array
+                items:
+                  type: string
+                nullable: true
+                description: The CC recipients.
+              reply_to:
+                type: array
+                items:
+                  type: string
+                nullable: true
+                description: The reply-to addresses.
+              created_at:
+                type: string
+                format: date-time
+                description: Timestamp when the email was received.
+                example: '2023-10-06T23:47:56.678Z'
+              attachments:
+                type: array
+                description: Array of attachments for this email.
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                      format: uuid
+                      description: The ID of the attachment.
+                    filename:
+                      type: string
+                      description: The filename of the attachment.
+                    content_type:
+                      type: string
+                      description: The MIME type of the attachment.
+                    content_id:
+                      type: string
+                      description: The content ID for inline attachments.
+                    content_disposition:
+                      type: string
+                      enum:
+                        - inline
+                        - attachment
+                      description: How the attachment should be displayed.
+                    size:
+                      type: integer
+                      description: Size of the attachment in bytes.
