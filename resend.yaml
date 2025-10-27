@@ -22,6 +22,8 @@ tags:
     description: Retrieve and manage received emails and attachments through the Resend API.
   - name: Webhooks
     description: Create and manage Webhooks through the Resend API.
+  - name: Templates
+    description: Create and manage Templates through the Resend API.
 paths:
   /emails:
     post:
@@ -927,11 +929,165 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/DeleteWebhookResponse'
+  /templates:
+    post:
+      tags:
+        - Templates
+      summary: Create a template
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTemplateRequest'
+      responses:
+        '201':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateTemplateResponseSuccess'
+    get:
+      tags:
+        - Templates
+      summary: Retrieve a list of templates
+      parameters:
+        - $ref: '#/components/parameters/PaginationLimit'
+        - $ref: '#/components/parameters/PaginationAfter'
+        - $ref: '#/components/parameters/PaginationBefore'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListTemplatesResponseSuccess'
+  /templates/{id}:
+    get:
+      tags:
+        - Templates
+      summary: Retrieve a single template
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The Template ID or alias.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Template'
+    patch:
+      tags:
+        - Templates
+      summary: Update an existing template
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The Template ID or alias.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateTemplateOptions'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateTemplateResponseSuccess'
+    delete:
+      tags:
+        - Templates
+      summary: Remove an existing template
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The Template ID or alias.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RemoveTemplateResponseSuccess'
+  /templates/{id}/publish:
+    post:
+      tags:
+        - Templates
+      summary: Publish a template
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The Template ID or alias.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PublishTemplateResponseSuccess'
+  /templates/{id}/duplicate:
+    post:
+      tags:
+        - Templates
+      summary: Duplicate a template
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The Template ID or alias.
+      responses:
+        '201':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DuplicateTemplateResponseSuccess'
 components:
   securitySchemes:
     bearerAuth:
       type: http
       scheme: bearer
+  parameters:
+    PaginationLimit:
+      in: query
+      name: limit
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+      description: Number of items to return.
+    PaginationAfter:
+      in: query
+      name: after
+      required: false
+      schema:
+        type: string
+      description: Return items after this cursor.
+    PaginationBefore:
+      in: query
+      name: before
+      required: false
+      schema:
+        type: string
+      description: Return items before this cursor.
   schemas:
     SendEmailRequest:
       type: object
@@ -1921,7 +2077,7 @@ components:
           type: string
           format: date-time
           description: Timestamp when the email was received.
-          example: '2023-10-06T23:47:56.678Z'
+          example: '2023-10-06:23:47:56.678Z'
         attachments:
           type: array
           description: Array of attachments.
@@ -2111,6 +2267,12 @@ components:
           type: string
           description: The secret key used to verify webhook payloads.
           example: 'whsec_...'
+    CreateTemplateResponseSuccess:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The ID of the template.
     ListWebhooksResponse:
       type: object
       properties:
@@ -2202,3 +2364,264 @@ components:
           type: boolean
           description: Indicates whether the webhook was successfully deleted.
           example: true
+    TemplateVariable:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The ID of the template variable.
+        key:
+          type: string
+          description: The key of the variable.
+        type:
+          type: string
+          description: The type of the variable.
+          enum: [string, number, boolean, object, list]
+        fallback_value:
+          description: The fallback value of the variable.
+          oneOf:
+            - type: string
+            - type: number
+            - type: boolean
+            - type: object
+            - type: array
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp indicating when the variable was created.
+        updated_at:
+          type: string
+          format: date-time
+          description: Timestamp indicating when the variable was last updated.
+      required:
+        - key
+        - type
+    TemplateVariableInput:
+      type: object
+      properties:
+        key:
+          type: string
+          description: The key of the variable.
+        type:
+          type: string
+          description: The type of the variable.
+          enum: [string, number, boolean, object, list]
+        fallback_value:
+          description: The fallback value of the variable.
+          oneOf:
+            - type: string
+            - type: number
+            - type: boolean
+            - type: object
+            - type: array
+      required:
+        - key
+        - type
+    Template:
+      type: object
+      properties:
+        object:
+          type: string
+          description: The type of object.
+          example: template
+        id:
+          type: string
+          description: The ID of the template.
+        current_version_id:
+          type: string
+          description: The ID of the current version of the template.
+        name:
+          type: string
+          description: The name of the template.
+        alias:
+          type: string
+          description: The alias of the template.
+        from:
+          type: string
+          description: Sender email address. To include a friendly name, use the format "Your Name <sender@domain.com>".
+        subject:
+          type: string
+          description: Email subject.
+        reply_to:
+          type: array
+          items:
+            type: string
+          nullable: true
+          description: Reply-to email addresses.
+        html:
+          type: string
+          description: The HTML version of the template.
+        text:
+          type: string
+          description: The plain text version of the template.
+        variables:
+          type: array
+          items:
+            $ref: '#/components/schemas/TemplateVariable'
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp indicating when the template was created.
+        updated_at:
+          type: string
+          format: date-time
+          description: Timestamp indicating when the template was last updated.
+        status:
+          type: string
+          description: The publication status of the template.
+          enum: [draft, published]
+        published_at:
+          type: string
+          format: date-time
+          description: Timestamp indicating when the template was published.
+          nullable: true
+        has_unpublished_versions:
+          type: boolean
+          description: Indicates whether the template has unpublished versions.
+    TemplateListItem:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The ID of the template.
+        name:
+          type: string
+          description: The name of the template.
+        status:
+          type: string
+          description: The publication status of the template.
+          enum: [draft, published]
+        published_at:
+          type: string
+          format: date-time
+          nullable: true
+          description: Timestamp indicating when the template was published.
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp indicating when the template was created.
+        updated_at:
+          type: string
+          format: date-time
+          description: Timestamp indicating when the template was last updated.
+        alias:
+          type: string
+          description: The alias of the template.
+    CreateTemplateRequest:
+      type: object
+      required:
+        - name
+        - html
+      properties:
+        name:
+          type: string
+          description: The name of the template.
+        alias:
+          type: string
+          description: The alias of the template.
+        from:
+          type: string
+          description: Sender email address. To include a friendly name, use the format "Your Name <sender@domain.com>".
+        subject:
+          type: string
+          description: Email subject.
+        reply_to:
+          type: array
+          items:
+            type: string
+          description: Reply-to email addresses.
+        html:
+          type: string
+          description: The HTML version of the template.
+        text:
+          type: string
+          description: The plain text version of the template.
+        variables:
+          type: array
+          items:
+            $ref: '#/components/schemas/TemplateVariableInput'
+    ListTemplatesResponseSuccess:
+      type: object
+      properties:
+        object:
+          type: string
+          description: Type of the response object.
+          example: list
+        data:
+          type: array
+          description: Array containing templates information.
+          items:
+            $ref: '#/components/schemas/TemplateListItem'
+        has_more:
+          type: boolean
+          description: Indicates if there are more templates to retrieve.
+    UpdateTemplateOptions:
+      type: object
+      properties:
+        name:
+          type: string
+          description: The name of the template.
+        alias:
+          type: string
+          description: The alias of the template.
+        from:
+          type: string
+          description: Sender email address. To include a friendly name, use the format "Your Name <sender@domain.com>".
+        subject:
+          type: string
+          description: Email subject.
+        reply_to:
+          type: array
+          items:
+            type: string
+          description: Reply-to email addresses.
+        html:
+          type: string
+          description: The HTML version of the template.
+        text:
+          type: string
+          description: The plain text version of the template.
+        variables:
+          type: array
+          items:
+            $ref: '#/components/schemas/TemplateVariableInput'
+    UpdateTemplateResponseSuccess:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The ID of the template.
+    RemoveTemplateResponseSuccess:
+      type: object
+      properties:
+        object:
+          type: string
+          description: Type of the response object.
+          example: template
+        id:
+          type: string
+          description: The ID of the template.
+        deleted:
+          type: boolean
+          description: Indicates whether the template was successfully deleted.
+          example: true
+    PublishTemplateResponseSuccess:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The ID of the template.
+        object:
+          type: string
+          description: The object type of the response.
+          example: template
+    DuplicateTemplateResponseSuccess:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The ID of the duplicated template.
+        object:
+          type: string
+          description: The object type of the response.
+          example: template
