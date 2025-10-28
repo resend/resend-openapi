@@ -470,6 +470,136 @@ paths:
       responses:
         '200':
           description: OK
+  /templates:
+    post:
+      tags:
+        - Templates
+      summary: Create a template
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTemplateRequest'
+      responses:
+        '201':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateTemplateResponseSuccess'
+    get:
+      tags:
+        - Templates
+      summary: Retrieve a list of templates
+      parameters:
+        - $ref: '#/components/parameters/PaginationLimit'
+        - $ref: '#/components/parameters/PaginationAfter'
+        - $ref: '#/components/parameters/PaginationBefore'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListTemplatesResponseSuccess'
+  /templates/{id}:
+    get:
+      tags:
+        - Templates
+      summary: Retrieve a single template
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The Template ID or alias.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Template'
+    patch:
+      tags:
+        - Templates
+      summary: Update an existing template
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The Template ID or alias.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateTemplateOptions'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateTemplateResponseSuccess'
+    delete:
+      tags:
+        - Templates
+      summary: Remove an existing template
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The Template ID or alias.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RemoveTemplateResponseSuccess'
+  /templates/{id}/publish:
+    post:
+      tags:
+        - Templates
+      summary: Publish a template
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The Template ID or alias.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PublishTemplateResponseSuccess'
+  /templates/{id}/duplicate:
+    post:
+      tags:
+        - Templates
+      summary: Duplicate a template
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The Template ID or alias.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DuplicateTemplateResponseSuccess'
   /audiences:
     post:
       tags:
@@ -929,136 +1059,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/DeleteWebhookResponse'
-  /templates:
-    post:
-      tags:
-        - Templates
-      summary: Create a template
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CreateTemplateRequest'
-      responses:
-        '201':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CreateTemplateResponseSuccess'
-    get:
-      tags:
-        - Templates
-      summary: Retrieve a list of templates
-      parameters:
-        - $ref: '#/components/parameters/PaginationLimit'
-        - $ref: '#/components/parameters/PaginationAfter'
-        - $ref: '#/components/parameters/PaginationBefore'
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ListTemplatesResponseSuccess'
-  /templates/{id}:
-    get:
-      tags:
-        - Templates
-      summary: Retrieve a single template
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-          description: The Template ID or alias.
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Template'
-    patch:
-      tags:
-        - Templates
-      summary: Update an existing template
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-          description: The Template ID or alias.
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UpdateTemplateOptions'
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UpdateTemplateResponseSuccess'
-    delete:
-      tags:
-        - Templates
-      summary: Remove an existing template
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-          description: The Template ID or alias.
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/RemoveTemplateResponseSuccess'
-  /templates/{id}/publish:
-    post:
-      tags:
-        - Templates
-      summary: Publish a template
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-          description: The Template ID or alias.
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/PublishTemplateResponseSuccess'
-  /templates/{id}/duplicate:
-    post:
-      tags:
-        - Templates
-      summary: Duplicate a template
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-          description: The Template ID or alias.
-      responses:
-        '201':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/DuplicateTemplateResponseSuccess'
 components:
   securitySchemes:
     bearerAuth:
