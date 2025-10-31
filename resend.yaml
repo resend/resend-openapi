@@ -899,6 +899,156 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GetContactResponseSuccess'
+  /contacts/{contact_id}/segments/{segment_id}:
+    post:
+      tags:
+        - Contacts
+      summary: Add a contact to a segment
+      parameters:
+        - name: contact_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The Contact ID or email.
+        - name: segment_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The Segment ID.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AddContactToSegmentResponseSuccess'
+    delete:
+      tags:
+        - Contacts
+      summary: Remove a contact from a segment
+      parameters:
+        - name: contact_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The Contact ID or email.
+        - name: segment_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The Segment ID.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RemoveContactFromSegmentResponseSuccess'
+  /contacts/{id}/segments:
+    get:
+      tags:
+        - Contacts
+      summary: Retrieve a list of segments for a contact
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The Contact ID or email.
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+          description: Number of segments to retrieve.
+        - name: after
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Pagination cursor to fetch results after this segment ID. Cannot be used with 'before'.
+        - name: before
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Pagination cursor to fetch results before this segment ID. Cannot be used with 'after'.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListContactSegmentsResponseSuccess'
+  /contacts/{contact_id}/topics:
+    get:
+      tags:
+        - Contacts
+      summary: Retrieve topic subscriptions for a contact
+      parameters:
+        - name: contact_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The Contact ID or email.
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+          description: Number of topics to retrieve.
+        - name: after
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Pagination cursor to fetch results after this topic ID. Cannot be used with 'before'.
+        - name: before
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Pagination cursor to fetch results before this topic ID. Cannot be used with 'after'.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListContactTopicsResponseSuccess'
+    patch:
+      tags:
+        - Contacts
+      summary: Update topic subscriptions for a contact
+      parameters:
+        - name: contact_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The Contact ID or email.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateContactTopicsOptions'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateContactTopicsResponseSuccess'
   /broadcasts:
     post:
       tags:
@@ -3502,3 +3652,143 @@ components:
           type: boolean
           description: Indicates whether the contact property was successfully deleted.
           example: true
+    AddContactToSegmentResponseSuccess:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The ID of the contact.
+          example: 'e169aa45-1ecf-4183-9955-b1499d5701d3'
+        object:
+          type: string
+          description: Type of the response object.
+          example: contact
+    RemoveContactFromSegmentResponseSuccess:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The ID of the contact.
+          example: 'e169aa45-1ecf-4183-9955-b1499d5701d3'
+        object:
+          type: string
+          description: Type of the response object.
+          example: contact
+        deleted:
+          type: boolean
+          description: Indicates whether the contact was successfully removed from the segment.
+          example: true
+    ListContactSegmentsResponseSuccess:
+      type: object
+      properties:
+        object:
+          type: string
+          description: Type of the response object.
+          example: list
+        has_more:
+          type: boolean
+          description: Indicates if there are more segments to retrieve.
+          example: false
+        data:
+          type: array
+          description: Array containing segment information.
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                description: The ID of the segment.
+                example: '78261eea-8f8b-4381-83c6-79fa7120f1cf'
+              name:
+                type: string
+                description: The name of the segment.
+                example: 'Registered Users'
+              created_at:
+                type: string
+                format: date-time
+                description: Timestamp indicating when the segment was created.
+                example: '2023-10-06T22:59:55.977Z'
+    ListContactTopicsResponseSuccess:
+      type: object
+      properties:
+        object:
+          type: string
+          description: Type of the response object.
+          example: list
+        has_more:
+          type: boolean
+          description: Indicates if there are more topics to retrieve.
+          example: false
+        data:
+          type: array
+          description: Array containing topic subscription information.
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                description: The ID of the topic.
+                example: 'b6d24b8e-af0b-4c3c-be0c-359bbd97381e'
+              name:
+                type: string
+                description: The name of the topic.
+                example: 'Weekly Newsletter'
+              subscription:
+                type: string
+                enum:
+                  - opt_in
+                  - opt_out
+                description: The subscription status.
+                example: 'opt_in'
+              created_at:
+                type: string
+                format: date-time
+                description: Timestamp indicating when the topic was created.
+                example: '2023-04-08T00:11:13.110779+00:00'
+    UpdateContactTopicsOptions:
+      type: object
+      required:
+        - topics
+      properties:
+        topics:
+          type: array
+          description: Array of topic subscription updates.
+          items:
+            type: object
+            required:
+              - id
+              - subscription
+            properties:
+              id:
+                type: string
+                description: The Topic ID.
+              subscription:
+                type: string
+                enum:
+                  - opt_in
+                  - opt_out
+                description: The subscription action.
+    UpdateContactTopicsResponseSuccess:
+      type: object
+      properties:
+        object:
+          type: string
+          description: Type of the response object.
+          example: list
+        data:
+          type: array
+          description: Array containing updated topic subscriptions.
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                description: The ID of the topic.
+                example: 'b6d24b8e-af0b-4c3c-be0c-359bbd97381e'
+              subscription:
+                type: string
+                enum:
+                  - opt_in
+                  - opt_out
+                description: The subscription status.
+                example: 'opt_out'
