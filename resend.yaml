@@ -30,6 +30,8 @@ tags:
     description: Create and manage Segments through the Resend API.
   - name: Topics
     description: Create and manage Topics through the Resend API.
+  - name: Contact Properties
+    description: Create and manage Contact Properties through the Resend API.
 paths:
   /emails:
     post:
@@ -1316,6 +1318,116 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RemoveTopicResponseSuccess'
+  /contact-properties:
+    post:
+      tags:
+        - Contact Properties
+      summary: Create a new contact property
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateContactPropertyOptions'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateContactPropertyResponseSuccess'
+    get:
+      tags:
+        - Contact Properties
+      summary: Retrieve a list of contact properties
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+          description: Number of contact properties to retrieve.
+        - name: after
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Pagination cursor to fetch results after this property ID. Cannot be used with 'before'.
+        - name: before
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Pagination cursor to fetch results before this property ID. Cannot be used with 'after'.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListContactPropertiesResponseSuccess'
+  /contact-properties/{id}:
+    get:
+      tags:
+        - Contact Properties
+      summary: Retrieve a single contact property
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The Contact Property ID.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetContactPropertyResponseSuccess'
+    patch:
+      tags:
+        - Contact Properties
+      summary: Update an existing contact property
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The Contact Property ID.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateContactPropertyOptions'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateContactPropertyResponseSuccess'
+    delete:
+      tags:
+        - Contact Properties
+      summary: Remove an existing contact property
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The Contact Property ID.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RemoveContactPropertyResponseSuccess'
 components:
   securitySchemes:
     bearerAuth:
@@ -3236,4 +3348,157 @@ components:
         deleted:
           type: boolean
           description: Indicates whether the topic was successfully deleted.
+          example: true
+    CreateContactPropertyOptions:
+      type: object
+      required:
+        - key
+        - type
+      properties:
+        key:
+          type: string
+          description: The property key. Max length is 50 characters. Only alphanumeric characters and underscores are allowed.
+        type:
+          type: string
+          enum:
+            - string
+            - number
+          description: The property type.
+        fallback_value:
+          oneOf:
+            - type: string
+            - type: number
+          description: The default value to use when the property is not set for a contact. Must match the type specified in the type field.
+    CreateContactPropertyResponseSuccess:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The ID of the contact property.
+          example: 'b6d24b8e-af0b-4c3c-be0c-359bbd97381e'
+        object:
+          type: string
+          description: The object type of the response.
+          example: contact_property
+    GetContactPropertyResponseSuccess:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The ID of the contact property.
+          example: 'b6d24b8e-af0b-4c3c-be0c-359bbd97381e'
+        object:
+          type: string
+          description: The object type of the response.
+          example: contact_property
+        key:
+          type: string
+          description: The property key.
+          example: 'company_name'
+        type:
+          type: string
+          enum:
+            - string
+            - number
+          description: The property type.
+          example: 'string'
+        fallback_value:
+          oneOf:
+            - type: string
+            - type: number
+          nullable: true
+          description: The default value for the property.
+          example: 'Acme Corp'
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp indicating when the property was created.
+          example: '2023-10-06T22:59:55.977Z'
+        updated_at:
+          type: string
+          format: date-time
+          description: Timestamp indicating when the property was last updated.
+          example: '2023-10-06T22:59:55.977Z'
+    ListContactPropertiesResponseSuccess:
+      type: object
+      properties:
+        object:
+          type: string
+          description: Type of the response object.
+          example: list
+        has_more:
+          type: boolean
+          description: Indicates if there are more contact properties to retrieve.
+          example: false
+        data:
+          type: array
+          description: Array containing contact property information.
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                description: The ID of the contact property.
+                example: 'b6d24b8e-af0b-4c3c-be0c-359bbd97381e'
+              key:
+                type: string
+                description: The property key.
+                example: 'company_name'
+              type:
+                type: string
+                enum:
+                  - string
+                  - number
+                description: The property type.
+                example: 'string'
+              fallback_value:
+                oneOf:
+                  - type: string
+                  - type: number
+                nullable: true
+                description: The default value for the property.
+                example: 'Acme Corp'
+              created_at:
+                type: string
+                format: date-time
+                description: Timestamp indicating when the property was created.
+                example: '2023-10-06T22:59:55.977Z'
+              updated_at:
+                type: string
+                format: date-time
+                description: Timestamp indicating when the property was last updated.
+                example: '2023-10-06T22:59:55.977Z'
+    UpdateContactPropertyOptions:
+      type: object
+      properties:
+        fallback_value:
+          oneOf:
+            - type: string
+            - type: number
+          description: The default value to use when the property is not set for a contact. Must match the type of the property.
+    UpdateContactPropertyResponseSuccess:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The ID of the contact property.
+          example: 'b6d24b8e-af0b-4c3c-be0c-359bbd97381e'
+        object:
+          type: string
+          description: The object type of the response.
+          example: contact_property
+    RemoveContactPropertyResponseSuccess:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The ID of the contact property.
+          example: 'b6d24b8e-af0b-4c3c-be0c-359bbd97381e'
+        object:
+          type: string
+          description: Type of the response object.
+          example: contact_property
+        deleted:
+          type: boolean
+          description: Indicates whether the contact property was successfully deleted.
           example: true
