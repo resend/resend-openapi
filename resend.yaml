@@ -50,6 +50,39 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SendEmailResponse'
+    get:
+      tags:
+        - Emails
+      summary: Retrieve a list of emails
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+          description: Number of emails to retrieve.
+        - name: after
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Pagination cursor to fetch results after this email ID. Cannot be used with 'before'.
+        - name: before
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Pagination cursor to fetch results before this email ID. Cannot be used with 'after'.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListEmailsResponseSuccess'
   /emails/{email_id}:
     get:
       tags:
@@ -2623,3 +2656,71 @@ components:
           type: string
           description: The object type of the response.
           example: template
+    ListEmailsResponseSuccess:
+      type: object
+      properties:
+        object:
+          type: string
+          description: Type of the response object.
+          example: list
+        has_more:
+          type: boolean
+          description: Indicates if there are more emails to retrieve.
+          example: false
+        data:
+          type: array
+          description: Array containing email information.
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                description: The ID of the email.
+                example: '4ef9a417-02e9-4d39-ad75-9611e0fcc33c'
+              to:
+                type: array
+                items:
+                  type: string
+                description: The recipient email addresses.
+                example: ['delivered@resend.dev']
+              from:
+                type: string
+                description: The sender email address.
+                example: 'Acme <onboarding@resend.dev>'
+              created_at:
+                type: string
+                format: date-time
+                description: Timestamp indicating when the email was created.
+                example: '2023-04-03T22:13:42.674981+00:00'
+              subject:
+                type: string
+                description: The email subject.
+                example: 'Hello World'
+              bcc:
+                type: array
+                items:
+                  type: string
+                nullable: true
+                description: The BCC recipients.
+              cc:
+                type: array
+                items:
+                  type: string
+                nullable: true
+                description: The CC recipients.
+              reply_to:
+                type: array
+                items:
+                  type: string
+                nullable: true
+                description: The reply-to addresses.
+              last_event:
+                type: string
+                description: The status of the email.
+                example: 'delivered'
+              scheduled_at:
+                type: string
+                format: date-time
+                nullable: true
+                description: Timestamp indicating when the email is scheduled to be sent.
+                example: null
