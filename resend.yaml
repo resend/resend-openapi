@@ -24,6 +24,10 @@ tags:
     description: Create and manage Webhooks through the Resend API.
   - name: Templates
     description: Create and manage Templates through the Resend API.
+  - name: Broadcasts
+    description: Create and manage Broadcasts through the Resend API.
+  - name: Segments
+    description: Create and manage Segments through the Resend API.
 paths:
   /emails:
     post:
@@ -1115,6 +1119,92 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/DeleteWebhookResponse'
+  /segments:
+    post:
+      tags:
+        - Segments
+      summary: Create a new segment
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSegmentOptions'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateSegmentResponseSuccess'
+    get:
+      tags:
+        - Segments
+      summary: Retrieve a list of segments
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+          description: Number of segments to retrieve.
+        - name: after
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Pagination cursor to fetch results after this segment ID. Cannot be used with 'before'.
+        - name: before
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Pagination cursor to fetch results before this segment ID. Cannot be used with 'after'.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListSegmentsResponseSuccess'
+  /segments/{id}:
+    get:
+      tags:
+        - Segments
+      summary: Retrieve a single segment
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The Segment ID.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetSegmentResponseSuccess'
+    delete:
+      tags:
+        - Segments
+      summary: Remove an existing segment
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The Segment ID.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RemoveSegmentResponseSuccess'
 components:
   securitySchemes:
     bearerAuth:
@@ -2790,3 +2880,91 @@ components:
                 nullable: true
                 description: Timestamp indicating when the email is scheduled to be sent.
                 example: null
+    CreateSegmentOptions:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          description: The name of the segment.
+    CreateSegmentResponseSuccess:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The ID of the segment.
+          example: '78261eea-8f8b-4381-83c6-79fa7120f1cf'
+        object:
+          type: string
+          description: The object type of the response.
+          example: segment
+        name:
+          type: string
+          description: The name of the segment.
+          example: 'Registered Users'
+    GetSegmentResponseSuccess:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The ID of the segment.
+          example: '78261eea-8f8b-4381-83c6-79fa7120f1cf'
+        object:
+          type: string
+          description: The object type of the response.
+          example: segment
+        name:
+          type: string
+          description: The name of the segment.
+          example: 'Registered Users'
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp indicating when the segment was created.
+          example: '2023-10-06T22:59:55.977Z'
+    ListSegmentsResponseSuccess:
+      type: object
+      properties:
+        object:
+          type: string
+          description: Type of the response object.
+          example: list
+        has_more:
+          type: boolean
+          description: Indicates if there are more segments to retrieve.
+          example: false
+        data:
+          type: array
+          description: Array containing segment information.
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                description: The ID of the segment.
+                example: '78261eea-8f8b-4381-83c6-79fa7120f1cf'
+              name:
+                type: string
+                description: The name of the segment.
+                example: 'Registered Users'
+              created_at:
+                type: string
+                format: date-time
+                description: Timestamp indicating when the segment was created.
+                example: '2023-10-06T22:59:55.977Z'
+    RemoveSegmentResponseSuccess:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The ID of the segment.
+          example: '78261eea-8f8b-4381-83c6-79fa7120f1cf'
+        object:
+          type: string
+          description: Type of the response object.
+          example: segment
+        deleted:
+          type: boolean
+          description: Indicates whether the segment was successfully deleted.
+          example: true
