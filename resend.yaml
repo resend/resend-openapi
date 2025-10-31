@@ -28,6 +28,8 @@ tags:
     description: Create and manage Broadcasts through the Resend API.
   - name: Segments
     description: Create and manage Segments through the Resend API.
+  - name: Topics
+    description: Create and manage Topics through the Resend API.
 paths:
   /emails:
     post:
@@ -1205,6 +1207,115 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RemoveSegmentResponseSuccess'
+  /topics:
+    post:
+      tags:
+        - Topics
+      summary: Create a new topic
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTopicOptions'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateTopicResponseSuccess'
+    get:
+      tags:
+        - Topics
+      summary: Retrieve a list of topics
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+          description: Number of topics to retrieve.
+        - name: after
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Pagination cursor to fetch results after this topic ID. Cannot be used with 'before'.
+        - name: before
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Pagination cursor to fetch results before this topic ID. Cannot be used with 'after'.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListTopicsResponseSuccess'
+  /topics/{id}:
+    get:
+      tags:
+        - Topics
+      summary: Retrieve a single topic
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The Topic ID.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetTopicResponseSuccess'
+    patch:
+      tags:
+        - Topics
+      summary: Update an existing topic
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The Topic ID.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateTopicOptions'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateTopicResponseSuccess'
+    delete:
+      tags:
+        - Topics
+      summary: Remove an existing topic
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The Topic ID.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RemoveTopicResponseSuccess'
 components:
   securitySchemes:
     bearerAuth:
@@ -2967,4 +3078,162 @@ components:
         deleted:
           type: boolean
           description: Indicates whether the segment was successfully deleted.
+          example: true
+    CreateTopicOptions:
+      type: object
+      required:
+        - name
+        - default_subscription
+      properties:
+        name:
+          type: string
+          description: The topic name. Max length is 50 characters.
+        default_subscription:
+          type: string
+          enum:
+            - opt_in
+            - opt_out
+          description: The default subscription preference for new contacts.
+        description:
+          type: string
+          description: The topic description. Max length is 200 characters.
+        visibility:
+          type: string
+          enum:
+            - public
+            - private
+          description: The visibility of the topic on the unsubscribe page.
+          default: private
+    CreateTopicResponseSuccess:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The ID of the topic.
+          example: 'b6d24b8e-af0b-4c3c-be0c-359bbd97381e'
+        object:
+          type: string
+          description: The object type of the response.
+          example: topic
+    GetTopicResponseSuccess:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The ID of the topic.
+          example: 'b6d24b8e-af0b-4c3c-be0c-359bbd97381e'
+        object:
+          type: string
+          description: The object type of the response.
+          example: topic
+        name:
+          type: string
+          description: The name of the topic.
+          example: 'Weekly Newsletter'
+        description:
+          type: string
+          nullable: true
+          description: The description of the topic.
+          example: 'Weekly newsletter for our subscribers'
+        default_subscription:
+          type: string
+          enum:
+            - opt_in
+            - opt_out
+          description: The default subscription preference.
+          example: 'opt_in'
+        visibility:
+          type: string
+          enum:
+            - public
+            - private
+          description: The visibility of the topic.
+          example: 'public'
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp indicating when the topic was created.
+          example: '2023-04-08T00:11:13.110779+00:00'
+    ListTopicsResponseSuccess:
+      type: object
+      properties:
+        object:
+          type: string
+          description: Type of the response object.
+          example: list
+        has_more:
+          type: boolean
+          description: Indicates if there are more topics to retrieve.
+          example: false
+        data:
+          type: array
+          description: Array containing topic information.
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                description: The ID of the topic.
+                example: 'b6d24b8e-af0b-4c3c-be0c-359bbd97381e'
+              name:
+                type: string
+                description: The name of the topic.
+                example: 'Weekly Newsletter'
+              description:
+                type: string
+                nullable: true
+                description: The description of the topic.
+                example: 'Weekly newsletter for our subscribers'
+              visibility:
+                type: string
+                enum:
+                  - public
+                  - private
+                description: The visibility of the topic.
+                example: 'public'
+              created_at:
+                type: string
+                format: date-time
+                description: Timestamp indicating when the topic was created.
+                example: '2023-04-08T00:11:13.110779+00:00'
+    UpdateTopicOptions:
+      type: object
+      properties:
+        name:
+          type: string
+          description: The topic name. Max length is 50 characters.
+        description:
+          type: string
+          description: The topic description. Max length is 200 characters.
+        visibility:
+          type: string
+          enum:
+            - public
+            - private
+          description: The visibility of the topic on the unsubscribe page.
+    UpdateTopicResponseSuccess:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The ID of the topic.
+          example: 'b6d24b8e-af0b-4c3c-be0c-359bbd97381e'
+        object:
+          type: string
+          description: The object type of the response.
+          example: topic
+    RemoveTopicResponseSuccess:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The ID of the topic.
+          example: 'b6d24b8e-af0b-4c3c-be0c-359bbd97381e'
+        object:
+          type: string
+          description: Type of the response object.
+          example: topic
+        deleted:
+          type: boolean
+          description: Indicates whether the topic was successfully deleted.
           example: true
