@@ -1834,7 +1834,13 @@ components:
           example: November announcements
         audience_id:
           type: string
-          description: Unique identifier of the audience this broadcast will be sent to.
+          nullable: true
+          description: Deprecated: use `segment_id` instead. Unique identifier of the segment this broadcast will be sent to.
+          deprecated: true
+        segment_id:
+          type: string
+          nullable: true
+          description: Unique identifier of the segment this broadcast will be sent to.
         from:
           type: string
           description: The email address of the sender.
@@ -1871,6 +1877,16 @@ components:
           format: date-time
           description: Timestamp indicating when the broadcast was sent.
           example: "2023-10-06T22:59:55.977Z"
+        text:
+          type: string
+          nullable: true
+          description: The plain text version of the broadcast content.
+          example: 'Hello {{{FIRST_NAME|there}}}!'
+        html:
+          type: string
+          nullable: true
+          description: The HTML version of the broadcast content.
+          example: '<p>Hello {{{FIRST_NAME|there}}}!</p>'
     RemoveBroadcastResponseSuccess:
       type: object
       properties:
