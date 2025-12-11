@@ -1835,7 +1835,7 @@ components:
         audience_id:
           type: string
           nullable: true
-          description: Deprecated: use `segment_id` instead. Unique identifier of the segment this broadcast will be sent to.
+          description: "Deprecated: use `segment_id` instead. Unique identifier of the segment this broadcast will be sent to."
           deprecated: true
         segment_id:
           type: string
