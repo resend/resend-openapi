@@ -1694,22 +1694,6 @@ components:
           type: string
           description: The status of the email.
           example: 'delivered'
-    ListEmailsResponse:
-      type: object
-      properties:
-        object:
-          type: string
-          description: Type of the response object.
-          example: 'list'
-        has_more:
-          type: boolean
-          description: Indicates if there are more results available.
-          example: false
-        data:
-          type: array
-          description: Array containing email information.
-          items:
-            $ref: '#/components/schemas/Email'
     CreateBatchEmailsResponse:
       type: object
       properties:
@@ -2347,49 +2331,6 @@ components:
           nullable: true
           description: The HTML version of the broadcast content.
           example: '<p>Hello {{{FIRST_NAME|there}}}!</p>'
-    UpdateBroadcastOptions:
-      type: object
-      properties:
-        name:
-          type: string
-          description: Name of the broadcast.
-        audience_id:
-          type: string
-          description: Unique identifier of the audience this broadcast will be sent to.
-        segment_id:
-          type: string
-          description: Unique identifier of the segment this broadcast will be sent to.
-        from:
-          type: string
-          description: The email address of the sender.
-        subject:
-          type: string
-          description: The subject line of the email.
-        reply_to:
-          type: array
-          items:
-            type: string
-          description: The email addresses to which replies should be sent.
-        preview_text:
-          type: string
-          description: The preview text of the email.
-        html:
-          type: string
-          description: The HTML version of the message.
-        text:
-          type: string
-          description: The plain text version of the message.
-    UpdateBroadcastResponseSuccess:
-      type: object
-      properties:
-        id:
-          type: string
-          description: The ID of the broadcast.
-          example: 78261eea-8f8b-4381-83c6-79fa7120f1cf
-        object:
-          type: string
-          description: The object type of the response.
-          example: broadcast
     RemoveBroadcastResponseSuccess:
       type: object
       properties:
@@ -3594,3 +3535,62 @@ components:
               subscribed:
                 type: boolean
                 description: The subscription status.
+    ListEmailsResponse:
+      type: object
+      properties:
+        object:
+          type: string
+          description: Type of the response object.
+          example: 'list'
+        has_more:
+          type: boolean
+          description: Indicates if there are more results available.
+          example: false
+        data:
+          type: array
+          description: Array containing email information.
+          items:
+            $ref: '#/components/schemas/Email'
+    UpdateBroadcastOptions:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Name of the broadcast.
+        audience_id:
+          type: string
+          description: Unique identifier of the audience this broadcast will be sent to.
+        segment_id:
+          type: string
+          description: Unique identifier of the segment this broadcast will be sent to.
+        from:
+          type: string
+          description: The email address of the sender.
+        subject:
+          type: string
+          description: The subject line of the email.
+        reply_to:
+          type: array
+          items:
+            type: string
+          description: The email addresses to which replies should be sent.
+        preview_text:
+          type: string
+          description: The preview text of the email.
+        html:
+          type: string
+          description: The HTML version of the message.
+        text:
+          type: string
+          description: The plain text version of the message.
+    UpdateBroadcastResponseSuccess:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The ID of the broadcast.
+          example: 78261eea-8f8b-4381-83c6-79fa7120f1cf
+        object:
+          type: string
+          description: The object type of the response.
+          example: broadcast
