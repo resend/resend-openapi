@@ -2195,16 +2195,20 @@ components:
     CreateBroadcastOptions:
       type: object
       required:
-        - audience_id
         - from
         - subject
+        - segment_id
       properties:
         name:
           type: string
           description: Name of the broadcast.
+        segment_id:
+          type: string
+          description: Unique identifier of the segment this broadcast will be sent to.
         audience_id:
           type: string
-          description: Unique identifier of the audience this broadcast will be sent to.
+          description: Use `segment_id` instead. Unique identifier of the segment this broadcast will be sent to.
+          deprecated: true
         from:
           type: string
           description: The email address of the sender.
@@ -2226,6 +2230,14 @@ components:
         text:
           type: string
           description: The plain text version of the message.
+        send:
+          type: boolean
+          description: |
+            Whether to send the broadcast immediately or keep it as a draft.
+        scheduled_at:
+          type: string
+          description: |
+            Schedule time to send the broadcast. Can only be used if `send` is true.
     CreateBroadcastResponseSuccess:
       type: object
       properties:
