@@ -364,6 +364,10 @@ paths:
       tags:
         - Domains
       summary: Retrieve a list of domains
+      parameters:
+        - $ref: '#/components/parameters/PaginationLimit'
+        - $ref: '#/components/parameters/PaginationAfter'
+        - $ref: '#/components/parameters/PaginationBefore'
       responses:
         '200':
           description: OK
@@ -471,6 +475,10 @@ paths:
       tags:
         - API Keys
       summary: Retrieve a list of API keys
+      parameters:
+        - $ref: '#/components/parameters/PaginationLimit'
+        - $ref: '#/components/parameters/PaginationAfter'
+        - $ref: '#/components/parameters/PaginationBefore'
       responses:
         '200':
           description: OK
@@ -902,6 +910,10 @@ paths:
       tags:
         - Broadcasts
       summary: Retrieve a list of broadcasts
+      parameters:
+        - $ref: '#/components/parameters/PaginationLimit'
+        - $ref: '#/components/parameters/PaginationAfter'
+        - $ref: '#/components/parameters/PaginationBefore'
       responses:
         '200':
           description: OK
@@ -1583,8 +1595,9 @@ components:
           type: string
           description: The plain text version of the message.
         template:
-          $ref: '#/components/schemas/EmailTemplateInput'
-          description: Use a published template to send the email. If provided, do not include html or text.
+          allOf:
+            - $ref: '#/components/schemas/EmailTemplateInput'
+            - description: Use a published template to send the email. If provided, do not include html or text.
         headers:
           type: object
           description: Custom headers to add to the email.
@@ -1737,6 +1750,22 @@ components:
               id:
                 type: string
                 description: The ID of the sent email.
+    DomainCapabilities:
+      type: object
+      description: Configure the domain capabilities for sending and receiving emails. At least one capability must be enabled.
+      properties:
+        sending:
+          type: string
+          enum:
+            - enabled
+            - disabled
+          description: Enable or disable sending emails from this domain.
+        receiving:
+          type: string
+          enum:
+            - enabled
+            - disabled
+          description: Enable or disable receiving emails to this domain.
     CreateDomainRequest:
       type: object
       required:
@@ -1754,6 +1783,24 @@ components:
             - ap-northeast-1
           default: us-east-1
           description: The region where emails will be sent from. Possible values are us-east-1 | eu-west-1 | sa-east-1 | ap-northeast-1
+        custom_return_path:
+          type: string
+          description: For advanced use cases, choose a subdomain for the Return-Path address. Defaults to 'send' (i.e., send.yourdomain.tld).
+        open_tracking:
+          type: boolean
+          description: Track the open rate of each email.
+        click_tracking:
+          type: boolean
+          description: Track clicks within the body of each HTML email.
+        tls:
+          type: string
+          enum:
+            - opportunistic
+            - enforced
+          default: opportunistic
+          description: TLS mode. Opportunistic attempts secure connection but falls back to unencrypted. Enforced requires TLS or email won't be sent.
+        capabilities:
+          $ref: '#/components/schemas/DomainCapabilities'
     CreateDomainResponse:
       type: object
       properties:
@@ -1770,6 +1817,8 @@ components:
         status:
           type: string
           description: The status of the domain.
+        capabilities:
+          $ref: '#/components/schemas/DomainCapabilities'
         records:
           type: array
           items:
@@ -1856,6 +1905,8 @@ components:
           type: string
           description: The region where the domain is hosted.
           example: 'us-east-1'
+        capabilities:
+          $ref: '#/components/schemas/DomainCapabilities'
         records:
           type: array
           items:
@@ -1874,6 +1925,14 @@ components:
     ListDomainsResponse:
       type: object
       properties:
+        object:
+          type: string
+          description: Type of the response object.
+          example: 'list'
+        has_more:
+          type: boolean
+          description: Indicates if there are more results available.
+          example: false
         data:
           type: array
           items:
@@ -1902,6 +1961,8 @@ components:
           type: string
           description: The region where the domain is hosted.
           example: 'us-east-1'
+        capabilities:
+          $ref: '#/components/schemas/DomainCapabilities'
     UpdateDomainResponseSuccess:
       type: object
       properties:
@@ -1957,6 +2018,14 @@ components:
     ListApiKeysResponse:
       type: object
       properties:
+        object:
+          type: string
+          description: Type of the response object.
+          example: 'list'
+        has_more:
+          type: boolean
+          description: Indicates if there are more results available.
+          example: false
         data:
           type: array
           items:
@@ -2076,12 +2145,37 @@ components:
           example: Wozniak
         unsubscribed:
           type: boolean
-          description: Indicates if the contact is unsubscribed.
+          description: The Contact's global subscription status. If set to true, the contact will be unsubscribed from all Broadcasts.
           example: false
+        properties:
+          type: object
+          additionalProperties: true
+          description: A map of custom property keys and values to create.
+        segments:
+          type: array
+          items:
+            type: string
+          description: Array of segment IDs to add the contact to.
+        topics:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                description: The topic ID.
+              subscription:
+                type: string
+                enum:
+                  - opt_in
+                  - opt_out
+                description: The subscription status for this topic.
+          description: Array of topic subscriptions for the contact.
         audience_id:
           type: string
           description: Unique identifier of the audience to which the contact belongs.
           example: 78261eea-8f8b-4381-83c6-79fa7120f1cf
+          deprecated: true
     CreateContactResponseSuccess:
       type: object
       properties:
@@ -2125,6 +2219,10 @@ components:
           type: boolean
           description: Indicates if the contact is unsubscribed.
           example: false
+        properties:
+          type: object
+          additionalProperties: true
+          description: A map of custom property keys and values.
     UpdateContactOptions:
       type: object
       properties:
@@ -2142,8 +2240,12 @@ components:
           example: Wozniak
         unsubscribed:
           type: boolean
-          description: Indicates the subscription status of the contact.
+          description: The Contact's global subscription status. If set to true, the contact will be unsubscribed from all Broadcasts.
           example: false
+        properties:
+          type: object
+          additionalProperties: true
+          description: A map of custom property keys and values to update.
     UpdateContactResponseSuccess:
       type: object
       properties:
@@ -2246,6 +2348,9 @@ components:
         text:
           type: string
           description: The plain text version of the message.
+        topic_id:
+          type: string
+          description: The topic ID that the broadcast will be scoped to.
         send:
           type: boolean
           description: |
@@ -2272,6 +2377,10 @@ components:
           type: string
           description: Type of the response object.
           example: list
+        has_more:
+          type: boolean
+          description: Indicates if there are more results available.
+          example: false
         data:
           type: array
           description: Array containing broadcast information.
@@ -2288,7 +2397,12 @@ components:
                 example: November announcements
               audience_id:
                 type: string
-                description: Unique identifier of the audience this broadcast will be sent to.
+                description: Deprecated. Use segment_id instead.
+                example: 78261eea-8f8b-4381-83c6-79fa7120f1cf
+                deprecated: true
+              segment_id:
+                type: string
+                description: Unique identifier of the segment this broadcast will be sent to.
                 example: 78261eea-8f8b-4381-83c6-79fa7120f1cf
               status:
                 type: string
@@ -2309,6 +2423,10 @@ components:
                 format: date-time
                 description: Timestamp indicating when the broadcast was sent.
                 example: "2023-10-06T22:59:55.977Z"
+              topic_id:
+                type: string
+                description: The topic ID that the broadcast is scoped to.
+                example: b6d24b8e-af0b-4c3c-be0c-359bbd97381e
     GetBroadcastResponseSuccess:
       type: object
       properties:
@@ -2375,6 +2493,11 @@ components:
           nullable: true
           description: The HTML version of the broadcast content.
           example: '<p>Hello {{{FIRST_NAME|there}}}!</p>'
+        topic_id:
+          type: string
+          nullable: true
+          description: The topic ID that the broadcast is scoped to.
+          example: b6d24b8e-af0b-4c3c-be0c-359bbd97381e
     UpdateBroadcastOptions:
       type: object
       properties:
@@ -2407,6 +2530,9 @@ components:
         text:
           type: string
           description: The plain text version of the message.
+        topic_id:
+          type: string
+          description: The topic ID that the broadcast will be scoped to.
     UpdateBroadcastResponseSuccess:
       type: object
       properties:
@@ -2916,6 +3042,7 @@ components:
             - type: boolean
             - type: object
             - type: array
+              items: {}
         created_at:
           type: string
           format: date-time
@@ -2945,6 +3072,7 @@ components:
             - type: boolean
             - type: object
             - type: array
+              items: {}
       required:
         - key
         - type
@@ -3374,23 +3502,23 @@ components:
     CreateContactPropertyOptions:
       type: object
       required:
-        - name
+        - key
         - type
       properties:
-        name:
+        key:
           type: string
-          description: The name of the contact property.
+          description: The property key. Max length is 50 characters. Only alphanumeric characters and underscores are allowed.
         type:
           type: string
           enum:
             - string
             - number
-            - boolean
-            - date
-          description: The type of the contact property.
-        description:
-          type: string
-          description: A description of the contact property.
+          description: The property type.
+        fallback_value:
+          oneOf:
+            - type: string
+            - type: number
+          description: The default value to use when the property is not set for a contact. Must match the type specified in the type field.
     CreateContactPropertyResponseSuccess:
       type: object
       properties:
@@ -3405,25 +3533,28 @@ components:
     GetContactPropertyResponseSuccess:
       type: object
       properties:
-        id:
-          type: string
-          description: The ID of the contact property.
-          example: 78261eea-8f8b-4381-83c6-79fa7120f1cf
         object:
           type: string
           description: The object type.
           example: contact_property
-        name:
+        id:
           type: string
-          description: The name of the contact property.
-          example: company_size
+          description: The ID of the contact property.
+          example: b6d24b8e-af0b-4c3c-be0c-359bbd97381e
+        key:
+          type: string
+          description: The property key.
+          example: company_name
         type:
           type: string
-          description: The type of the contact property.
-          example: number
-        description:
-          type: string
-          description: A description of the contact property.
+          description: The property type.
+          example: string
+        fallback_value:
+          oneOf:
+            - type: string
+            - type: number
+          description: The default value when the property is not set for a contact.
+          example: Acme Corp
         created_at:
           type: string
           format: date-time
@@ -3447,15 +3578,17 @@ components:
               id:
                 type: string
                 description: Unique identifier for the contact property.
-              name:
+              key:
                 type: string
-                description: Name of the contact property.
+                description: The property key.
               type:
                 type: string
-                description: The type of the contact property.
-              description:
-                type: string
-                description: A description of the contact property.
+                description: The property type.
+              fallback_value:
+                oneOf:
+                  - type: string
+                  - type: number
+                description: The default value when the property is not set for a contact.
               created_at:
                 type: string
                 format: date-time
@@ -3463,12 +3596,11 @@ components:
     UpdateContactPropertyOptions:
       type: object
       properties:
-        name:
-          type: string
-          description: The name of the contact property.
-        description:
-          type: string
-          description: A description of the contact property.
+        fallback_value:
+          oneOf:
+            - type: string
+            - type: number
+          description: The default value to use when the property is not set for a contact. Must match the type of the property.
     UpdateContactPropertyResponseSuccess:
       type: object
       properties:
@@ -3581,9 +3713,15 @@ components:
               name:
                 type: string
                 description: Name of the topic.
-              subscribed:
-                type: boolean
-                description: Indicates if the contact is subscribed to this topic.
+              description:
+                type: string
+                description: Description of the topic.
+              subscription:
+                type: string
+                enum:
+                  - opt_in
+                  - opt_out
+                description: The subscription status for this topic.
     UpdateContactTopicsOptions:
       type: object
       required:
@@ -3597,9 +3735,12 @@ components:
               id:
                 type: string
                 description: The ID of the topic.
-              subscribed:
-                type: boolean
-                description: Whether to subscribe or unsubscribe from the topic.
+              subscription:
+                type: string
+                enum:
+                  - opt_in
+                  - opt_out
+                description: The subscription status (opt_in or opt_out).
     UpdateContactTopicsResponseSuccess:
       type: object
       properties:
@@ -3619,6 +3760,9 @@ components:
               id:
                 type: string
                 description: The ID of the topic.
-              subscribed:
-                type: boolean
+              subscription:
+                type: string
+                enum:
+                  - opt_in
+                  - opt_out
                 description: The subscription status.
