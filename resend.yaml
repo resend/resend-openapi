@@ -1935,6 +1935,11 @@ components:
           type: string
           format: date-time
           description: The date and time the API key was created.
+        last_used_at:
+          type: string
+          format: date-time
+          nullable: true
+          description: The date and time the API key was last used.
     CreateAudienceOptions:
       type: object
       deprecated: true
