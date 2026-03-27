@@ -3773,6 +3773,7 @@ components:
             - PUT
             - DELETE
             - PATCH
+            - OPTIONS
           description: The HTTP method used.
         response_status:
           type: integer
@@ -3807,6 +3808,7 @@ components:
             - PUT
             - DELETE
             - PATCH
+            - OPTIONS
           description: The HTTP method used.
         response_status:
           type: integer
