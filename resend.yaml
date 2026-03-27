@@ -3760,6 +3760,7 @@ components:
           description: The log ID.
         created_at:
           type: string
+          format: date-time
           description: The date the log was created.
         endpoint:
           type: string
@@ -3781,20 +3782,45 @@ components:
           nullable: true
           description: The user agent of the request.
     Log:
-      allOf:
-        - $ref: '#/components/schemas/LogSummary'
-        - type: object
-          properties:
-            object:
-              type: string
-              description: Type of the response object.
-              example: 'log'
-            request_body:
-              nullable: true
-              description: The request body sent to the API.
-            response_body:
-              nullable: true
-              description: The response body returned by the API.
+      type: object
+      properties:
+        object:
+          type: string
+          description: Type of the response object.
+          example: 'log'
+        id:
+          type: string
+          format: uuid
+          description: The log ID.
+        created_at:
+          type: string
+          format: date-time
+          description: The date the log was created.
+        endpoint:
+          type: string
+          description: The API endpoint that was called.
+        method:
+          type: string
+          enum:
+            - GET
+            - POST
+            - PUT
+            - DELETE
+            - PATCH
+          description: The HTTP method used.
+        response_status:
+          type: integer
+          description: The HTTP status code of the response.
+        user_agent:
+          type: string
+          nullable: true
+          description: The user agent of the request.
+        request_body:
+          nullable: true
+          description: The request body sent to the API.
+        response_body:
+          nullable: true
+          description: The response body returned by the API.
     ListLogsResponse:
       type: object
       properties:
