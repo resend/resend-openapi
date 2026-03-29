@@ -1,0 +1,13 @@
+{
+  "name": "resend-openapi",
+  "version": "1.5.0",
+  "private": true,
+  "description": "OpenAPI specification for Resend's API",
+  "scripts": {
+    "build": "node scripts/build-json.mjs",
+    "build:yaml": "node scripts/build-json.mjs"
+  },
+  "devDependencies": {
+    "yaml": "^2.7.1"
+  }
+}
