@@ -32,6 +32,8 @@ tags:
     description: Create and manage Topics through the Resend API.
   - name: Contact Properties
     description: Create and manage Contact Properties through the Resend API.
+  - name: Logs
+    description: Retrieve API request logs through the Resend API.
 paths:
   /emails:
     post:
@@ -1399,6 +1401,42 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UpdateContactTopicsResponseSuccess'
+  /logs:
+    get:
+      tags:
+        - Logs
+      summary: Retrieve a list of logs
+      parameters:
+        - $ref: '#/components/parameters/PaginationLimit'
+        - $ref: '#/components/parameters/PaginationAfter'
+        - $ref: '#/components/parameters/PaginationBefore'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListLogsResponse'
+  /logs/{log_id}:
+    get:
+      tags:
+        - Logs
+      summary: Retrieve a single log
+      parameters:
+        - name: log_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The ID of the log.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Log'
 components:
   securitySchemes:
     bearerAuth:
@@ -3713,3 +3751,91 @@ components:
                   - opt_in
                   - opt_out
                 description: The subscription status.
+    LogSummary:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: The log ID.
+        created_at:
+          type: string
+          format: date-time
+          description: The date the log was created.
+        endpoint:
+          type: string
+          description: The API endpoint that was called.
+        method:
+          type: string
+          enum:
+            - GET
+            - POST
+            - PUT
+            - DELETE
+            - PATCH
+            - OPTIONS
+          description: The HTTP method used.
+        response_status:
+          type: integer
+          description: The HTTP status code of the response.
+        user_agent:
+          type: string
+          nullable: true
+          description: The user agent of the request.
+    Log:
+      type: object
+      properties:
+        object:
+          type: string
+          description: Type of the response object.
+          example: 'log'
+        id:
+          type: string
+          format: uuid
+          description: The log ID.
+        created_at:
+          type: string
+          format: date-time
+          description: The date the log was created.
+        endpoint:
+          type: string
+          description: The API endpoint that was called.
+        method:
+          type: string
+          enum:
+            - GET
+            - POST
+            - PUT
+            - DELETE
+            - PATCH
+            - OPTIONS
+          description: The HTTP method used.
+        response_status:
+          type: integer
+          description: The HTTP status code of the response.
+        user_agent:
+          type: string
+          nullable: true
+          description: The user agent of the request.
+        request_body:
+          nullable: true
+          description: The request body sent to the API.
+        response_body:
+          nullable: true
+          description: The response body returned by the API.
+    ListLogsResponse:
+      type: object
+      properties:
+        object:
+          type: string
+          description: Type of the response object.
+          example: 'list'
+        has_more:
+          type: boolean
+          description: Indicates if there are more results available.
+          example: false
+        data:
+          type: array
+          description: Array containing log information.
+          items:
+            $ref: '#/components/schemas/LogSummary'
