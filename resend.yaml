@@ -503,6 +503,10 @@ paths:
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeleteApiKeyResponse'
   /templates:
     post:
       tags:
@@ -1935,7 +1939,7 @@ components:
           description: The API key can have full access to Resend’s API or be only restricted to send emails. * full_access - Can create, delete, get, and update any resource. * sending_access - Can only send emails.
         domain_id:
           type: string
-          description: Restrict an API key to send emails only from a specific domain. Only used when the permission is sending_acces.
+          description: Restrict an API key to send emails only from a specific domain. Only used when the permission is sending_access.
     CreateApiKeyResponse:
       type: object
       properties:
@@ -1978,6 +1982,20 @@ components:
           format: date-time
           nullable: true
           description: The date and time the API key was last used.
+    DeleteApiKeyResponse:
+      type: object
+      properties:
+        object:
+          type: string
+          description: The type of object.
+          example: 'api_key'
+        id:
+          type: string
+          description: The ID of the API key.
+        deleted:
+          type: boolean
+          description: Indicates whether the API key was successfully deleted.
+          example: true
     CreateAudienceOptions:
       type: object
       deprecated: true
@@ -3201,7 +3219,7 @@ components:
         id:
           type: string
           description: The ID of the template.
-        object: 
+        object:
           type: string
           description: The object type of the response.
           example: template
