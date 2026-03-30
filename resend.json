@@ -63,6 +63,10 @@
     {
       "name": "Contact Properties",
       "description": "Create and manage Contact Properties through the Resend API."
+    },
+    {
+      "name": "Logs",
+      "description": "Retrieve API request logs through the Resend API."
     }
   ],
   "paths": {
@@ -824,7 +828,14 @@
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeleteApiKeyResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -2327,6 +2338,69 @@
           }
         }
       }
+    },
+    "/logs": {
+      "get": {
+        "tags": [
+          "Logs"
+        ],
+        "summary": "Retrieve a list of logs",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PaginationLimit"
+          },
+          {
+            "$ref": "#/components/parameters/PaginationAfter"
+          },
+          {
+            "$ref": "#/components/parameters/PaginationBefore"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListLogsResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/logs/{log_id}": {
+      "get": {
+        "tags": [
+          "Logs"
+        ],
+        "summary": "Retrieve a single log",
+        "parameters": [
+          {
+            "name": "log_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "The ID of the log."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Log"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -3033,7 +3107,7 @@
           },
           "domain_id": {
             "type": "string",
-            "description": "Restrict an API key to send emails only from a specific domain. Only used when the permission is sending_acces."
+            "description": "Restrict an API key to send emails only from a specific domain. Only used when the permission is sending_access."
           }
         }
       },
@@ -3092,6 +3166,25 @@
             "format": "date-time",
             "nullable": true,
             "description": "The date and time the API key was last used."
+          }
+        }
+      },
+      "DeleteApiKeyResponse": {
+        "type": "object",
+        "properties": {
+          "object": {
+            "type": "string",
+            "description": "The type of object.",
+            "example": "api_key"
+          },
+          "id": {
+            "type": "string",
+            "description": "The ID of the API key."
+          },
+          "deleted": {
+            "type": "boolean",
+            "description": "Indicates whether the API key was successfully deleted.",
+            "example": true
           }
         }
       },
@@ -5526,6 +5619,121 @@
                   "description": "The subscription status."
                 }
               }
+            }
+          }
+        }
+      },
+      "LogSummary": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The log ID."
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The date the log was created."
+          },
+          "endpoint": {
+            "type": "string",
+            "description": "The API endpoint that was called."
+          },
+          "method": {
+            "type": "string",
+            "enum": [
+              "GET",
+              "POST",
+              "PUT",
+              "DELETE",
+              "PATCH",
+              "OPTIONS"
+            ],
+            "description": "The HTTP method used."
+          },
+          "response_status": {
+            "type": "integer",
+            "description": "The HTTP status code of the response."
+          },
+          "user_agent": {
+            "type": "string",
+            "nullable": true,
+            "description": "The user agent of the request."
+          }
+        }
+      },
+      "Log": {
+        "type": "object",
+        "properties": {
+          "object": {
+            "type": "string",
+            "description": "Type of the response object.",
+            "example": "log"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The log ID."
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The date the log was created."
+          },
+          "endpoint": {
+            "type": "string",
+            "description": "The API endpoint that was called."
+          },
+          "method": {
+            "type": "string",
+            "enum": [
+              "GET",
+              "POST",
+              "PUT",
+              "DELETE",
+              "PATCH",
+              "OPTIONS"
+            ],
+            "description": "The HTTP method used."
+          },
+          "response_status": {
+            "type": "integer",
+            "description": "The HTTP status code of the response."
+          },
+          "user_agent": {
+            "type": "string",
+            "nullable": true,
+            "description": "The user agent of the request."
+          },
+          "request_body": {
+            "nullable": true,
+            "description": "The request body sent to the API."
+          },
+          "response_body": {
+            "nullable": true,
+            "description": "The response body returned by the API."
+          }
+        }
+      },
+      "ListLogsResponse": {
+        "type": "object",
+        "properties": {
+          "object": {
+            "type": "string",
+            "description": "Type of the response object.",
+            "example": "list"
+          },
+          "has_more": {
+            "type": "boolean",
+            "description": "Indicates if there are more results available.",
+            "example": false
+          },
+          "data": {
+            "type": "array",
+            "description": "Array containing log information.",
+            "items": {
+              "$ref": "#/components/schemas/LogSummary"
             }
           }
         }
