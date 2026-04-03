@@ -34,6 +34,10 @@ tags:
     description: Create and manage Contact Properties through the Resend API.
   - name: Logs
     description: Retrieve API request logs through the Resend API.
+  - name: Automations
+    description: Create and manage Automations through the Resend API.
+  - name: Events
+    description: Create and manage Events through the Resend API.
 paths:
   /emails:
     post:
@@ -1441,6 +1445,295 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Log'
+  /automations:
+    post:
+      tags:
+        - Automations
+      summary: Create an automation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAutomationRequest'
+      responses:
+        '201':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateAutomationResponse'
+    get:
+      tags:
+        - Automations
+      summary: Retrieve a list of automations
+      parameters:
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - enabled
+              - disabled
+          description: Filter automations by status.
+        - $ref: '#/components/parameters/PaginationLimit'
+        - $ref: '#/components/parameters/PaginationAfter'
+        - $ref: '#/components/parameters/PaginationBefore'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListAutomationsResponse'
+  /automations/{automation_id}:
+    get:
+      tags:
+        - Automations
+      summary: Retrieve a single automation
+      parameters:
+        - name: automation_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The ID of the automation.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Automation'
+    patch:
+      tags:
+        - Automations
+      summary: Update an automation
+      parameters:
+        - name: automation_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The ID of the automation.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchAutomationRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PatchAutomationResponse'
+    delete:
+      tags:
+        - Automations
+      summary: Delete an automation
+      parameters:
+        - name: automation_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The ID of the automation.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeleteAutomationResponse'
+  /automations/{automation_id}/stop:
+    post:
+      tags:
+        - Automations
+      summary: Stop an automation
+      parameters:
+        - name: automation_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The ID of the automation.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StopAutomationResponse'
+  /automations/{automation_id}/runs:
+    get:
+      tags:
+        - Automations
+      summary: Retrieve a list of automation runs
+      parameters:
+        - name: automation_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The ID of the automation.
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+          description: 'Filter runs by status. Comma-separated list of: running, completed, failed, cancelled.'
+        - $ref: '#/components/parameters/PaginationLimit'
+        - $ref: '#/components/parameters/PaginationAfter'
+        - $ref: '#/components/parameters/PaginationBefore'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListAutomationRunsResponse'
+  /automations/{automation_id}/runs/{run_id}:
+    get:
+      tags:
+        - Automations
+      summary: Retrieve a single automation run
+      parameters:
+        - name: automation_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The ID of the automation.
+        - name: run_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The ID of the automation run.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AutomationRun'
+  /events:
+    post:
+      tags:
+        - Events
+      summary: Create an event
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateEventRequest'
+      responses:
+        '201':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateEventResponse'
+    get:
+      tags:
+        - Events
+      summary: Retrieve a list of events
+      parameters:
+        - $ref: '#/components/parameters/PaginationLimit'
+        - $ref: '#/components/parameters/PaginationAfter'
+        - $ref: '#/components/parameters/PaginationBefore'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListEventsResponse'
+  /events/send:
+    post:
+      tags:
+        - Events
+      summary: Send an event
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SendEventRequest'
+      responses:
+        '202':
+          description: Accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SendEventResponse'
+  /events/{identifier}:
+    get:
+      tags:
+        - Events
+      summary: Retrieve a single event
+      parameters:
+        - name: identifier
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The event ID (UUID) or event name.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Event'
+    patch:
+      tags:
+        - Events
+      summary: Update an event
+      parameters:
+        - name: identifier
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The event ID (UUID) or event name.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateEventRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateEventResponse'
+    delete:
+      tags:
+        - Events
+      summary: Delete an event
+      parameters:
+        - name: identifier
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The event ID (UUID) or event name.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RemoveEventResponse'
 components:
   securitySchemes:
     bearerAuth:
@@ -3857,3 +4150,517 @@ components:
           description: Array containing log information.
           items:
             $ref: '#/components/schemas/LogSummary'
+    AutomationStep:
+      type: object
+      description: A step in an automation workflow. The `config` object varies based on the step `type`.
+      required:
+        - ref
+        - type
+        - config
+      properties:
+        ref:
+          type: string
+          description: A unique reference identifier for this step within the automation graph.
+        type:
+          type: string
+          enum:
+            - trigger
+            - send_email
+            - delay
+            - wait_for_event
+            - condition
+            - contact_update
+            - contact_delete
+            - add_to_segment
+          description: The type of automation step.
+        config:
+          type: object
+          description: >
+            Configuration for the step. Shape depends on `type`:
+            - **trigger**: `{ event_name: string }`
+            - **send_email**: `{ template_id: string, subject?: string, from?: string, reply_to?: string, variables?: object }`
+            - **delay**: `{ seconds: number }`
+            - **wait_for_event**: `{ event_name: string, timeout_seconds?: number, filter_rule?: object }`
+            - **condition**: A rule tree with `type` (`rule`, `and`, `or`), `field`, `operator`, and `value`
+            - **contact_update**: `{ first_name?: string|object, last_name?: string|object, unsubscribed?: boolean|object, properties?: object }`
+            - **contact_delete**: `{}`
+            - **add_to_segment**: `{ segment_id: string }`
+    AutomationStepResponse:
+      type: object
+      description: A step as returned when retrieving an automation.
+      properties:
+        type:
+          type: string
+          enum:
+            - trigger
+            - send_email
+            - delay
+            - wait_for_event
+            - condition
+            - contact_update
+            - contact_delete
+            - add_to_segment
+          description: The type of automation step.
+        config:
+          type: object
+          description: Configuration for the step. Shape depends on `type`.
+    AutomationEdge:
+      type: object
+      description: An edge connecting two steps in the automation graph.
+      required:
+        - from
+        - to
+      properties:
+        from:
+          type: string
+          description: The `ref` of the source step (in requests) or the step ID (in responses).
+        to:
+          type: string
+          description: The `ref` of the target step (in requests) or the step ID (in responses).
+        edge_type:
+          type: string
+          enum:
+            - default
+            - condition_met
+            - condition_not_met
+            - timeout
+            - event_received
+          default: default
+          description: The type of edge. Defaults to `default`.
+    CreateAutomationRequest:
+      type: object
+      required:
+        - name
+        - steps
+        - edges
+      properties:
+        name:
+          type: string
+          minLength: 1
+          description: The name of the automation.
+        status:
+          type: string
+          enum:
+            - enabled
+            - disabled
+          default: disabled
+          description: The initial status of the automation. Defaults to `disabled`.
+        steps:
+          type: array
+          minItems: 1
+          maxItems: 150
+          description: The steps that compose the automation workflow. Must include at least one `trigger` step.
+          items:
+            $ref: '#/components/schemas/AutomationStep'
+        edges:
+          type: array
+          description: The edges connecting steps in the automation graph.
+          items:
+            $ref: '#/components/schemas/AutomationEdge'
+    CreateAutomationResponse:
+      type: object
+      properties:
+        object:
+          type: string
+          description: Type of the response object.
+          example: automation
+        id:
+          type: string
+          description: The ID of the created automation.
+    Automation:
+      type: object
+      properties:
+        object:
+          type: string
+          description: Type of the response object.
+          example: automation
+        id:
+          type: string
+          description: The ID of the automation.
+        name:
+          type: string
+          description: The name of the automation.
+        status:
+          type: string
+          enum:
+            - enabled
+            - disabled
+          description: The current status of the automation.
+        created_at:
+          type: string
+          description: The date and time the automation was created.
+        updated_at:
+          type: string
+          description: The date and time the automation was last updated.
+        steps:
+          type: array
+          description: The steps in the active version of the automation.
+          items:
+            $ref: '#/components/schemas/AutomationStepResponse'
+        edges:
+          type: array
+          description: The edges connecting steps in the active version of the automation.
+          items:
+            $ref: '#/components/schemas/AutomationEdge'
+    AutomationListItem:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The ID of the automation.
+        name:
+          type: string
+          description: The name of the automation.
+        status:
+          type: string
+          enum:
+            - enabled
+            - disabled
+          description: The current status of the automation.
+        created_at:
+          type: string
+          description: The date and time the automation was created.
+        updated_at:
+          type: string
+          description: The date and time the automation was last updated.
+    ListAutomationsResponse:
+      type: object
+      properties:
+        object:
+          type: string
+          description: Type of the response object.
+          example: 'list'
+        has_more:
+          type: boolean
+          description: Indicates if there are more results available.
+        data:
+          type: array
+          description: Array of automations.
+          items:
+            $ref: '#/components/schemas/AutomationListItem'
+    PatchAutomationRequest:
+      type: object
+      description: >
+        At least one of `name`, `status`, or `steps` and `edges` must be provided.
+        When updating the workflow graph, both `steps` and `edges` must be provided together.
+      properties:
+        name:
+          type: string
+          minLength: 1
+          description: The name of the automation.
+        status:
+          type: string
+          enum:
+            - enabled
+            - disabled
+          description: The status of the automation.
+        steps:
+          type: array
+          minItems: 1
+          maxItems: 150
+          description: The steps that compose the automation workflow. Must be provided together with `edges`.
+          items:
+            $ref: '#/components/schemas/AutomationStep'
+        edges:
+          type: array
+          description: The edges connecting steps in the automation graph. Must be provided together with `steps`.
+          items:
+            $ref: '#/components/schemas/AutomationEdge'
+    PatchAutomationResponse:
+      type: object
+      properties:
+        object:
+          type: string
+          description: Type of the response object.
+          example: automation
+        id:
+          type: string
+          description: The ID of the updated automation.
+    DeleteAutomationResponse:
+      type: object
+      properties:
+        object:
+          type: string
+          description: Type of the response object.
+          example: automation
+        id:
+          type: string
+          description: The ID of the deleted automation.
+        deleted:
+          type: boolean
+          description: Indicates whether the automation was successfully deleted.
+          example: true
+    StopAutomationResponse:
+      type: object
+      properties:
+        object:
+          type: string
+          description: Type of the response object.
+          example: automation
+        id:
+          type: string
+          description: The ID of the stopped automation.
+        status:
+          type: string
+          description: The status of the automation after stopping.
+          example: disabled
+    AutomationRunStep:
+      type: object
+      description: A step execution within an automation run.
+      properties:
+        type:
+          type: string
+          enum:
+            - trigger
+            - send_email
+            - delay
+            - wait_for_event
+            - condition
+            - contact_update
+            - contact_delete
+            - add_to_segment
+          description: The type of automation step.
+        status:
+          type: string
+          description: The execution status of this step.
+        started_at:
+          type: string
+          nullable: true
+          description: The date and time the step started executing.
+        completed_at:
+          type: string
+          nullable: true
+          description: The date and time the step completed executing.
+        output:
+          nullable: true
+          description: The output produced by the step, if any.
+        error:
+          nullable: true
+          description: The error produced by the step, if any.
+        created_at:
+          type: string
+          description: The date and time the step record was created.
+    AutomationRun:
+      type: object
+      properties:
+        object:
+          type: string
+          description: Type of the response object.
+          example: automation_run
+        id:
+          type: string
+          description: The ID of the automation run.
+        status:
+          type: string
+          enum:
+            - running
+            - completed
+            - failed
+            - cancelled
+          description: The current status of the automation run.
+        started_at:
+          type: string
+          nullable: true
+          description: The date and time the run started.
+        completed_at:
+          type: string
+          nullable: true
+          description: The date and time the run completed.
+        created_at:
+          type: string
+          description: The date and time the run was created.
+        steps:
+          type: array
+          description: The steps executed in this run, sorted in graph order.
+          items:
+            $ref: '#/components/schemas/AutomationRunStep'
+    AutomationRunListItem:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The ID of the automation run.
+        status:
+          type: string
+          enum:
+            - running
+            - completed
+            - failed
+            - cancelled
+          description: The current status of the automation run.
+        started_at:
+          type: string
+          nullable: true
+          description: The date and time the run started.
+        completed_at:
+          type: string
+          nullable: true
+          description: The date and time the run completed.
+        created_at:
+          type: string
+          description: The date and time the run was created.
+    ListAutomationRunsResponse:
+      type: object
+      properties:
+        object:
+          type: string
+          description: Type of the response object.
+          example: 'list'
+        has_more:
+          type: boolean
+          description: Indicates if there are more results available.
+        data:
+          type: array
+          description: Array of automation runs.
+          items:
+            $ref: '#/components/schemas/AutomationRunListItem'
+    Event:
+      type: object
+      properties:
+        object:
+          type: string
+          description: Type of the response object.
+          example: 'event'
+        id:
+          type: string
+          format: uuid
+          description: The event ID.
+        name:
+          type: string
+          description: The event name.
+        schema:
+          type: object
+          nullable: true
+          description: A flat key/type map defining the event payload schema. Supported types are `string`, `number`, `boolean`, and `date`.
+        created_at:
+          type: string
+          description: The date and time the event was created.
+        updated_at:
+          type: string
+          nullable: true
+          description: The date and time the event was last updated.
+    EventSummary:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: The event ID.
+        name:
+          type: string
+          description: The event name.
+        schema:
+          type: object
+          nullable: true
+          description: A flat key/type map defining the event payload schema. Supported types are `string`, `number`, `boolean`, and `date`.
+        created_at:
+          type: string
+          description: The date and time the event was created.
+        updated_at:
+          type: string
+          nullable: true
+          description: The date and time the event was last updated.
+    CreateEventRequest:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          description: The name of the event. Cannot start with the reserved `resend:` prefix.
+        schema:
+          type: object
+          nullable: true
+          description: An optional flat key/type map defining the event payload schema. Supported types are `string`, `number`, `boolean`, and `date`.
+    CreateEventResponse:
+      type: object
+      properties:
+        object:
+          type: string
+          description: Type of the response object.
+          example: 'event'
+        id:
+          type: string
+          format: uuid
+          description: The ID of the created event.
+    ListEventsResponse:
+      type: object
+      properties:
+        object:
+          type: string
+          description: Type of the response object.
+          example: 'list'
+        has_more:
+          type: boolean
+          description: Indicates if there are more results available.
+          example: false
+        data:
+          type: array
+          description: Array containing event information.
+          items:
+            $ref: '#/components/schemas/EventSummary'
+    UpdateEventRequest:
+      type: object
+      required:
+        - schema
+      properties:
+        schema:
+          type: object
+          nullable: true
+          description: A flat key/type map defining the event payload schema. Set to `null` to clear the schema. Supported types are `string`, `number`, `boolean`, and `date`.
+    UpdateEventResponse:
+      type: object
+      properties:
+        object:
+          type: string
+          description: Type of the response object.
+          example: 'event'
+        id:
+          type: string
+          format: uuid
+          description: The ID of the updated event.
+    RemoveEventResponse:
+      type: object
+      properties:
+        object:
+          type: string
+          description: Type of the response object.
+          example: 'event'
+        id:
+          type: string
+          format: uuid
+          description: The ID of the deleted event.
+        deleted:
+          type: boolean
+          description: Indicates whether the event was deleted.
+          example: true
+    SendEventRequest:
+      type: object
+      required:
+        - event
+      properties:
+        event:
+          type: string
+          description: The name of the event to send.
+        contact_id:
+          type: string
+          format: uuid
+          description: The ID of the contact to associate with this event. Exactly one of `contact_id` or `email` must be provided.
+        email:
+          type: string
+          format: email
+          description: The email address to associate with this event. Exactly one of `contact_id` or `email` must be provided.
+        payload:
+          type: object
+          additionalProperties: true
+          description: An optional payload of key/value pairs to include with the event.
+    SendEventResponse:
+      type: object
+      properties:
+        object:
+          type: string
+          description: Type of the response object.
+          example: 'event'
+        event:
+          type: string
+          description: The name of the event that was sent.
