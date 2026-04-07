@@ -446,6 +446,7 @@ paths:
       tags:
         - Domains
       summary: Verify an existing domain
+      description: Triggers verification of the domain's DNS records including DKIM, SPF, and the tracking CNAME (if a tracking subdomain is configured).
       parameters:
         - name: domain_id
           in: path
@@ -2026,6 +2027,9 @@ components:
           description: TLS mode. Opportunistic attempts secure connection but falls back to unencrypted. Enforced requires TLS or email won't be sent.
         capabilities:
           $ref: '#/components/schemas/DomainCapabilities'
+        tracking_subdomain:
+          type: string
+          description: The subdomain to use for click and open tracking.
     CreateDomainResponse:
       type: object
       properties:
@@ -2051,6 +2055,15 @@ components:
         region:
           type: string
           description: The region where the domain is hosted.
+        open_tracking:
+          type: boolean
+          description: Whether open tracking is enabled for this domain.
+        click_tracking:
+          type: boolean
+          description: Whether click tracking is enabled for this domain.
+        tracking_subdomain:
+          type: string
+          description: The subdomain used for click and open tracking.
     UpdateDomainOptions:
       type: object
       properties:
@@ -2066,6 +2079,9 @@ components:
           default: "opportunistic"
         capabilities:
           $ref: '#/components/schemas/DomainCapabilities'
+        tracking_subdomain:
+          type: string
+          description: The subdomain to use for click and open tracking.
     DomainRecord:
       type: object
       properties:
@@ -2075,7 +2091,8 @@ components:
             - SPF
             - DKIM
             - Receiving
-          description: The type of record (SPF for sending, DKIM for sending, Receiving for inbound emails).
+            - Tracking
+          description: The type of record (SPF for sending, DKIM for sending, Receiving for inbound emails, Tracking for click and open tracking).
         name:
           type: string
           description: The name of the DNS record.
@@ -2132,6 +2149,15 @@ components:
           type: string
           description: The region where the domain is hosted.
           example: 'us-east-1'
+        open_tracking:
+          type: boolean
+          description: Whether open tracking is enabled for this domain.
+        click_tracking:
+          type: boolean
+          description: Whether click tracking is enabled for this domain.
+        tracking_subdomain:
+          type: string
+          description: The subdomain used for click and open tracking.
         capabilities:
           $ref: '#/components/schemas/DomainCapabilities'
         records:
