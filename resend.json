@@ -6290,7 +6290,7 @@
           },
           "config": {
             "type": "object",
-            "description": "Configuration for the step. Shape depends on `type`: - **trigger**: `{ event_name: string }` - **send_email**: `{ template_id: string, subject?: string, from?: string, reply_to?: string, variables?: object }` - **delay**: `{ seconds: number }` - **wait_for_event**: `{ event_name: string, timeout?: string, filter_rule?: object }` - **condition**: A rule tree with `type` (`rule`, `and`, `or`), `field`, `operator`, and `value` - **contact_update**: `{ first_name?: string|object, last_name?: string|object, unsubscribed?: boolean|object, properties?: object }` - **contact_delete**: `{}` - **add_to_segment**: `{ segment_id: string }`\n"
+            "description": "Configuration for the step. Shape depends on `type`: - **trigger**: `{ event_name: string }` - **send_email**: `{ template: { id: string, variables?: object }, subject?: string, from?: string, reply_to?: string }` - **delay**: `{ seconds: number }` - **wait_for_event**: `{ event_name: string, timeout?: string, filter_rule?: object }` - **condition**: A rule tree with `type` (`rule`, `and`, `or`), `field`, `operator`, and `value` - **contact_update**: `{ first_name?: string|object, last_name?: string|object, unsubscribed?: boolean|object, properties?: object }` - **contact_delete**: `{}` - **add_to_segment**: `{ segment_id: string }`\n"
           }
         }
       },
