@@ -4180,13 +4180,13 @@ components:
       type: object
       description: A step in an automation workflow. The `config` object varies based on the step `type`.
       required:
-        - ref
+        - key
         - type
         - config
       properties:
-        ref:
+        key:
           type: string
-          description: A unique reference identifier for this step within the automation graph.
+          description: A unique key for this step within the automation graph.
         type:
           type: string
           enum:
@@ -4204,9 +4204,9 @@ components:
           description: >
             Configuration for the step. Shape depends on `type`:
             - **trigger**: `{ event_name: string }`
-            - **send_email**: `{ template_id: string, subject?: string, from?: string, reply_to?: string, variables?: object }`
-            - **delay**: `{ seconds: number }`
-            - **wait_for_event**: `{ event_name: string, timeout_seconds?: number, filter_rule?: object }`
+            - **send_email**: `{ template: { id: string, variables?: object }, subject?: string, from?: string, reply_to?: string }`
+            - **delay**: `{ duration?: string, seconds?: number }` — provide exactly one of `duration` (e.g. `"30 minutes"`) or `seconds`
+            - **wait_for_event**: `{ event_name: string, timeout?: string, filter_rule?: object }` — `timeout` is a human-readable duration (e.g. `"1 hour"`)
             - **condition**: A rule tree with `type` (`rule`, `and`, `or`), `field`, `operator`, and `value`
             - **contact_update**: `{ first_name?: string|object, last_name?: string|object, unsubscribed?: boolean|object, properties?: object }`
             - **contact_delete**: `{}`
@@ -4215,6 +4215,9 @@ components:
       type: object
       description: A step as returned when retrieving an automation.
       properties:
+        key:
+          type: string
+          description: The unique key of this step within the automation graph.
         type:
           type: string
           enum:
@@ -4229,21 +4232,24 @@ components:
           description: The type of automation step.
         config:
           type: object
-          description: Configuration for the step. Shape depends on `type`.
-    AutomationEdge:
+          description: >
+            Configuration for the step. Shape depends on `type`.
+            For `delay` steps, config contains `{ duration: string }` with a human-readable duration (e.g. `"30 minutes"`).
+            For `wait_for_event` steps, config contains `{ event_name: string, timeout?: string, filter_rule?: object }` where `timeout` is a human-readable duration.
+    AutomationConnection:
       type: object
-      description: An edge connecting two steps in the automation graph.
+      description: A connection between two steps in the automation graph.
       required:
         - from
         - to
       properties:
         from:
           type: string
-          description: The `ref` of the source step (in requests) or the step ID (in responses).
+          description: The `key` of the source step.
         to:
           type: string
-          description: The `ref` of the target step (in requests) or the step ID (in responses).
-        edge_type:
+          description: The `key` of the target step.
+        type:
           type: string
           enum:
             - default
@@ -4252,13 +4258,13 @@ components:
             - timeout
             - event_received
           default: default
-          description: The type of edge. Defaults to `default`.
+          description: The type of connection. Defaults to `default`.
     CreateAutomationRequest:
       type: object
       required:
         - name
         - steps
-        - edges
+        - connections
       properties:
         name:
           type: string
@@ -4278,11 +4284,11 @@ components:
           description: The steps that compose the automation workflow. Must include at least one `trigger` step.
           items:
             $ref: '#/components/schemas/AutomationStep'
-        edges:
+        connections:
           type: array
-          description: The edges connecting steps in the automation graph.
+          description: The connections between steps in the automation graph.
           items:
-            $ref: '#/components/schemas/AutomationEdge'
+            $ref: '#/components/schemas/AutomationConnection'
     CreateAutomationResponse:
       type: object
       properties:
@@ -4323,11 +4329,11 @@ components:
           description: The steps in the active version of the automation.
           items:
             $ref: '#/components/schemas/AutomationStepResponse'
-        edges:
+        connections:
           type: array
-          description: The edges connecting steps in the active version of the automation.
+          description: The connections between steps in the active version of the automation.
           items:
-            $ref: '#/components/schemas/AutomationEdge'
+            $ref: '#/components/schemas/AutomationConnection'
     AutomationListItem:
       type: object
       properties:
@@ -4367,8 +4373,8 @@ components:
     PatchAutomationRequest:
       type: object
       description: >
-        At least one of `name`, `status`, or `steps` and `edges` must be provided.
-        When updating the workflow graph, both `steps` and `edges` must be provided together.
+        At least one of `name`, `status`, or `steps` and `connections` must be provided.
+        When updating the workflow graph, both `steps` and `connections` must be provided together.
       properties:
         name:
           type: string
@@ -4384,14 +4390,14 @@ components:
           type: array
           minItems: 1
           maxItems: 150
-          description: The steps that compose the automation workflow. Must be provided together with `edges`.
+          description: The steps that compose the automation workflow. Must be provided together with `connections`.
           items:
             $ref: '#/components/schemas/AutomationStep'
-        edges:
+        connections:
           type: array
-          description: The edges connecting steps in the automation graph. Must be provided together with `steps`.
+          description: The connections between steps in the automation graph. Must be provided together with `steps`.
           items:
-            $ref: '#/components/schemas/AutomationEdge'
+            $ref: '#/components/schemas/AutomationConnection'
     PatchAutomationResponse:
       type: object
       properties:
@@ -4434,6 +4440,9 @@ components:
       type: object
       description: A step execution within an automation run.
       properties:
+        key:
+          type: string
+          description: The key of the automation step.
         type:
           type: string
           enum:
