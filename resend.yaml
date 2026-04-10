@@ -4205,8 +4205,8 @@ components:
             Configuration for the step. Shape depends on `type`:
             - **trigger**: `{ event_name: string }`
             - **send_email**: `{ template_id: string, subject?: string, from?: string, reply_to?: string, variables?: object }`
-            - **delay**: `{ seconds: number }`
-            - **wait_for_event**: `{ event_name: string, timeout_seconds?: number, filter_rule?: object }`
+            - **delay**: `{ duration: string }` — NLP duration string, e.g. `"2 hours"`, `"1h 30m"`, `"3 days"` (max 365 days)
+            - **wait_for_event**: `{ event_name: string, timeout?: string, filter_rule?: object }` — `timeout` is an NLP duration string
             - **condition**: A rule tree with `type` (`rule`, `and`, `or`), `field`, `operator`, and `value`
             - **contact_update**: `{ first_name?: string|object, last_name?: string|object, unsubscribed?: boolean|object, properties?: object }`
             - **contact_delete**: `{}`
@@ -4229,7 +4229,10 @@ components:
           description: The type of automation step.
         config:
           type: object
-          description: Configuration for the step. Shape depends on `type`.
+          description: >
+            Configuration for the step. Shape depends on `type`:
+            - **delay**: `{ duration: string }` — human-readable duration, e.g. `"2 hours"`, `"1 hour 30 minutes"`
+            - **wait_for_event**: `{ event_name: string, timeout?: string, filter_rule?: object }` — `timeout` is a human-readable duration
     AutomationEdge:
       type: object
       description: An edge connecting two steps in the automation graph.
