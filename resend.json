@@ -6290,7 +6290,7 @@
           },
           "config": {
             "type": "object",
-            "description": "Configuration for the step. Shape depends on `type`: - **trigger**: `{ event_name: string }` - **send_email**: `{ template: { id: string, variables?: object }, subject?: string, from?: string, reply_to?: string }` - **delay**: `{ duration: string }` — a human-readable duration (e.g. `\"30 minutes\"`) - **wait_for_event**: `{ event_name: string, timeout?: string, filter_rule?: object }` — `timeout` is a human-readable duration (e.g. `\"1 hour\"`) - **condition**: A rule tree with `type` (`rule`, `and`, `or`), `field`, `operator`, and `value` - **contact_update**: `{ first_name?: string|object, last_name?: string|object, unsubscribed?: boolean|object, properties?: object }` - **contact_delete**: `{}` - **add_to_segment**: `{ segment_id: string }`\n"
+            "description": "Configuration for the step. Shape depends on `type`: - **trigger**: `{ event_name: string }` - **send_email**: `{ template: { id: string, variables?: object }, subject?: string, from?: string, reply_to?: string }` - **delay**: `{ duration: string }` — a human-readable duration (e.g. `\"30 minutes\"`) - **wait_for_event**: `{ event_name: string, timeout?: string, filter_rule?: object }` — `timeout` is a human-readable duration (e.g. `\"1 hour\"`). `filter_rule` is a rule tree with the same shape as **condition** but restricted to `event.*` fields (e.g. `{ \"type\": \"rule\", \"field\": \"event.status\", \"operator\": \"eq\", \"value\": \"active\" }`) - **condition**: A rule tree with `type` (`rule`, `and`, `or`), `field`, `operator`, and `value`. Leaf nodes use `{ \"type\": \"rule\", \"field\": \"<namespace>.<key>\", \"operator\": \"<op>\", \"value\": \"<val>\" }`. Supported operators are `eq`, `neq`, `gt`, `gte`, `lt`, `lte`, `contains`, `starts_with`, `ends_with`, `exists`, and `is_empty` (`exists` and `is_empty` require no `value`). Groups use `{ \"type\": \"and\"|\"or\", \"rules\": [...] }` for nesting - **contact_update**: `{ first_name?: string|object, last_name?: string|object, unsubscribed?: boolean|object, properties?: object }` - **contact_delete**: `{}` - **add_to_segment**: `{ segment_id: string }`\n"
           }
         }
       },
@@ -6318,7 +6318,7 @@
           },
           "config": {
             "type": "object",
-            "description": "Configuration for the step. Shape depends on `type`. For `delay` steps, config contains `{ duration: string }` with a human-readable duration (e.g. `\"30 minutes\"`). For `wait_for_event` steps, config contains `{ event_name: string, timeout?: string, filter_rule?: object }` where `timeout` is a human-readable duration.\n"
+            "description": "Configuration for the step. Shape depends on `type`. For `delay` steps, config contains `{ duration: string }` with a human-readable duration (e.g. `\"30 minutes\"`). For `wait_for_event` steps, config contains `{ event_name: string, timeout?: string, filter_rule?: object }` where `timeout` is a human-readable duration. `filter_rule` is a rule tree with the same shape as condition steps but restricted to `event.*` fields. See `AutomationStep` for the full rule tree structure.\n"
           }
         }
       },
