@@ -2093,7 +2093,7 @@ components:
             - Receiving
             - Tracking
             - TrackingCAA
-          description: The type of record (SPF for sending, DKIM for sending, Receiving for inbound emails, Tracking for click and open tracking, TrackingCAA for the CAA record required when the root domain has CAA records that would block AWS from issuing a certificate for the tracking subdomain).
+          description: The type of record (SPF for sending, DKIM for sending, Receiving for inbound emails, Tracking & TrackingCAA for click and open tracking).
         name:
           type: string
           description: The name of the DNS record.
