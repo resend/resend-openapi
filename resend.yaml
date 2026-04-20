@@ -2045,6 +2045,13 @@ components:
           description: The date and time the domain was created.
         status:
           type: string
+          enum:
+            - pending
+            - verified
+            - failed
+            - not_started
+            - partially_verified
+            - partially_failed
           description: The status of the domain.
         capabilities:
           $ref: '#/components/schemas/DomainCapabilities'
@@ -2140,6 +2147,13 @@ components:
           example: 'example.com'
         status:
           type: string
+          enum:
+            - pending
+            - verified
+            - failed
+            - not_started
+            - partially_verified
+            - partially_failed
           description: The status of the domain.
           example: 'not_started'
         created_at:
@@ -2205,6 +2219,13 @@ components:
           example: 'example.com'
         status:
           type: string
+          enum:
+            - pending
+            - verified
+            - failed
+            - not_started
+            - partially_verified
+            - partially_failed
           description: The status of the domain.
           example: 'not_started'
         created_at:
