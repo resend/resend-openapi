@@ -3209,6 +3209,20 @@
           "last_event": {
             "type": "string",
             "description": "The status of the email.",
+            "enum": [
+              "bounced",
+              "canceled",
+              "clicked",
+              "complained",
+              "delivered",
+              "delivery_delayed",
+              "failed",
+              "opened",
+              "queued",
+              "scheduled",
+              "sent",
+              "suppressed"
+            ],
             "example": "delivered"
           }
         }
@@ -3343,6 +3357,14 @@
           },
           "status": {
             "type": "string",
+            "enum": [
+              "pending",
+              "verified",
+              "failed",
+              "not_started",
+              "partially_verified",
+              "partially_failed"
+            ],
             "description": "The status of the domain."
           },
           "capabilities": {
@@ -3406,9 +3428,10 @@
               "SPF",
               "DKIM",
               "Receiving",
-              "Tracking"
+              "Tracking",
+              "TrackingCAA"
             ],
-            "description": "The type of record (SPF for sending, DKIM for sending, Receiving for inbound emails, Tracking for click and open tracking)."
+            "description": "The type of record (SPF for sending, DKIM for sending, Receiving for inbound emails, Tracking & TrackingCAA for click and open tracking)."
           },
           "name": {
             "type": "string",
@@ -3419,7 +3442,8 @@
             "enum": [
               "MX",
               "TXT",
-              "CNAME"
+              "CNAME",
+              "CAA"
             ],
             "description": "The DNS record type."
           },
@@ -3468,6 +3492,14 @@
           },
           "status": {
             "type": "string",
+            "enum": [
+              "pending",
+              "verified",
+              "failed",
+              "not_started",
+              "partially_verified",
+              "partially_failed"
+            ],
             "description": "The status of the domain.",
             "example": "not_started"
           },
@@ -3556,6 +3588,14 @@
           },
           "status": {
             "type": "string",
+            "enum": [
+              "pending",
+              "verified",
+              "failed",
+              "not_started",
+              "partially_verified",
+              "partially_failed"
+            ],
             "description": "The status of the domain.",
             "example": "not_started"
           },
@@ -4818,7 +4858,8 @@
             "example": [
               "email.sent",
               "email.delivered",
-              "email.bounced"
+              "email.bounced",
+              "email.suppressed"
             ]
           }
         }
