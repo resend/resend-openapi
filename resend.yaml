@@ -1948,6 +1948,19 @@ components:
         last_event:
           type: string
           description: The status of the email.
+          enum:
+            - bounced
+            - canceled
+            - clicked
+            - complained
+            - delivered
+            - delivery_delayed
+            - failed
+            - opened
+            - queued
+            - scheduled
+            - sent
+            - suppressed
           example: 'delivered'
     ListEmailsResponse:
       type: object
@@ -3178,7 +3191,7 @@ components:
             type: string
           minItems: 1
           description: Array of event types to subscribe to.
-          example: ['email.sent', 'email.delivered', 'email.bounced']
+          example: ['email.sent', 'email.delivered', 'email.bounced', 'email.suppressed']
     CreateWebhookResponse:
       type: object
       properties:
