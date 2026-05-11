@@ -4191,9 +4191,11 @@ components:
           nullable: true
           description: The user agent of the request.
         request_body:
+          type: object
           nullable: true
           description: The request body sent to the API.
         response_body:
+          type: object
           nullable: true
           description: The response body returned by the API.
     ListLogsResponse:
@@ -4503,9 +4505,11 @@ components:
           nullable: true
           description: The date and time the step completed executing.
         output:
+          type: object
           nullable: true
           description: The output produced by the step, if any.
         error:
+          type: object
           nullable: true
           description: The error produced by the step, if any.
         created_at:
