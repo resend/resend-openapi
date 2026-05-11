@@ -1,4 +1,4 @@
-openapi: 3.0.3
+openapi: 3.1.2
 info:
   title: Resend
   version: 1.5.0
@@ -2333,9 +2333,8 @@ components:
           format: date-time
           description: The date and time the API key was created.
         last_used_at:
-          type: string
+          type: [string, "null"]
           format: date-time
-          nullable: true
           description: The date and time the API key was last used.
     DeleteApiKeyResponse:
       type: object
@@ -2752,13 +2751,11 @@ components:
           description: Name of the broadcast.
           example: November announcements
         audience_id:
-          type: string
-          nullable: true
+          type: [string, "null"]
           description: "Deprecated: use `segment_id` instead. Unique identifier of the segment this broadcast will be sent to."
           deprecated: true
         segment_id:
-          type: string
-          nullable: true
+          type: [string, "null"]
           description: Unique identifier of the segment this broadcast will be sent to.
         from:
           type: string
@@ -2797,18 +2794,15 @@ components:
           description: Timestamp indicating when the broadcast was sent.
           example: "2023-10-06T22:59:55.977Z"
         text:
-          type: string
-          nullable: true
+          type: [string, "null"]
           description: The plain text version of the broadcast content.
           example: 'Hello {{{FIRST_NAME|there}}}!'
         html:
-          type: string
-          nullable: true
+          type: [string, "null"]
           description: The HTML version of the broadcast content.
           example: '<p>Hello {{{FIRST_NAME|there}}}!</p>'
         topic_id:
-          type: string
-          nullable: true
+          type: [string, "null"]
           description: The topic ID that the broadcast is scoped to.
           example: b6d24b8e-af0b-4c3c-be0c-359bbd97381e
     UpdateBroadcastOptions:
@@ -3015,39 +3009,33 @@ components:
           description: The unique message ID from the email headers.
           example: '<message-id@example.com>'
         bcc:
-          type: array
+          type: [array, "null"]
           items:
             type: string
-          nullable: true
           description: The BCC recipients.
           example: []
         cc:
-          type: array
+          type: [array, "null"]
           items:
             type: string
-          nullable: true
           description: The CC recipients.
           example: []
         reply_to:
-          type: array
+          type: [array, "null"]
           items:
             type: string
-          nullable: true
           description: The reply-to addresses.
           example: []
         html:
-          type: string
-          nullable: true
+          type: [string, "null"]
           description: The HTML content of the email.
           example: '<p>Email content</p>'
         text:
-          type: string
-          nullable: true
+          type: [string, "null"]
           description: The plain text content of the email.
           example: 'Email content'
         headers:
-          type: object
-          nullable: true
+          type: [object, "null"]
           description: The email headers.
           example: {'X-Custom-Header': 'value'}
         created_at:
@@ -3116,8 +3104,7 @@ components:
                 description: The sender email address.
                 example: 'sender@example.com'
               subject:
-                type: string
-                nullable: true
+                type: [string, "null"]
                 description: The email subject.
                 example: 'Hello World'
               message_id:
@@ -3125,22 +3112,19 @@ components:
                 description: The unique message ID from the email headers.
                 example: '<message-id@example.com>'
               bcc:
-                type: array
+                type: [array, "null"]
                 items:
                   type: string
-                nullable: true
                 description: The BCC recipients.
               cc:
-                type: array
+                type: [array, "null"]
                 items:
                   type: string
-                nullable: true
                 description: The CC recipients.
               reply_to:
-                type: array
+                type: [array, "null"]
                 items:
                   type: string
-                nullable: true
                 description: The reply-to addresses.
               created_at:
                 type: string
@@ -3225,10 +3209,9 @@ components:
           description: The URL where webhook events are sent.
           example: 'https://webhook.example.com/handler'
         events:
-          type: array
+          type: [array, "null"]
           items:
             type: string
-          nullable: true
           description: Array of event types subscribed to.
           example: ['email.sent', 'email.delivered']
         status:
@@ -3271,10 +3254,9 @@ components:
                 description: The URL where webhook events are sent.
                 example: 'https://webhook.example.com/handler'
               events:
-                type: array
+                type: [array, "null"]
                 items:
                   type: string
-                nullable: true
                 description: Array of event types subscribed to.
                 example: ['email.sent']
               status:
@@ -3416,10 +3398,9 @@ components:
           type: string
           description: Email subject.
         reply_to:
-          type: array
+          type: [array, "null"]
           items:
             type: string
-          nullable: true
           description: Reply-to email addresses.
         html:
           type: string
@@ -3444,10 +3425,9 @@ components:
           description: The publication status of the template.
           enum: [draft, published]
         published_at:
-          type: string
+          type: [string, "null"]
           format: date-time
           description: Timestamp indicating when the template was published.
-          nullable: true
         has_unpublished_versions:
           type: boolean
           description: Indicates whether the template has unpublished versions.
@@ -3465,9 +3445,8 @@ components:
           description: The publication status of the template.
           enum: [draft, published]
         published_at:
-          type: string
+          type: [string, "null"]
           format: date-time
-          nullable: true
           description: Timestamp indicating when the template was published.
         created_at:
           type: string
@@ -4152,8 +4131,7 @@ components:
           type: integer
           description: The HTTP status code of the response.
         user_agent:
-          type: string
-          nullable: true
+          type: [string, "null"]
           description: The user agent of the request.
     Log:
       type: object
@@ -4187,16 +4165,13 @@ components:
           type: integer
           description: The HTTP status code of the response.
         user_agent:
-          type: string
-          nullable: true
+          type: [string, "null"]
           description: The user agent of the request.
         request_body:
-          type: object
-          nullable: true
+          type: [object, "null"]
           description: The request body sent to the API.
         response_body:
-          type: object
-          nullable: true
+          type: [object, "null"]
           description: The response body returned by the API.
     ListLogsResponse:
       type: object
@@ -4497,20 +4472,16 @@ components:
           type: string
           description: The execution status of this step.
         started_at:
-          type: string
-          nullable: true
+          type: [string, "null"]
           description: The date and time the step started executing.
         completed_at:
-          type: string
-          nullable: true
+          type: [string, "null"]
           description: The date and time the step completed executing.
         output:
-          type: object
-          nullable: true
+          type: [object, "null"]
           description: The output produced by the step, if any.
         error:
-          type: object
-          nullable: true
+          type: [object, "null"]
           description: The error produced by the step, if any.
         created_at:
           type: string
@@ -4534,12 +4505,10 @@ components:
             - cancelled
           description: The current status of the automation run.
         started_at:
-          type: string
-          nullable: true
+          type: [string, "null"]
           description: The date and time the run started.
         completed_at:
-          type: string
-          nullable: true
+          type: [string, "null"]
           description: The date and time the run completed.
         created_at:
           type: string
@@ -4564,12 +4533,10 @@ components:
             - cancelled
           description: The current status of the automation run.
         started_at:
-          type: string
-          nullable: true
+          type: [string, "null"]
           description: The date and time the run started.
         completed_at:
-          type: string
-          nullable: true
+          type: [string, "null"]
           description: The date and time the run completed.
         created_at:
           type: string
@@ -4604,15 +4571,13 @@ components:
           type: string
           description: The event name.
         schema:
-          type: object
-          nullable: true
+          type: [object, "null"]
           description: A flat key/type map defining the event payload schema. Supported types are `string`, `number`, `boolean`, and `date`.
         created_at:
           type: string
           description: The date and time the event was created.
         updated_at:
-          type: string
-          nullable: true
+          type: [string, "null"]
           description: The date and time the event was last updated.
     EventSummary:
       type: object
@@ -4625,15 +4590,13 @@ components:
           type: string
           description: The event name.
         schema:
-          type: object
-          nullable: true
+          type: [object, "null"]
           description: A flat key/type map defining the event payload schema. Supported types are `string`, `number`, `boolean`, and `date`.
         created_at:
           type: string
           description: The date and time the event was created.
         updated_at:
-          type: string
-          nullable: true
+          type: [string, "null"]
           description: The date and time the event was last updated.
     CreateEventRequest:
       type: object
@@ -4644,8 +4607,7 @@ components:
           type: string
           description: The name of the event. Cannot start with the reserved `resend:` prefix.
         schema:
-          type: object
-          nullable: true
+          type: [object, "null"]
           description: An optional flat key/type map defining the event payload schema. Supported types are `string`, `number`, `boolean`, and `date`.
     CreateEventResponse:
       type: object
@@ -4680,8 +4642,7 @@ components:
         - schema
       properties:
         schema:
-          type: object
-          nullable: true
+          type: [object, "null"]
           description: A flat key/type map defining the event payload schema. Set to `null` to clear the schema. Supported types are `string`, `number`, `boolean`, and `date`.
     UpdateEventResponse:
       type: object
