@@ -1,5 +1,5 @@
 {
-  "openapi": "3.0.3",
+  "openapi": "3.1.2",
   "info": {
     "title": "Resend",
     "version": "1.5.0",
@@ -3725,9 +3725,11 @@
             "description": "The date and time the API key was created."
           },
           "last_used_at": {
-            "type": "string",
+            "type": [
+              "string",
+              "null"
+            ],
             "format": "date-time",
-            "nullable": true,
             "description": "The date and time the API key was last used."
           }
         }
@@ -4276,14 +4278,18 @@
             "example": "November announcements"
           },
           "audience_id": {
-            "type": "string",
-            "nullable": true,
+            "type": [
+              "string",
+              "null"
+            ],
             "description": "Deprecated: use `segment_id` instead. Unique identifier of the segment this broadcast will be sent to.",
             "deprecated": true
           },
           "segment_id": {
-            "type": "string",
-            "nullable": true,
+            "type": [
+              "string",
+              "null"
+            ],
             "description": "Unique identifier of the segment this broadcast will be sent to."
           },
           "from": {
@@ -4332,20 +4338,26 @@
             "example": "2023-10-06T22:59:55.977Z"
           },
           "text": {
-            "type": "string",
-            "nullable": true,
+            "type": [
+              "string",
+              "null"
+            ],
             "description": "The plain text version of the broadcast content.",
             "example": "Hello {{{FIRST_NAME|there}}}!"
           },
           "html": {
-            "type": "string",
-            "nullable": true,
+            "type": [
+              "string",
+              "null"
+            ],
             "description": "The HTML version of the broadcast content.",
             "example": "<p>Hello {{{FIRST_NAME|there}}}!</p>"
           },
           "topic_id": {
-            "type": "string",
-            "nullable": true,
+            "type": [
+              "string",
+              "null"
+            ],
             "description": "The topic ID that the broadcast is scoped to.",
             "example": "b6d24b8e-af0b-4c3c-be0c-359bbd97381e"
           }
@@ -4620,47 +4632,59 @@
             "example": "<message-id@example.com>"
           },
           "bcc": {
-            "type": "array",
+            "type": [
+              "array",
+              "null"
+            ],
             "items": {
               "type": "string"
             },
-            "nullable": true,
             "description": "The BCC recipients.",
             "example": []
           },
           "cc": {
-            "type": "array",
+            "type": [
+              "array",
+              "null"
+            ],
             "items": {
               "type": "string"
             },
-            "nullable": true,
             "description": "The CC recipients.",
             "example": []
           },
           "reply_to": {
-            "type": "array",
+            "type": [
+              "array",
+              "null"
+            ],
             "items": {
               "type": "string"
             },
-            "nullable": true,
             "description": "The reply-to addresses.",
             "example": []
           },
           "html": {
-            "type": "string",
-            "nullable": true,
+            "type": [
+              "string",
+              "null"
+            ],
             "description": "The HTML content of the email.",
             "example": "<p>Email content</p>"
           },
           "text": {
-            "type": "string",
-            "nullable": true,
+            "type": [
+              "string",
+              "null"
+            ],
             "description": "The plain text content of the email.",
             "example": "Email content"
           },
           "headers": {
-            "type": "object",
-            "nullable": true,
+            "type": [
+              "object",
+              "null"
+            ],
             "description": "The email headers.",
             "example": {
               "X-Custom-Header": "value"
@@ -4753,8 +4777,10 @@
                   "example": "sender@example.com"
                 },
                 "subject": {
-                  "type": "string",
-                  "nullable": true,
+                  "type": [
+                    "string",
+                    "null"
+                  ],
                   "description": "The email subject.",
                   "example": "Hello World"
                 },
@@ -4764,27 +4790,33 @@
                   "example": "<message-id@example.com>"
                 },
                 "bcc": {
-                  "type": "array",
+                  "type": [
+                    "array",
+                    "null"
+                  ],
                   "items": {
                     "type": "string"
                   },
-                  "nullable": true,
                   "description": "The BCC recipients."
                 },
                 "cc": {
-                  "type": "array",
+                  "type": [
+                    "array",
+                    "null"
+                  ],
                   "items": {
                     "type": "string"
                   },
-                  "nullable": true,
                   "description": "The CC recipients."
                 },
                 "reply_to": {
-                  "type": "array",
+                  "type": [
+                    "array",
+                    "null"
+                  ],
                   "items": {
                     "type": "string"
                   },
-                  "nullable": true,
                   "description": "The reply-to addresses."
                 },
                 "created_at": {
@@ -4905,11 +4937,13 @@
             "example": "https://webhook.example.com/handler"
           },
           "events": {
-            "type": "array",
+            "type": [
+              "array",
+              "null"
+            ],
             "items": {
               "type": "string"
             },
-            "nullable": true,
             "description": "Array of event types subscribed to.",
             "example": [
               "email.sent",
@@ -4965,11 +4999,13 @@
                   "example": "https://webhook.example.com/handler"
                 },
                 "events": {
-                  "type": "array",
+                  "type": [
+                    "array",
+                    "null"
+                  ],
                   "items": {
                     "type": "string"
                   },
-                  "nullable": true,
                   "description": "Array of event types subscribed to.",
                   "example": [
                     "email.sent"
@@ -5196,11 +5232,13 @@
             "description": "Email subject."
           },
           "reply_to": {
-            "type": "array",
+            "type": [
+              "array",
+              "null"
+            ],
             "items": {
               "type": "string"
             },
-            "nullable": true,
             "description": "Reply-to email addresses."
           },
           "html": {
@@ -5236,10 +5274,12 @@
             ]
           },
           "published_at": {
-            "type": "string",
+            "type": [
+              "string",
+              "null"
+            ],
             "format": "date-time",
-            "description": "Timestamp indicating when the template was published.",
-            "nullable": true
+            "description": "Timestamp indicating when the template was published."
           },
           "has_unpublished_versions": {
             "type": "boolean",
@@ -5267,9 +5307,11 @@
             ]
           },
           "published_at": {
-            "type": "string",
+            "type": [
+              "string",
+              "null"
+            ],
             "format": "date-time",
-            "nullable": true,
             "description": "Timestamp indicating when the template was published."
           },
           "created_at": {
@@ -6221,8 +6263,10 @@
             "description": "The HTTP status code of the response."
           },
           "user_agent": {
-            "type": "string",
-            "nullable": true,
+            "type": [
+              "string",
+              "null"
+            ],
             "description": "The user agent of the request."
           }
         }
@@ -6266,16 +6310,24 @@
             "description": "The HTTP status code of the response."
           },
           "user_agent": {
-            "type": "string",
-            "nullable": true,
+            "type": [
+              "string",
+              "null"
+            ],
             "description": "The user agent of the request."
           },
           "request_body": {
-            "nullable": true,
+            "type": [
+              "object",
+              "null"
+            ],
             "description": "The request body sent to the API."
           },
           "response_body": {
-            "nullable": true,
+            "type": [
+              "object",
+              "null"
+            ],
             "description": "The response body returned by the API."
           }
         }
@@ -6659,21 +6711,31 @@
             "description": "The execution status of this step."
           },
           "started_at": {
-            "type": "string",
-            "nullable": true,
+            "type": [
+              "string",
+              "null"
+            ],
             "description": "The date and time the step started executing."
           },
           "completed_at": {
-            "type": "string",
-            "nullable": true,
+            "type": [
+              "string",
+              "null"
+            ],
             "description": "The date and time the step completed executing."
           },
           "output": {
-            "nullable": true,
+            "type": [
+              "object",
+              "null"
+            ],
             "description": "The output produced by the step, if any."
           },
           "error": {
-            "nullable": true,
+            "type": [
+              "object",
+              "null"
+            ],
             "description": "The error produced by the step, if any."
           },
           "created_at": {
@@ -6705,13 +6767,17 @@
             "description": "The current status of the automation run."
           },
           "started_at": {
-            "type": "string",
-            "nullable": true,
+            "type": [
+              "string",
+              "null"
+            ],
             "description": "The date and time the run started."
           },
           "completed_at": {
-            "type": "string",
-            "nullable": true,
+            "type": [
+              "string",
+              "null"
+            ],
             "description": "The date and time the run completed."
           },
           "created_at": {
@@ -6745,13 +6811,17 @@
             "description": "The current status of the automation run."
           },
           "started_at": {
-            "type": "string",
-            "nullable": true,
+            "type": [
+              "string",
+              "null"
+            ],
             "description": "The date and time the run started."
           },
           "completed_at": {
-            "type": "string",
-            "nullable": true,
+            "type": [
+              "string",
+              "null"
+            ],
             "description": "The date and time the run completed."
           },
           "created_at": {
@@ -6799,8 +6869,10 @@
             "description": "The event name."
           },
           "schema": {
-            "type": "object",
-            "nullable": true,
+            "type": [
+              "object",
+              "null"
+            ],
             "description": "A flat key/type map defining the event payload schema. Supported types are `string`, `number`, `boolean`, and `date`."
           },
           "created_at": {
@@ -6808,8 +6880,10 @@
             "description": "The date and time the event was created."
           },
           "updated_at": {
-            "type": "string",
-            "nullable": true,
+            "type": [
+              "string",
+              "null"
+            ],
             "description": "The date and time the event was last updated."
           }
         }
@@ -6827,8 +6901,10 @@
             "description": "The event name."
           },
           "schema": {
-            "type": "object",
-            "nullable": true,
+            "type": [
+              "object",
+              "null"
+            ],
             "description": "A flat key/type map defining the event payload schema. Supported types are `string`, `number`, `boolean`, and `date`."
           },
           "created_at": {
@@ -6836,8 +6912,10 @@
             "description": "The date and time the event was created."
           },
           "updated_at": {
-            "type": "string",
-            "nullable": true,
+            "type": [
+              "string",
+              "null"
+            ],
             "description": "The date and time the event was last updated."
           }
         }
@@ -6853,8 +6931,10 @@
             "description": "The name of the event. Cannot start with the reserved `resend:` prefix."
           },
           "schema": {
-            "type": "object",
-            "nullable": true,
+            "type": [
+              "object",
+              "null"
+            ],
             "description": "An optional flat key/type map defining the event payload schema. Supported types are `string`, `number`, `boolean`, and `date`."
           }
         }
@@ -6903,8 +6983,10 @@
         ],
         "properties": {
           "schema": {
-            "type": "object",
-            "nullable": true,
+            "type": [
+              "object",
+              "null"
+            ],
             "description": "A flat key/type map defining the event payload schema. Set to `null` to clear the schema. Supported types are `string`, `number`, `boolean`, and `date`."
           }
         }
