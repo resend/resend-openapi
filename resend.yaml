@@ -5024,15 +5024,31 @@ components:
     WebhookEventSuppressed:
       type: object
       required:
+        - diagnosticCode
         - message
+        - reason
         - type
       properties:
+        diagnosticCode:
+          type: array
+          items:
+            type: string
+          description: Array of SMTP diagnostic responses from the receiving server, one entry per recipient.
         message:
           type: string
           description: Detailed suppression message describing why the email was suppressed.
+        reason:
+          type: string
+          enum:
+            - previous_bounce
+            - previous_complaint
+          description: Reason the address is suppressed.
         type:
           type: string
-          description: Suppression type (e.g., `OnAccountSuppressionList`).
+          enum:
+            - Suppressed
+            - OnAccountSuppressionList
+          description: Suppression type.
     WebhookEventAttachment:
       type: object
       required:
@@ -5139,6 +5155,19 @@ components:
           additionalProperties:
             type: string
           description: Tag key-value pairs associated with the email.
+        headers:
+          type: array
+          items:
+            type: object
+            required:
+              - name
+              - value
+            properties:
+              name:
+                type: string
+              value:
+                type: string
+          description: Custom headers included with the email (omitted when no custom headers are set).
     EmailBouncedEventData:
       allOf:
         - $ref: '#/components/schemas/OutboundEmailEventData'
@@ -5228,13 +5257,9 @@ components:
       type: object
       required:
         - id
-        - audience_id
-        - segment_ids
         - created_at
         - updated_at
         - email
-        - first_name
-        - last_name
         - unsubscribed
       properties:
         id:
