@@ -3152,6 +3152,7 @@ components:
           example: '660e8400-e29b-41d4-a716-446655440000'
         filename:
           type: string
+          nullable: true
           description: The filename of the attachment.
           example: 'document.pdf'
         content_type:
@@ -3164,6 +3165,7 @@ components:
           example: 'img001'
         content_disposition:
           type: string
+          nullable: true
           enum:
             - inline
             - attachment
@@ -3206,6 +3208,7 @@ components:
                 example: '660e8400-e29b-41d4-a716-446655440000'
               filename:
                 type: string
+                nullable: true
                 description: The filename of the attachment.
                 example: 'document.pdf'
               content_type:
@@ -3218,6 +3221,7 @@ components:
                 example: 'img001'
               content_disposition:
                 type: string
+                nullable: true
                 enum:
                   - inline
                   - attachment
@@ -3313,6 +3317,7 @@ components:
                 description: The ID of the attachment.
               filename:
                 type: string
+                nullable: true
                 description: The filename of the attachment.
               content_type:
                 type: string
@@ -3322,6 +3327,7 @@ components:
                 description: The content ID for inline attachments.
               content_disposition:
                 type: string
+                nullable: true
                 enum:
                   - inline
                   - attachment
@@ -3401,6 +3407,7 @@ components:
                       description: The ID of the attachment.
                     filename:
                       type: string
+                      nullable: true
                       description: The filename of the attachment.
                     content_type:
                       type: string
@@ -3410,6 +3417,7 @@ components:
                       description: The content ID for inline attachments.
                     content_disposition:
                       type: string
+                      nullable: true
                       enum:
                         - inline
                         - attachment
