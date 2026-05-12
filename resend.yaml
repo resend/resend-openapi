@@ -22,6 +22,8 @@ tags:
     description: Retrieve and manage received emails and attachments through the Resend API.
   - name: Webhooks
     description: Create and manage Webhooks through the Resend API.
+  - name: Webhook Events
+    description: Real-time event notifications delivered to your registered webhook endpoint. Each delivery is signed using Svix headers (`svix-id`, `svix-timestamp`, `svix-signature`); verify them before acting on the payload.
   - name: Templates
     description: Create and manage Templates through the Resend API.
   - name: Broadcasts
@@ -1735,6 +1737,262 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RemoveEventResponse'
+webhooks:
+  email.sent:
+    post:
+      summary: Email sent
+      description: Occurs whenever the API request was successful. Resend will attempt to deliver the message to the recipient's mail server.
+      tags:
+        - Webhook Events
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmailSentEvent'
+      responses:
+        '2XX':
+          description: Return any 2xx status code to acknowledge receipt of the event.
+  email.delivered:
+    post:
+      summary: Email delivered
+      description: Occurs whenever Resend successfully delivered the email to the recipient's mail server.
+      tags:
+        - Webhook Events
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmailDeliveredEvent'
+      responses:
+        '2XX':
+          description: Return any 2xx status code to acknowledge receipt of the event.
+  email.delivery_delayed:
+    post:
+      summary: Email delivery delayed
+      description: Occurs whenever the email couldn't be delivered due to a temporary issue, such as the recipient's inbox being full or the receiving server experiencing a transient issue.
+      tags:
+        - Webhook Events
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmailDeliveryDelayedEvent'
+      responses:
+        '2XX':
+          description: Return any 2xx status code to acknowledge receipt of the event.
+  email.bounced:
+    post:
+      summary: Email bounced
+      description: Occurs whenever the recipient's mail server permanently rejected the email.
+      tags:
+        - Webhook Events
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmailBouncedEvent'
+      responses:
+        '2XX':
+          description: Return any 2xx status code to acknowledge receipt of the event.
+  email.complained:
+    post:
+      summary: Email complained
+      description: Occurs whenever the email was successfully delivered, but the recipient marked it as spam.
+      tags:
+        - Webhook Events
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmailComplainedEvent'
+      responses:
+        '2XX':
+          description: Return any 2xx status code to acknowledge receipt of the event.
+  email.opened:
+    post:
+      summary: Email opened
+      description: Occurs whenever the recipient opened the email. Requires open tracking to be enabled.
+      tags:
+        - Webhook Events
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmailOpenedEvent'
+      responses:
+        '2XX':
+          description: Return any 2xx status code to acknowledge receipt of the event.
+  email.clicked:
+    post:
+      summary: Email clicked
+      description: Occurs whenever the recipient clicks on an email link. Requires click tracking to be enabled.
+      tags:
+        - Webhook Events
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmailClickedEvent'
+      responses:
+        '2XX':
+          description: Return any 2xx status code to acknowledge receipt of the event.
+  email.failed:
+    post:
+      summary: Email failed
+      description: Occurs whenever the email failed to send due to an error such as invalid recipients, API key problems, domain verification issues, email quota limits, or other sending failures.
+      tags:
+        - Webhook Events
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmailFailedEvent'
+      responses:
+        '2XX':
+          description: Return any 2xx status code to acknowledge receipt of the event.
+  email.scheduled:
+    post:
+      summary: Email scheduled
+      description: Occurs whenever the email is scheduled to be sent.
+      tags:
+        - Webhook Events
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmailScheduledEvent'
+      responses:
+        '2XX':
+          description: Return any 2xx status code to acknowledge receipt of the event.
+  email.suppressed:
+    post:
+      summary: Email suppressed
+      description: Occurs whenever the email is suppressed by Resend, such as when the recipient's address is on the account-level suppression list.
+      tags:
+        - Webhook Events
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmailSuppressedEvent'
+      responses:
+        '2XX':
+          description: Return any 2xx status code to acknowledge receipt of the event.
+  email.received:
+    post:
+      summary: Email received
+      description: Occurs whenever Resend successfully receives an inbound email on a receiving domain.
+      tags:
+        - Webhook Events
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmailReceivedEvent'
+      responses:
+        '2XX':
+          description: Return any 2xx status code to acknowledge receipt of the event.
+  contact.created:
+    post:
+      summary: Contact created
+      description: 'Occurs whenever a contact was successfully created. Note: when importing multiple contacts via CSV, this event is not triggered.'
+      tags:
+        - Webhook Events
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ContactCreatedEvent'
+      responses:
+        '2XX':
+          description: Return any 2xx status code to acknowledge receipt of the event.
+  contact.updated:
+    post:
+      summary: Contact updated
+      description: Occurs whenever a contact was successfully updated.
+      tags:
+        - Webhook Events
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ContactUpdatedEvent'
+      responses:
+        '2XX':
+          description: Return any 2xx status code to acknowledge receipt of the event.
+  contact.deleted:
+    post:
+      summary: Contact deleted
+      description: Occurs whenever a contact was successfully deleted.
+      tags:
+        - Webhook Events
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ContactDeletedEvent'
+      responses:
+        '2XX':
+          description: Return any 2xx status code to acknowledge receipt of the event.
+  domain.created:
+    post:
+      summary: Domain created
+      description: Occurs when a domain was successfully created.
+      tags:
+        - Webhook Events
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DomainCreatedEvent'
+      responses:
+        '2XX':
+          description: Return any 2xx status code to acknowledge receipt of the event.
+  domain.updated:
+    post:
+      summary: Domain updated
+      description: Occurs when a domain was successfully updated.
+      tags:
+        - Webhook Events
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DomainUpdatedEvent'
+      responses:
+        '2XX':
+          description: Return any 2xx status code to acknowledge receipt of the event.
+  domain.deleted:
+    post:
+      summary: Domain deleted
+      description: Occurs when a domain was successfully deleted.
+      tags:
+        - Webhook Events
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DomainDeletedEvent'
+      responses:
+        '2XX':
+          description: Return any 2xx status code to acknowledge receipt of the event.
 components:
   securitySchemes:
     bearerAuth:
@@ -4700,3 +4958,670 @@ components:
         event:
           type: string
           description: The name of the event that was sent.
+    WebhookEventBounce:
+      type: object
+      required:
+        - diagnosticCode
+        - message
+        - subType
+        - type
+      properties:
+        diagnosticCode:
+          type: array
+          items:
+            type: string
+          description: Array of SMTP diagnostic responses from the receiving server, one entry per recipient (e.g., `smtp; 550 5.1.1 user unknown`).
+        message:
+          type: string
+          description: Detailed bounce message describing why the email bounced.
+        subType:
+          type: string
+          enum:
+            - Undetermined
+            - General
+            - NoEmail
+            - MailboxFull
+            - MessageTooLarge
+            - ContentRejected
+            - AttachmentRejected
+          description: Bounce sub-type.
+        type:
+          type: string
+          enum:
+            - Undetermined
+            - Transient
+            - Permanent
+          description: Bounce type.
+    WebhookEventClick:
+      type: object
+      required:
+        - ipAddress
+        - link
+        - timestamp
+        - userAgent
+      properties:
+        ipAddress:
+          type: string
+          description: IP address of the user who clicked the link.
+        link:
+          type: string
+          description: The URL that was clicked.
+        timestamp:
+          type: string
+          format: date-time
+          description: Timestamp when the click occurred.
+        userAgent:
+          type: string
+          description: User agent string of the browser that clicked the link.
+    WebhookEventFailed:
+      type: object
+      required:
+        - reason
+      properties:
+        reason:
+          type: string
+          description: Reason for the email failure (e.g., `reached_daily_quota`).
+    WebhookEventSuppressed:
+      type: object
+      required:
+        - diagnosticCode
+        - message
+        - reason
+        - type
+      properties:
+        diagnosticCode:
+          type: array
+          items:
+            type: string
+          description: Array of SMTP diagnostic responses from the receiving server, one entry per recipient.
+        message:
+          type: string
+          description: Detailed suppression message describing why the email was suppressed.
+        reason:
+          type: string
+          enum:
+            - previous_bounce
+            - previous_complaint
+          description: Reason the address is suppressed.
+        type:
+          type: string
+          enum:
+            - Suppressed
+            - OnAccountSuppressionList
+          description: Suppression type.
+    WebhookEventAttachment:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the attachment.
+        filename:
+          type: string
+          description: The filename of the attachment.
+        content_type:
+          type: string
+          description: The MIME type of the attachment.
+        content_disposition:
+          type: string
+          description: The content disposition (e.g., `inline` or `attachment`).
+        content_id:
+          type: string
+          description: Content-ID header used for referencing inline images.
+    WebhookDomainRecord:
+      type: object
+      required:
+        - record
+        - name
+        - value
+        - type
+        - ttl
+        - status
+      properties:
+        record:
+          type: string
+          enum:
+            - SPF
+            - DKIM
+            - Receiving MX
+            - Tracking
+            - TrackingCAA
+          description: The purpose of the DNS record (SPF and DKIM for sending; Receiving MX for inbound emails; Tracking and TrackingCAA for click and open tracking).
+        name:
+          type: string
+          description: DNS record name or subdomain.
+        value:
+          type: string
+          description: DNS record value to be set.
+        type:
+          type: string
+          enum:
+            - MX
+            - TXT
+            - CNAME
+            - CAA
+          description: DNS record type.
+        ttl:
+          type: string
+          description: Time to live for the DNS record (e.g., `Auto`, `60`).
+        status:
+          type: string
+          enum:
+            - pending
+            - verified
+            - failed
+            - temporary_failure
+            - not_started
+          description: Verification status of this specific record.
+        priority:
+          type: integer
+          description: Priority value (only applicable for MX records).
+    OutboundEmailEventData:
+      type: object
+      required:
+        - email_id
+        - created_at
+        - from
+        - to
+        - subject
+      properties:
+        email_id:
+          type: string
+          description: Unique identifier for the email.
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp when the email was created.
+        from:
+          type: string
+          description: Sender email address and name in the format `Name <email@domain.com>`.
+        to:
+          type: array
+          items:
+            type: string
+          description: Array of impacted recipient email addresses.
+        subject:
+          type: string
+          description: Email subject line.
+        broadcast_id:
+          type: string
+          description: Unique identifier for the broadcast campaign, if applicable.
+        template_id:
+          type: string
+          description: Unique identifier for the template used, if applicable.
+        tags:
+          type: object
+          additionalProperties:
+            type: string
+          description: Tag key-value pairs associated with the email.
+        headers:
+          type: array
+          items:
+            type: object
+            required:
+              - name
+              - value
+            properties:
+              name:
+                type: string
+              value:
+                type: string
+          description: Custom headers included with the email (omitted when no custom headers are set).
+    EmailBouncedEventData:
+      allOf:
+        - $ref: '#/components/schemas/OutboundEmailEventData'
+        - type: object
+          required:
+            - bounce
+          properties:
+            bounce:
+              $ref: '#/components/schemas/WebhookEventBounce'
+    EmailClickedEventData:
+      allOf:
+        - $ref: '#/components/schemas/OutboundEmailEventData'
+        - type: object
+          required:
+            - click
+          properties:
+            click:
+              $ref: '#/components/schemas/WebhookEventClick'
+    EmailFailedEventData:
+      allOf:
+        - $ref: '#/components/schemas/OutboundEmailEventData'
+        - type: object
+          required:
+            - failed
+          properties:
+            failed:
+              $ref: '#/components/schemas/WebhookEventFailed'
+    EmailSuppressedEventData:
+      allOf:
+        - $ref: '#/components/schemas/OutboundEmailEventData'
+        - type: object
+          required:
+            - suppressed
+          properties:
+            suppressed:
+              $ref: '#/components/schemas/WebhookEventSuppressed'
+    EmailReceivedEventData:
+      type: object
+      required:
+        - email_id
+        - created_at
+        - from
+        - to
+        - subject
+        - message_id
+        - bcc
+        - cc
+        - attachments
+      properties:
+        email_id:
+          type: string
+          description: Unique identifier for the email.
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp when the email was received.
+        from:
+          type: string
+          description: Sender email address.
+        to:
+          type: array
+          items:
+            type: string
+          description: Array of recipient email addresses.
+        subject:
+          type: string
+          description: Email subject line.
+        message_id:
+          type: string
+          description: The unique message ID from the email headers.
+        bcc:
+          type: array
+          items:
+            type: string
+          description: BCC recipients.
+        cc:
+          type: array
+          items:
+            type: string
+          description: CC recipients.
+        attachments:
+          type: array
+          items:
+            $ref: '#/components/schemas/WebhookEventAttachment'
+          description: Array of attachment metadata.
+    ContactEventData:
+      type: object
+      required:
+        - id
+        - created_at
+        - updated_at
+        - email
+        - unsubscribed
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the contact.
+        audience_id:
+          type: string
+          description: Unique identifier for the audience this contact belongs to.
+        segment_ids:
+          type: array
+          items:
+            type: string
+          description: Array of segment IDs the contact belongs to.
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp when the contact was created.
+        updated_at:
+          type: string
+          format: date-time
+          description: Timestamp when the contact was last updated.
+        email:
+          type: string
+          description: Contact's email address.
+        first_name:
+          type: string
+          description: Contact's first name.
+        last_name:
+          type: string
+          description: Contact's last name.
+        unsubscribed:
+          type: boolean
+          description: Whether the contact has unsubscribed from all emails sent from your team.
+    DomainEventData:
+      type: object
+      required:
+        - id
+        - name
+        - status
+        - created_at
+        - region
+        - records
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the domain.
+        name:
+          type: string
+          description: The domain name (e.g., `example.com`).
+        status:
+          type: string
+          enum:
+            - verified
+            - partially_verified
+            - partially_failed
+            - failed
+            - pending
+            - not_started
+          description: Aggregated verification status of the domain.
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp when the domain was created.
+        region:
+          type: string
+          enum:
+            - us-east-1
+            - eu-west-1
+            - sa-east-1
+            - ap-northeast-1
+          description: AWS region where the domain is configured.
+        records:
+          type: array
+          items:
+            $ref: '#/components/schemas/WebhookDomainRecord'
+          description: DNS records required for domain verification.
+    EmailSentEvent:
+      type: object
+      required:
+        - type
+        - created_at
+        - data
+      properties:
+        type:
+          type: string
+          const: email.sent
+          description: The event type.
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp when the event was emitted.
+        data:
+          $ref: '#/components/schemas/OutboundEmailEventData'
+    EmailDeliveredEvent:
+      type: object
+      required:
+        - type
+        - created_at
+        - data
+      properties:
+        type:
+          type: string
+          const: email.delivered
+          description: The event type.
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp when the event was emitted.
+        data:
+          $ref: '#/components/schemas/OutboundEmailEventData'
+    EmailDeliveryDelayedEvent:
+      type: object
+      required:
+        - type
+        - created_at
+        - data
+      properties:
+        type:
+          type: string
+          const: email.delivery_delayed
+          description: The event type.
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp when the event was emitted.
+        data:
+          $ref: '#/components/schemas/OutboundEmailEventData'
+    EmailBouncedEvent:
+      type: object
+      required:
+        - type
+        - created_at
+        - data
+      properties:
+        type:
+          type: string
+          const: email.bounced
+          description: The event type.
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp when the event was emitted.
+        data:
+          $ref: '#/components/schemas/EmailBouncedEventData'
+    EmailComplainedEvent:
+      type: object
+      required:
+        - type
+        - created_at
+        - data
+      properties:
+        type:
+          type: string
+          const: email.complained
+          description: The event type.
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp when the event was emitted.
+        data:
+          $ref: '#/components/schemas/OutboundEmailEventData'
+    EmailOpenedEvent:
+      type: object
+      required:
+        - type
+        - created_at
+        - data
+      properties:
+        type:
+          type: string
+          const: email.opened
+          description: The event type.
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp when the event was emitted.
+        data:
+          $ref: '#/components/schemas/OutboundEmailEventData'
+    EmailClickedEvent:
+      type: object
+      required:
+        - type
+        - created_at
+        - data
+      properties:
+        type:
+          type: string
+          const: email.clicked
+          description: The event type.
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp when the event was emitted.
+        data:
+          $ref: '#/components/schemas/EmailClickedEventData'
+    EmailFailedEvent:
+      type: object
+      required:
+        - type
+        - created_at
+        - data
+      properties:
+        type:
+          type: string
+          const: email.failed
+          description: The event type.
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp when the event was emitted.
+        data:
+          $ref: '#/components/schemas/EmailFailedEventData'
+    EmailScheduledEvent:
+      type: object
+      required:
+        - type
+        - created_at
+        - data
+      properties:
+        type:
+          type: string
+          const: email.scheduled
+          description: The event type.
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp when the event was emitted.
+        data:
+          $ref: '#/components/schemas/OutboundEmailEventData'
+    EmailSuppressedEvent:
+      type: object
+      required:
+        - type
+        - created_at
+        - data
+      properties:
+        type:
+          type: string
+          const: email.suppressed
+          description: The event type.
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp when the event was emitted.
+        data:
+          $ref: '#/components/schemas/EmailSuppressedEventData'
+    EmailReceivedEvent:
+      type: object
+      required:
+        - type
+        - created_at
+        - data
+      properties:
+        type:
+          type: string
+          const: email.received
+          description: The event type.
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp when the event was emitted.
+        data:
+          $ref: '#/components/schemas/EmailReceivedEventData'
+    ContactCreatedEvent:
+      type: object
+      required:
+        - type
+        - created_at
+        - data
+      properties:
+        type:
+          type: string
+          const: contact.created
+          description: The event type.
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp when the event was emitted.
+        data:
+          $ref: '#/components/schemas/ContactEventData'
+    ContactUpdatedEvent:
+      type: object
+      required:
+        - type
+        - created_at
+        - data
+      properties:
+        type:
+          type: string
+          const: contact.updated
+          description: The event type.
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp when the event was emitted.
+        data:
+          $ref: '#/components/schemas/ContactEventData'
+    ContactDeletedEvent:
+      type: object
+      required:
+        - type
+        - created_at
+        - data
+      properties:
+        type:
+          type: string
+          const: contact.deleted
+          description: The event type.
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp when the event was emitted.
+        data:
+          $ref: '#/components/schemas/ContactEventData'
+    DomainCreatedEvent:
+      type: object
+      required:
+        - type
+        - created_at
+        - data
+      properties:
+        type:
+          type: string
+          const: domain.created
+          description: The event type.
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp when the event was emitted.
+        data:
+          $ref: '#/components/schemas/DomainEventData'
+    DomainUpdatedEvent:
+      type: object
+      required:
+        - type
+        - created_at
+        - data
+      properties:
+        type:
+          type: string
+          const: domain.updated
+          description: The event type.
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp when the event was emitted.
+        data:
+          $ref: '#/components/schemas/DomainEventData'
+    DomainDeletedEvent:
+      type: object
+      required:
+        - type
+        - created_at
+        - data
+      properties:
+        type:
+          type: string
+          const: domain.deleted
+          description: The event type.
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp when the event was emitted.
+        data:
+          $ref: '#/components/schemas/DomainEventData'
