@@ -5101,15 +5101,6 @@ components:
         priority:
           type: integer
           description: Priority value (only applicable for MX records).
-        routing_policy:
-          type: string
-          description: Routing policy, included when the configured DNS provider supports it (e.g., Digital Ocean).
-        proxy_status:
-          type: string
-          enum:
-            - enable
-            - disable
-          description: Proxy status, included when the configured DNS provider supports it (e.g., Cloudflare).
     OutboundEmailEventData:
       type: object
       required:
