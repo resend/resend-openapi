@@ -2955,7 +2955,7 @@ components:
           description: CSV file to import. Maximum size is 50MB.
         column_map:
           type: string
-          description: JSON-encoded object mapping contact fields and custom property keys to CSV column names. Supports `email`, `first_name`, `last_name`, `unsubscribed`, and `properties`.
+          description: JSON-encoded object mapping contact fields and custom property keys to CSV column names. Supports `email`, `first_name`, `last_name`, `unsubscribed`, and `properties`. Custom property mappings can include `type` as `string`, `number`, or `boolean`; defaults to `string`.
           example: '{"email":"Email","first_name":"First Name","last_name":"Last Name","unsubscribed":"Unsubscribed","properties":{"plan":{"column":"Plan","type":"string"}}}'
         on_conflict:
           type: string
@@ -2979,7 +2979,7 @@ components:
           example: '[{"id":"78261eea-8f8b-4381-83c6-79fa7120f1cf"}]'
         topics:
           type: string
-          description: JSON-encoded array of topic subscriptions to apply to imported contacts.
+          description: JSON-encoded array of topic subscriptions to apply to imported contacts. Each `subscription` must be `opt_in` or `opt_out`.
           example: '[{"id":"b6d24b8e-af0b-4c3c-be0c-359bbd97381e","subscription":"opt_in"}]'
     CreateContactImportResponseSuccess:
       type: object
