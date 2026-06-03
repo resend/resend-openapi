@@ -755,6 +755,70 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ListContactsResponseSuccess'
+  /contacts/imports:
+    post:
+      tags:
+        - Contacts
+      summary: Create a contact import
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CreateContactImportOptions'
+      responses:
+        '201':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateContactImportResponseSuccess'
+    get:
+      tags:
+        - Contacts
+      summary: Retrieve a list of contact imports
+      parameters:
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - queued
+              - in_progress
+              - completed
+              - failed
+          description: Filter contact imports by status.
+        - $ref: '#/components/parameters/PaginationLimit'
+        - $ref: '#/components/parameters/PaginationAfter'
+        - $ref: '#/components/parameters/PaginationBefore'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListContactImportsResponseSuccess'
+  /contacts/imports/{id}:
+    get:
+      tags:
+        - Contacts
+      summary: Retrieve a single contact import
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The Contact Import ID.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetContactImportResponseSuccess'
   /contacts/{id}:
     get:
       tags:
@@ -2880,6 +2944,130 @@ components:
                 type: boolean
                 description: Indicates if the contact is unsubscribed.
                 example: false
+    CreateContactImportOptions:
+      type: object
+      required:
+        - file
+      properties:
+        file:
+          type: string
+          format: binary
+          description: CSV file to import. Maximum size is 50MB.
+        column_map:
+          type: string
+          description: JSON-encoded object mapping contact fields and custom property keys to CSV column names. Supports `email`, `first_name`, `last_name`, `unsubscribed`, and `properties`. Custom property mappings can include `type` as `string`, `number`, or `boolean`; defaults to `string`.
+          example: '{"email":"Email","first_name":"First Name","last_name":"Last Name","unsubscribed":"Unsubscribed","properties":{"plan":{"column":"Plan","type":"string"}}}'
+        on_conflict:
+          type: string
+          enum:
+            - upsert
+            - skip
+          default: skip
+          description: Strategy to use when an imported contact already exists.
+          example: skip
+        on_error:
+          type: string
+          enum:
+            - continue
+            - abort
+          default: continue
+          description: Strategy to use when an imported row fails validation.
+          example: continue
+        segments:
+          type: string
+          description: JSON-encoded array of segments to add imported contacts to.
+          example: '[{"id":"78261eea-8f8b-4381-83c6-79fa7120f1cf"}]'
+        topics:
+          type: string
+          description: JSON-encoded array of topic subscriptions to apply to imported contacts. Each `subscription` must be `opt_in` or `opt_out`.
+          example: '[{"id":"b6d24b8e-af0b-4c3c-be0c-359bbd97381e","subscription":"opt_in"}]'
+    CreateContactImportResponseSuccess:
+      type: object
+      properties:
+        object:
+          type: string
+          description: Type of the response object.
+          example: contact_import
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier for the created contact import.
+          example: 479e3145-dd38-476b-932c-529ceb705947
+    ContactImportCounts:
+      type: object
+      properties:
+        total:
+          type: integer
+          description: Total number of rows processed by the import.
+          example: 100
+        created:
+          type: integer
+          description: Number of contacts created by the import.
+          example: 80
+        updated:
+          type: integer
+          description: Number of contacts updated by the import.
+          example: 10
+        skipped:
+          type: integer
+          description: Number of rows skipped by the import.
+          example: 5
+        failed:
+          type: integer
+          description: Number of rows that failed during the import.
+          example: 5
+    ContactImport:
+      type: object
+      properties:
+        object:
+          type: string
+          description: Type of the response object.
+          example: contact_import
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier for the contact import.
+          example: 479e3145-dd38-476b-932c-529ceb705947
+        status:
+          type: string
+          enum:
+            - queued
+            - in_progress
+            - completed
+            - failed
+          description: Current status of the contact import.
+          example: completed
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp indicating when the contact import was created.
+          example: "2023-10-06T23:47:56.678Z"
+        completed_at:
+          type: [string, "null"]
+          format: date-time
+          description: Timestamp indicating when the contact import completed.
+          example: "2023-10-06T23:50:56.678Z"
+        counts:
+          $ref: '#/components/schemas/ContactImportCounts'
+    GetContactImportResponseSuccess:
+      allOf:
+        - $ref: '#/components/schemas/ContactImport'
+    ListContactImportsResponseSuccess:
+      type: object
+      properties:
+        object:
+          type: string
+          description: Type of the response object.
+          example: list
+        has_more:
+          type: boolean
+          description: Indicates if there are more results available.
+          example: false
+        data:
+          type: array
+          description: Array containing contact imports.
+          items:
+            $ref: '#/components/schemas/ContactImport'
     CreateBroadcastOptions:
       type: object
       required:
