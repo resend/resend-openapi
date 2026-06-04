@@ -2965,14 +2965,6 @@ components:
           default: skip
           description: Strategy to use when an imported contact already exists.
           example: skip
-        on_error:
-          type: string
-          enum:
-            - continue
-            - abort
-          default: continue
-          description: Strategy to use when an imported row fails validation.
-          example: continue
         segments:
           type: string
           description: JSON-encoded array of segments to add imported contacts to.
