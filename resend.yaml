@@ -463,6 +463,80 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/VerifyDomainResponse'
+  /domains/claim:
+    post:
+      tags:
+        - Domains
+      summary: Claim a domain
+      description: >-
+        Start a claim for a domain that another Resend account has already
+        verified. The domain is recreated under your account with fresh DKIM
+        keys, so the previous account's DNS records cannot be reused. Returns a
+        TXT record to add to your DNS to prove ownership. Uses the same request
+        body as creating a domain.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateDomainClaimRequest'
+      responses:
+        '201':
+          description: Claim created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DomainClaim'
+        '200':
+          description: An identical pending claim already existed and was returned unchanged.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DomainClaim'
+  /domains/{domain_id}/claim:
+    get:
+      tags:
+        - Domains
+      summary: Retrieve a domain claim
+      description: Retrieve the latest claim for the placeholder domain created by the claim.
+      parameters:
+        - name: domain_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The ID of the placeholder domain created by the claim.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DomainClaim'
+  /domains/{domain_id}/claim/verify:
+    post:
+      tags:
+        - Domains
+      summary: Verify a domain claim
+      description: >-
+        Trigger asynchronous DNS verification and ownership transfer for a
+        domain claim. The claim stays `pending` while verification runs; poll
+        the retrieve endpoint for status. Once `completed`, the transferred
+        domain has new DKIM records that must be added to DNS and verified via
+        the standard domain verify endpoint.
+      parameters:
+        - name: domain_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The ID of the placeholder domain created by the claim.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DomainClaim'
   /api-keys:
     post:
       tags:
@@ -2515,6 +2589,125 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/DomainRecord'
+    CreateDomainClaimRequest:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          description: The name of the domain you want to claim.
+        region:
+          type: string
+          enum:
+            - us-east-1
+            - eu-west-1
+            - sa-east-1
+            - ap-northeast-1
+          default: us-east-1
+          description: The region where emails will be sent from. Possible values are us-east-1 | eu-west-1 | sa-east-1 | ap-northeast-1
+        custom_return_path:
+          type: string
+          default: send
+          description: For advanced use cases, choose a subdomain for the Return-Path address. Defaults to 'send' (i.e., send.yourdomain.tld).
+        open_tracking:
+          type: boolean
+          description: Track the open rate of each email.
+        click_tracking:
+          type: boolean
+          description: Track clicks within the body of each HTML email.
+        tracking_subdomain:
+          type: string
+          description: The subdomain to use for click and open tracking.
+    DomainClaimRecord:
+      type: object
+      description: The TXT record to add to your DNS to prove ownership of the claimed domain.
+      properties:
+        type:
+          type: string
+          enum:
+            - TXT
+          description: The DNS record type. Always TXT for domain claims.
+          example: 'TXT'
+        name:
+          type: string
+          description: The name of the DNS record (the domain being claimed).
+          example: 'example.com'
+        value:
+          type: string
+          description: The value of the TXT record.
+          example: 'resend-domain-verification=abc123'
+        ttl:
+          type: string
+          description: The time to live for the record.
+          example: 'Auto'
+    DomainClaim:
+      type: object
+      properties:
+        object:
+          type: string
+          description: The type of object.
+          example: 'domain_claim'
+        id:
+          type: string
+          description: The ID of the claim.
+          example: 'd91cd9bd-1176-453e-8fc1-35364d380206'
+        name:
+          type: string
+          description: The name of the domain being claimed.
+          example: 'example.com'
+        status:
+          type: string
+          enum:
+            - pending
+            - verified
+            - completed
+            - blocked
+            - expired
+            - superseded
+            - canceled
+            - failed
+          description: The status of the claim.
+          example: 'pending'
+        domain_id:
+          type: [string, "null"]
+          description: The ID of the placeholder domain created for the claim.
+          example: 'a1b2c3d4-1176-453e-8fc1-35364d380206'
+        region:
+          type: [string, "null"]
+          enum:
+            - us-east-1
+            - eu-west-1
+            - sa-east-1
+            - ap-northeast-1
+            - null
+          description: The region where the claimed domain will send from.
+          example: 'us-east-1'
+        record:
+          $ref: '#/components/schemas/DomainClaimRecord'
+        blocked_reason:
+          type: [string, "null"]
+          enum:
+            - grace_period
+            - recent_owner_activity
+            - pending_scheduled_emails
+            - null
+          description: Why the claim is currently blocked, if applicable.
+          example: null
+        failure_reason:
+          type: [string, "null"]
+          description: Why the claim failed, if applicable.
+          example: null
+        created_at:
+          type: string
+          format: date-time
+          description: The date and time the claim was created.
+          example: '2023-04-26T20:21:26.347412+00:00'
+        expires_at:
+          type: string
+          format: date-time
+          description: The date and time the claim expires if not verified.
+          example: '2023-05-03T20:21:26.347412+00:00'
     VerifyDomainResponse:
       type: object
       properties:
