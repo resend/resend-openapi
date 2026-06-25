@@ -3153,7 +3153,7 @@
           "message_id": {
             "type": "string",
             "description": "The Message-ID header value of the email.",
-            "example": "<202301010000.4ef9a417@resend.dev>"
+            "example": "<202301010000.4ef9a417@email.example.com>"
           },
           "to": {
             "type": "array",
@@ -4634,7 +4634,7 @@
           "message_id": {
             "type": "string",
             "description": "The unique message ID from the email headers.",
-            "example": "<message-id@example.com>"
+            "example": "<message-id@email.example.com>"
           },
           "bcc": {
             "type": [
@@ -4792,7 +4792,7 @@
                 "message_id": {
                   "type": "string",
                   "description": "The unique message ID from the email headers.",
-                  "example": "<message-id@example.com>"
+                  "example": "<message-id@email.example.com>"
                 },
                 "bcc": {
                   "type": [
