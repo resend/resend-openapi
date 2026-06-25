@@ -2300,6 +2300,10 @@ components:
           type: string
           description: The ID of the email.
           example: '4ef9a417-02e9-4d39-ad75-9611e0fcc33c'
+        message_id:
+          type: string
+          description: The Message-ID header value of the email.
+          example: '<202301010000.4ef9a417@email.example.com>'
         to:
           type: array
           items:
@@ -3642,7 +3646,7 @@ components:
         message_id:
           type: string
           description: The unique message ID from the email headers.
-          example: '<message-id@example.com>'
+          example: '<message-id@email.example.com>'
         bcc:
           type: [array, "null"]
           items:
@@ -3747,7 +3751,7 @@ components:
               message_id:
                 type: string
                 description: The unique message ID from the email headers.
-                example: '<message-id@example.com>'
+                example: '<message-id@email.example.com>'
               bcc:
                 type: [array, "null"]
                 items:
