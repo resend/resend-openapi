@@ -3665,6 +3665,12 @@ components:
             type: string
           description: The reply-to addresses.
           example: []
+        received_for:
+          type: array
+          items:
+            type: string
+          description: The recipient addresses the email was forwarded for, taken from the `for` clause of the message's `Received` headers. Empty when the email was delivered directly without forwarding.
+          example: ['forwarded@example.com']
         html:
           type: [string, "null"]
           description: The HTML content of the email.
@@ -5633,6 +5639,11 @@ components:
           items:
             type: string
           description: CC recipients.
+        received_for:
+          type: array
+          items:
+            type: string
+          description: The recipient addresses the email was forwarded for, taken from the `for` clause of the message's `Received` headers. Empty when the email was delivered directly without forwarding.
         attachments:
           type: array
           items:
