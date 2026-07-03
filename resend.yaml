@@ -2921,9 +2921,6 @@ components:
           items:
             type: string
           description: The scopes granted to the OAuth client.
-        resource:
-          type: [string, "null"]
-          description: The resource the grant is scoped to, if any.
         created_at:
           type: string
           format: date-time
