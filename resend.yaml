@@ -606,6 +606,25 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ListOAuthGrantsResponse'
+  /oauth/grants/{oauth_grant_id}:
+    delete:
+      tags:
+        - OAuth
+      summary: Revoke an OAuth grant
+      parameters:
+        - name: oauth_grant_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The OAuth grant ID.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RevokeOAuthGrantResponse'
   /templates:
     post:
       tags:
@@ -2926,6 +2945,23 @@ components:
             logo_uri:
               type: [string, "null"]
               description: The URL of the OAuth client's logo.
+    RevokeOAuthGrantResponse:
+      type: object
+      properties:
+        object:
+          type: string
+          description: The type of object.
+          example: 'oauth_grant'
+        id:
+          type: string
+          description: The ID of the OAuth grant.
+        revoked_at:
+          type: string
+          format: date-time
+          description: The date and time the OAuth grant was revoked.
+        revoked_reason:
+          type: string
+          description: The reason the OAuth grant was revoked.
     DeleteApiKeyResponse:
       type: object
       properties:
