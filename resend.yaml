@@ -2909,6 +2909,13 @@ components:
           type: string
           format: date-time
           description: The date and time the OAuth grant was created.
+        revoked_at:
+          type: [string, "null"]
+          format: date-time
+          description: The date and time the OAuth grant was revoked, or null if it is still active.
+        revoked_reason:
+          type: [string, "null"]
+          description: The reason the OAuth grant was revoked, or null if it is still active.
         client:
           type: object
           description: The OAuth client the grant was issued to.
