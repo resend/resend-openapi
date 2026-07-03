@@ -40,6 +40,8 @@ tags:
     description: Create and manage Automations through the Resend API.
   - name: Events
     description: Create and manage Events through the Resend API.
+  - name: OAuth
+    description: List and manage OAuth grants through the Resend API.
 paths:
   /emails:
     post:
@@ -588,6 +590,41 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/DeleteApiKeyResponse'
+  /oauth/grants:
+    get:
+      tags:
+        - OAuth
+      summary: Retrieve a list of OAuth grants
+      parameters:
+        - $ref: '#/components/parameters/PaginationLimit'
+        - $ref: '#/components/parameters/PaginationAfter'
+        - $ref: '#/components/parameters/PaginationBefore'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListOAuthGrantsResponse'
+  /oauth/grants/{oauth_grant_id}:
+    delete:
+      tags:
+        - OAuth
+      summary: Revoke an OAuth grant
+      parameters:
+        - name: oauth_grant_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The OAuth grant ID.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RevokeOAuthGrantResponse'
   /templates:
     post:
       tags:
@@ -2855,6 +2892,76 @@ components:
           type: [string, "null"]
           format: date-time
           description: The date and time the API key was last used.
+    ListOAuthGrantsResponse:
+      type: object
+      properties:
+        object:
+          type: string
+          description: Type of the response object.
+          example: 'list'
+        has_more:
+          type: boolean
+          description: Indicates if there are more results available.
+          example: false
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/OAuthGrant'
+    OAuthGrant:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The ID of the OAuth grant.
+        client_id:
+          type: string
+          description: The ID of the OAuth client the grant was issued to.
+        scopes:
+          type: array
+          items:
+            type: string
+          description: The scopes granted to the OAuth client.
+        resource:
+          type: [string, "null"]
+          description: The resource the grant is scoped to, if any.
+        created_at:
+          type: string
+          format: date-time
+          description: The date and time the OAuth grant was created.
+        revoked_at:
+          type: [string, "null"]
+          format: date-time
+          description: The date and time the OAuth grant was revoked, or null if it is still active.
+        revoked_reason:
+          type: [string, "null"]
+          description: The reason the OAuth grant was revoked, or null if it is still active.
+        client:
+          type: object
+          description: The OAuth client the grant was issued to.
+          properties:
+            name:
+              type: string
+              description: The name of the OAuth client.
+            logo_uri:
+              type: [string, "null"]
+              description: The URL of the OAuth client's logo.
+    RevokeOAuthGrantResponse:
+      type: object
+      properties:
+        object:
+          type: string
+          description: The type of object.
+          example: 'oauth_grant'
+        id:
+          type: string
+          description: The ID of the OAuth grant.
+        revoked_at:
+          type: string
+          format: date-time
+          description: The date and time the OAuth grant was revoked.
+        revoked_reason:
+          type: string
+          description: The reason the OAuth grant was revoked.
     DeleteApiKeyResponse:
       type: object
       properties:
