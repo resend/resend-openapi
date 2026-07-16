@@ -34,6 +34,8 @@ tags:
     description: Create and manage Topics through the Resend API.
   - name: Contact Properties
     description: Create and manage Contact Properties through the Resend API.
+  - name: Suppressions
+    description: Create and manage Suppressions through the Resend API.
   - name: Logs
     description: Retrieve API request logs through the Resend API.
   - name: Automations
@@ -1912,6 +1914,122 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RemoveEventResponse'
+  /suppressions:
+    post:
+      tags:
+        - Suppressions
+      summary: Create a suppression
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSuppressionOptions'
+      responses:
+        '201':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateSuppressionResponseSuccess'
+    get:
+      tags:
+        - Suppressions
+      summary: Retrieve a list of suppressions
+      parameters:
+        - name: origin
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - bounce
+              - complaint
+              - manual
+          description: Filter suppressions by origin.
+        - $ref: '#/components/parameters/PaginationLimit'
+        - $ref: '#/components/parameters/PaginationAfter'
+        - $ref: '#/components/parameters/PaginationBefore'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListSuppressionsResponseSuccess'
+  /suppressions/batch/add:
+    post:
+      tags:
+        - Suppressions
+      summary: Add up to 100 suppressions at once
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BatchAddSuppressionsOptions'
+      responses:
+        '201':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchAddSuppressionsResponseSuccess'
+  /suppressions/batch/remove:
+    post:
+      tags:
+        - Suppressions
+      summary: Remove up to 100 suppressions at once
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BatchRemoveSuppressionsOptions'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchRemoveSuppressionsResponseSuccess'
+  /suppressions/{suppression}:
+    get:
+      tags:
+        - Suppressions
+      summary: Retrieve a single suppression by ID or email
+      parameters:
+        - name: suppression
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The Suppression ID or email address.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetSuppressionResponseSuccess'
+    delete:
+      tags:
+        - Suppressions
+      summary: Remove a single suppression by ID or email
+      parameters:
+        - name: suppression
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The Suppression ID or email address.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RemoveSuppressionResponseSuccess'
 webhooks:
   email.sent:
     post:
@@ -6114,3 +6232,187 @@ components:
           description: Timestamp when the event was emitted.
         data:
           $ref: '#/components/schemas/DomainEventData'
+    CreateSuppressionOptions:
+      type: object
+      required:
+        - email
+      properties:
+        email:
+          type: string
+          description: Email address to suppress.
+          example: steve.wozniak@gmail.com
+    CreateSuppressionResponseSuccess:
+      type: object
+      properties:
+        object:
+          type: string
+          description: Type of the response object.
+          example: suppression
+        id:
+          type: string
+          description: Unique identifier for the created suppression.
+          example: e169aa45-1ecf-4183-9955-b1499d5701d3
+    BatchAddSuppressionsOptions:
+      type: object
+      required:
+        - emails
+      properties:
+        emails:
+          type: array
+          minItems: 1
+          maxItems: 100
+          items:
+            type: string
+          description: Email addresses to suppress.
+          example:
+            - steve.wozniak@gmail.com
+    BatchAddSuppressionsResponseSuccess:
+      type: object
+      properties:
+        data:
+          type: array
+          description: Array containing the created suppressions.
+          items:
+            type: object
+            properties:
+              object:
+                type: string
+                description: Type of the object.
+                example: suppression
+              id:
+                type: string
+                description: Unique identifier for the suppression.
+                example: e169aa45-1ecf-4183-9955-b1499d5701d3
+    BatchRemoveSuppressionsOptions:
+      type: object
+      description: Provide either `emails` or `ids`, but not both.
+      properties:
+        emails:
+          type: array
+          minItems: 1
+          maxItems: 100
+          items:
+            type: string
+          description: Email addresses to remove from the suppression list.
+          example:
+            - steve.wozniak@gmail.com
+        ids:
+          type: array
+          minItems: 1
+          maxItems: 100
+          items:
+            type: string
+          description: Suppression IDs to remove from the suppression list.
+          example:
+            - e169aa45-1ecf-4183-9955-b1499d5701d3
+    BatchRemoveSuppressionsResponseSuccess:
+      type: object
+      properties:
+        data:
+          type: array
+          description: Array containing the removed suppressions.
+          items:
+            type: object
+            properties:
+              object:
+                type: string
+                description: Type of the object.
+                example: suppression
+              id:
+                type: string
+                description: Unique identifier for the suppression.
+                example: e169aa45-1ecf-4183-9955-b1499d5701d3
+              deleted:
+                type: boolean
+                description: Indicates whether the suppression was successfully deleted.
+                example: true
+    RemoveSuppressionResponseSuccess:
+      type: object
+      properties:
+        object:
+          type: string
+          description: Type of the response object.
+          example: suppression
+        id:
+          type: string
+          description: Unique identifier for the removed suppression.
+          example: e169aa45-1ecf-4183-9955-b1499d5701d3
+        deleted:
+          type: boolean
+          description: Indicates whether the suppression was successfully deleted.
+          example: true
+    GetSuppressionResponseSuccess:
+      type: object
+      properties:
+        object:
+          type: string
+          description: Type of the response object.
+          example: suppression
+        id:
+          type: string
+          description: Unique identifier for the suppression.
+          example: e169aa45-1ecf-4183-9955-b1499d5701d3
+        email:
+          type: string
+          description: Email address that is suppressed.
+          example: steve.wozniak@gmail.com
+        origin:
+          type: string
+          enum:
+            - bounce
+            - complaint
+            - manual
+          description: Origin of the suppression.
+          example: manual
+        source_id:
+          type: string
+          nullable: true
+          description: Identifier of the event that caused the suppression, such as the email that bounced or complained.
+          example: 479e3145-dd38-476b-932c-529ceb705947
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp indicating when the suppression was created.
+          example: "2023-10-06T23:47:56.678Z"
+    ListSuppressionsResponseSuccess:
+      type: object
+      properties:
+        object:
+          type: string
+          description: Type of the response object.
+          example: list
+        has_more:
+          type: boolean
+          description: Indicates if there are more results available.
+        data:
+          type: array
+          description: Array containing suppression information.
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                description: Unique identifier for the suppression.
+                example: e169aa45-1ecf-4183-9955-b1499d5701d3
+              email:
+                type: string
+                description: Email address that is suppressed.
+                example: steve.wozniak@gmail.com
+              origin:
+                type: string
+                enum:
+                  - bounce
+                  - complaint
+                  - manual
+                description: Origin of the suppression.
+                example: manual
+              source_id:
+                type: string
+                nullable: true
+                description: Identifier of the event that caused the suppression, such as the email that bounced or complained.
+                example: 479e3145-dd38-476b-932c-529ceb705947
+              created_at:
+                type: string
+                format: date-time
+                description: Timestamp indicating when the suppression was created.
+                example: "2023-10-06T23:47:56.678Z"
