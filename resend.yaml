@@ -2138,6 +2138,65 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GetMetricsOverviewResponseSuccess'
+  /metrics/engagement:
+    get:
+      tags:
+        - Metrics
+      summary: Retrieve account-level engagement metrics
+      description: >-
+        Unique open/click engagement with rates for a date range. Per-period
+        `timeseries` and per-domain `domain_breakdown` are opt-in via `include`.
+      parameters:
+        - name: start_date
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date-time
+          description: >-
+            Start of the range (ISO 8601). Must be on or before end_date and
+            within your plan's retention window.
+        - name: end_date
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date-time
+          description: End of the range (ISO 8601).
+        - name: timezone
+          in: query
+          required: false
+          schema:
+            type: string
+            default: UTC
+          description: IANA timezone used to bucket the time series. Defaults to UTC.
+        - name: domain_id
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uuid
+          description: Restrict metrics to a single domain.
+        - name: include
+          in: query
+          required: false
+          description: >-
+            Add breakdowns. Repeat the parameter to select multiple (e.g.
+            include=timeseries&include=domain_breakdown). Defaults to totals only.
+          schema:
+            type: array
+            items:
+              type: string
+              enum:
+                - timeseries
+                - domain_breakdown
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetMetricsEngagementResponseSuccess'
 webhooks:
   email.sent:
     post:
@@ -6650,6 +6709,78 @@ components:
               description: Per-domain counts. Included only when `include=domain_breakdown`.
               items:
                 $ref: '#/components/schemas/MetricsDomainBreakdown'
+    EngagementMetric:
+      type: object
+      description: >-
+        A unique count over its tracking-eligible delivered denominator, with the
+        derived rate.
+      properties:
+        unique:
+          type: integer
+          description: Unique recipients (deduplicated).
+          example: 5400
+        delivered:
+          type: integer
+          description: >-
+            Deliveries to tracking-enabled domains — the rate denominator. Not the
+            same as overview.delivered.
+          example: 11800
+        rate:
+          type: number
+          description: >-
+            unique / delivered as a percentage, capped at 100. 0 when nothing was
+            trackable.
+          example: 45.76
+    EngagementTimeseriesPoint:
+      type: object
+      properties:
+        period:
+          type: string
+          example: '2026-07-08'
+        opens:
+          $ref: '#/components/schemas/EngagementMetric'
+        clicks:
+          $ref: '#/components/schemas/EngagementMetric'
+    EngagementDomainBreakdown:
+      type: object
+      properties:
+        domain_id:
+          type: string
+          format: uuid
+          example: 067b3160-d611-491e-943e-c0c4cd497d2d
+        domain_name:
+          type: string
+          example: mail.acme.com
+        opens:
+          $ref: '#/components/schemas/EngagementMetric'
+        clicks:
+          $ref: '#/components/schemas/EngagementMetric'
+    MetricsEngagement:
+      type: object
+      description: >-
+        Unique open/click engagement with rates. Not affected by the event_type
+        filter.
+      properties:
+        open_tracking_enabled:
+          type: boolean
+          example: true
+        click_tracking_enabled:
+          type: boolean
+          example: true
+        opens:
+          $ref: '#/components/schemas/EngagementMetric'
+        clicks:
+          $ref: '#/components/schemas/EngagementMetric'
+        timeseries:
+          type: array
+          description: Per-period engagement. Included only when `include=timeseries`.
+          items:
+            $ref: '#/components/schemas/EngagementTimeseriesPoint'
+        domain_breakdown:
+          type: array
+          description: Per-domain engagement. Included only when `include=domain_breakdown`.
+          items:
+            $ref: '#/components/schemas/EngagementDomainBreakdown'
     GetMetricsOverviewResponseSuccess:
       allOf:
         - type: object
@@ -6667,3 +6798,20 @@ components:
               format: date-time
               example: '2026-07-17T23:59:59.000Z'
         - $ref: '#/components/schemas/MetricsOverview'
+    GetMetricsEngagementResponseSuccess:
+      allOf:
+        - type: object
+          properties:
+            object:
+              type: string
+              const: metrics_engagement
+              description: The response object type.
+            start_date:
+              type: string
+              format: date-time
+              example: '2026-06-17T23:59:59.000Z'
+            end_date:
+              type: string
+              format: date-time
+              example: '2026-07-17T23:59:59.000Z'
+        - $ref: '#/components/schemas/MetricsEngagement'
