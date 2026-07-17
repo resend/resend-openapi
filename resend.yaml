@@ -2057,16 +2057,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RemoveSuppressionResponseSuccess'
-  /metrics:
+  /metrics/overview:
     get:
       tags:
         - Metrics
-      summary: Retrieve account-level email metrics
+      summary: Retrieve account-level delivery metrics
       description: >-
-        Aggregate email metrics for a date range, returned in two blocks:
-        `overview` (volume and delivery counts) and `engagement` (unique
-        opens/clicks with rates). Per-period `timeseries` and per-domain
-        `domain_breakdown` are opt-in via `include`.
+        Volume and delivery counts for a date range. Per-period `timeseries` and
+        per-domain `domain_breakdown` are opt-in via `include`.
       parameters:
         - name: start_date
           in: query
@@ -2097,14 +2095,14 @@ paths:
           schema:
             type: string
             format: uuid
-          description: Restrict all metrics to a single domain.
+          description: Restrict metrics to a single domain.
         - name: event_type
           in: query
           required: false
           description: >-
-            Project the overview block down to only the listed events. Repeat the
+            Project the counts down to only the listed events. Repeat the
             parameter to select multiple (e.g.
-            event_type=delivered&event_type=bounced). Does not affect engagement.
+            event_type=delivered&event_type=bounced).
           schema:
             type: array
             items:
@@ -2124,9 +2122,8 @@ paths:
           in: query
           required: false
           description: >-
-            Add breakdowns to both blocks. Repeat the parameter to select
-            multiple (e.g. include=timeseries&include=domain_breakdown). Defaults
-            to totals only.
+            Add breakdowns. Repeat the parameter to select multiple (e.g.
+            include=timeseries&include=domain_breakdown). Defaults to totals only.
           schema:
             type: array
             items:
@@ -2140,7 +2137,66 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GetMetricsResponseSuccess'
+                $ref: '#/components/schemas/GetMetricsOverviewResponseSuccess'
+  /metrics/engagement:
+    get:
+      tags:
+        - Metrics
+      summary: Retrieve account-level engagement metrics
+      description: >-
+        Unique open/click engagement with rates for a date range. Per-period
+        `timeseries` and per-domain `domain_breakdown` are opt-in via `include`.
+      parameters:
+        - name: start_date
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date-time
+          description: >-
+            Start of the range (ISO 8601). Must be on or before end_date and
+            within your plan's retention window.
+        - name: end_date
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date-time
+          description: End of the range (ISO 8601).
+        - name: timezone
+          in: query
+          required: false
+          schema:
+            type: string
+            default: UTC
+          description: IANA timezone used to bucket the time series. Defaults to UTC.
+        - name: domain_id
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uuid
+          description: Restrict metrics to a single domain.
+        - name: include
+          in: query
+          required: false
+          description: >-
+            Add breakdowns. Repeat the parameter to select multiple (e.g.
+            include=timeseries&include=domain_breakdown). Defaults to totals only.
+          schema:
+            type: array
+            items:
+              type: string
+              enum:
+                - timeseries
+                - domain_breakdown
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetMetricsEngagementResponseSuccess'
 webhooks:
   email.sent:
     post:
@@ -6725,22 +6781,37 @@ components:
           description: Per-domain engagement. Included only when `include=domain_breakdown`.
           items:
             $ref: '#/components/schemas/EngagementDomainBreakdown'
-    GetMetricsResponseSuccess:
-      type: object
-      properties:
-        object:
-          type: string
-          const: metrics
-          description: The response object type.
-        start_date:
-          type: string
-          format: date-time
-          example: '2026-06-17T23:59:59.000Z'
-        end_date:
-          type: string
-          format: date-time
-          example: '2026-07-17T23:59:59.000Z'
-        overview:
-          $ref: '#/components/schemas/MetricsOverview'
-        engagement:
-          $ref: '#/components/schemas/MetricsEngagement'
+    GetMetricsOverviewResponseSuccess:
+      allOf:
+        - type: object
+          properties:
+            object:
+              type: string
+              const: metrics_overview
+              description: The response object type.
+            start_date:
+              type: string
+              format: date-time
+              example: '2026-06-17T23:59:59.000Z'
+            end_date:
+              type: string
+              format: date-time
+              example: '2026-07-17T23:59:59.000Z'
+        - $ref: '#/components/schemas/MetricsOverview'
+    GetMetricsEngagementResponseSuccess:
+      allOf:
+        - type: object
+          properties:
+            object:
+              type: string
+              const: metrics_engagement
+              description: The response object type.
+            start_date:
+              type: string
+              format: date-time
+              example: '2026-06-17T23:59:59.000Z'
+            end_date:
+              type: string
+              format: date-time
+              example: '2026-07-17T23:59:59.000Z'
+        - $ref: '#/components/schemas/MetricsEngagement'
