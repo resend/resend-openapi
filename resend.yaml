@@ -1108,6 +1108,31 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SendBroadcastResponseSuccess'
+  /broadcasts/{id}/metrics:
+    get:
+      tags:
+        - Broadcasts
+      summary: Retrieve aggregate metrics for a broadcast
+      description: >-
+        Delivery and engagement counters (each with a count and a rate) for a
+        single broadcast. Opens and clicks are reported as unique counts. Rates
+        divide by sent-so-far while the broadcast is still sending, then by the
+        full audience once it has finished.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The Broadcast ID.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetBroadcastMetricsResponseSuccess'
   /webhooks:
     post:
       tags:
@@ -3737,6 +3762,54 @@ components:
           type: string
           description: The ID of the broadcast.
           example: 78261eea-8f8b-4381-83c6-79fa7120f1cf
+    BroadcastMetricCounter:
+      type: object
+      properties:
+        count:
+          type: integer
+          description: Absolute number of events.
+          example: 11800
+        rate:
+          type: number
+          description: >-
+            Percentage this metric represents of its denominator: sent-so-far
+            (delivered + bounced) while the broadcast is still sending, or the
+            full audience once it has finished. For example, 11,800 delivered
+            out of 12,000 sent gives a rate of 98.3.
+          example: 98.3
+    GetBroadcastMetricsResponseSuccess:
+      type: object
+      properties:
+        object:
+          type: string
+          const: broadcast_metrics
+          description: The response object type.
+        broadcast_id:
+          type: string
+          format: uuid
+          example: e169aa45-1ecf-4183-9955-b1499d5701d3
+        total:
+          type: integer
+          description: Audience size the broadcast was sent to.
+          example: 12345
+        sent:
+          type: integer
+          description: Emails sent so far (delivered + bounced while the broadcast is still sending).
+          example: 12000
+        delivered:
+          $ref: '#/components/schemas/BroadcastMetricCounter'
+        opened:
+          $ref: '#/components/schemas/BroadcastMetricCounter'
+        clicked:
+          $ref: '#/components/schemas/BroadcastMetricCounter'
+        bounced:
+          $ref: '#/components/schemas/BroadcastMetricCounter'
+        complained:
+          $ref: '#/components/schemas/BroadcastMetricCounter'
+        unsubscribed:
+          $ref: '#/components/schemas/BroadcastMetricCounter'
+        suppressed:
+          $ref: '#/components/schemas/BroadcastMetricCounter'
     RetrievedAttachment:
       type: object
       properties:
