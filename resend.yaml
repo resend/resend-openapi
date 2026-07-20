@@ -2542,6 +2542,40 @@ components:
             - sent
             - suppressed
           example: 'delivered'
+        bounce:
+          type: object
+          description: Details about the bounce, present only when `last_event` is `bounced`.
+          properties:
+            message:
+              type: [string, "null"]
+              description: A human-readable message describing the bounce.
+            type:
+              type: [string, "null"]
+              enum:
+                - Undetermined
+                - Transient
+                - Permanent
+                - null
+              description: The type of bounce, as reported by AWS SES.
+              example: 'Permanent'
+            subType:
+              type: [string, "null"]
+              enum:
+                - Undetermined
+                - General
+                - NoEmail
+                - MailboxFull
+                - MessageTooLarge
+                - ContentRejected
+                - AttachmentRejected
+                - null
+              description: The subtype of the bounce, as reported by AWS SES.
+              example: 'General'
+            diagnosticCode:
+              type: array
+              items:
+                type: string
+              description: Diagnostic codes returned by the receiving mail server for each bounced recipient.
     ListEmailsResponse:
       type: object
       properties:
