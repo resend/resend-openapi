@@ -44,6 +44,8 @@ tags:
     description: Create and manage Events through the Resend API.
   - name: OAuth
     description: List and manage OAuth grants through the Resend API.
+  - name: Metrics
+    description: Retrieve account-level email metrics through the Resend API.
 paths:
   /emails:
     post:
@@ -2055,6 +2057,87 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RemoveSuppressionResponseSuccess'
+  /metrics/overview:
+    get:
+      tags:
+        - Metrics
+      summary: Retrieve account-level delivery metrics
+      description: >-
+        Volume and delivery counts for a date range. Per-period `timeseries` and
+        per-domain `domain_breakdown` are opt-in via `include`.
+      parameters:
+        - name: start_date
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date-time
+          description: >-
+            Start of the range (ISO 8601). Must be on or before end_date and
+            within your plan's retention window.
+        - name: end_date
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date-time
+          description: End of the range (ISO 8601).
+        - name: timezone
+          in: query
+          required: false
+          schema:
+            type: string
+            default: UTC
+          description: IANA timezone used to bucket the time series. Defaults to UTC.
+        - name: domain_id
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uuid
+          description: Restrict metrics to a single domain.
+        - name: event_type
+          in: query
+          required: false
+          description: >-
+            Project the counts down to only the listed events. Repeat the
+            parameter to select multiple (e.g.
+            event_type=delivered&event_type=bounced).
+          schema:
+            type: array
+            items:
+              type: string
+              enum:
+                - received
+                - delivered
+                - bounced
+                - complained
+                - opened
+                - clicked
+                - delivery_delayed
+                - failed
+                - unsubscribed
+                - suppressed
+        - name: include
+          in: query
+          required: false
+          description: >-
+            Add breakdowns. Repeat the parameter to select multiple (e.g.
+            include=timeseries&include=domain_breakdown). Defaults to totals only.
+          schema:
+            type: array
+            items:
+              type: string
+              enum:
+                - timeseries
+                - domain_breakdown
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetMetricsOverviewResponseSuccess'
 webhooks:
   email.sent:
     post:
@@ -6523,3 +6606,98 @@ components:
                 format: date-time
                 description: Timestamp indicating when the suppression was created.
                 example: "2023-10-06T23:47:56.678Z"
+    MetricCounts:
+      type: object
+      description: >-
+        Volume and delivery counts. When `event_type` is set, only the requested
+        event keys are present.
+      properties:
+        sent:
+          type: integer
+          description: Derived count (delivered + bounced + failed).
+          example: 12053
+        delivered:
+          type: integer
+          example: 11800
+        delivery_delayed:
+          type: integer
+          example: 40
+        bounced:
+          type: integer
+          example: 210
+        complained:
+          type: integer
+          example: 5
+        opened:
+          type: integer
+          description: Total opens. See engagement.opens for unique opens.
+          example: 5400
+        clicked:
+          type: integer
+          description: Total clicks. See engagement.clicks for unique clicks.
+          example: 1200
+        unsubscribed:
+          type: integer
+          example: 30
+        suppressed:
+          type: integer
+          example: 900
+        received:
+          type: integer
+          example: 8300
+        failed:
+          type: integer
+          example: 43
+    MetricsTimeseriesPoint:
+      allOf:
+        - type: object
+          properties:
+            period:
+              type: string
+              description: ISO date (daily buckets) or datetime (hourly buckets).
+              example: '2026-07-08'
+        - $ref: '#/components/schemas/MetricCounts'
+    MetricsDomainBreakdown:
+      allOf:
+        - type: object
+          properties:
+            domain_id:
+              type: string
+              format: uuid
+              example: 067b3160-d611-491e-943e-c0c4cd497d2d
+            domain_name:
+              type: string
+              example: mail.acme.com
+        - $ref: '#/components/schemas/MetricCounts'
+    MetricsOverview:
+      allOf:
+        - $ref: '#/components/schemas/MetricCounts'
+        - type: object
+          properties:
+            timeseries:
+              type: array
+              description: Per-period counts. Included only when `include=timeseries`.
+              items:
+                $ref: '#/components/schemas/MetricsTimeseriesPoint'
+            domain_breakdown:
+              type: array
+              description: Per-domain counts. Included only when `include=domain_breakdown`.
+              items:
+                $ref: '#/components/schemas/MetricsDomainBreakdown'
+    GetMetricsOverviewResponseSuccess:
+      allOf:
+        - type: object
+          properties:
+            object:
+              type: string
+              const: metrics_overview
+              description: The response object type.
+            start_date:
+              type: string
+              format: date-time
+              example: '2026-06-17T23:59:59.000Z'
+            end_date:
+              type: string
+              format: date-time
+              example: '2026-07-17T23:59:59.000Z'
+        - $ref: '#/components/schemas/MetricsOverview'
