@@ -2055,6 +2055,69 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RemoveSuppressionResponseSuccess'
+  /segments/metrics:
+    get:
+      tags:
+        - Segments
+      summary: Retrieve contact metrics across all segments
+      description: >-
+        Account-wide contact totals (all segments). A cumulative per-week
+        `timeseries` is opt-in via `include`.
+      parameters:
+        - name: include
+          in: query
+          required: false
+          description: >-
+            Add breakdowns. Repeat to select multiple (currently only
+            `timeseries`). Defaults to totals only.
+          schema:
+            type: array
+            items:
+              type: string
+              enum:
+                - timeseries
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetAudienceMetricsResponseSuccess'
+  /segments/{id}/metrics:
+    get:
+      tags:
+        - Segments
+      summary: Retrieve contact metrics for a segment
+      description: >-
+        Contact totals scoped to a single segment. A cumulative per-week
+        `timeseries` is opt-in via `include`.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The Segment ID.
+        - name: include
+          in: query
+          required: false
+          description: >-
+            Add breakdowns. Repeat to select multiple (currently only
+            `timeseries`). Defaults to totals only.
+          schema:
+            type: array
+            items:
+              type: string
+              enum:
+                - timeseries
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetSegmentMetricsResponseSuccess'
 webhooks:
   email.sent:
     post:
@@ -6523,3 +6586,69 @@ components:
                 format: date-time
                 description: Timestamp indicating when the suppression was created.
                 example: "2023-10-06T23:47:56.678Z"
+    SegmentMetricsTimeseriesPoint:
+      type: object
+      description: >-
+        Cumulative contact counts keyed by signup week (ISO week-start date). The
+        unsubscribed count uses the current flag, so it is "contacts by signup
+        week that are currently unsubscribed", not an unsubscribe timeline.
+      properties:
+        period:
+          type: string
+          description: ISO week-start date (YYYY-MM-DD).
+          example: '2026-07-06'
+        subscribed:
+          type: integer
+          example: 90
+        unsubscribed:
+          type: integer
+          example: 10
+        contacts:
+          type: integer
+          example: 100
+    GetAudienceMetricsResponseSuccess:
+      type: object
+      properties:
+        object:
+          type: string
+          const: audience_metrics
+          description: The response object type.
+        all_contacts:
+          type: integer
+          example: 100
+        subscribers:
+          type: integer
+          example: 90
+        unsubscribers:
+          type: integer
+          example: 10
+        timeseries:
+          type: array
+          description: Included only when `include=timeseries`.
+          items:
+            $ref: '#/components/schemas/SegmentMetricsTimeseriesPoint'
+    GetSegmentMetricsResponseSuccess:
+      type: object
+      properties:
+        object:
+          type: string
+          const: segment_metrics
+          description: The response object type.
+        segment_id:
+          type: string
+          format: uuid
+          example: e169aa45-1ecf-4183-9955-b1499d5701d3
+        all_contacts:
+          type: integer
+          example: 100
+        subscribers:
+          type: integer
+          example: 90
+        unsubscribers:
+          type: integer
+          example: 10
+        timeseries:
+          type: array
+          description: Included only when `include=timeseries`.
+          items:
+            $ref: '#/components/schemas/SegmentMetricsTimeseriesPoint'
