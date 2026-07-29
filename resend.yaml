@@ -5,23 +5,10 @@ info:
   description: |
     Resend is the email platform for developers.
 
-    ## Timestamps
-
-    Timestamps in API responses use Postgres timestamp format, in UTC:
-
-    `YYYY-MM-DD HH:MM:SS[.ffffff]+00` — for example, `2023-10-06 23:47:56.678+00`.
-
-    This is not ISO 8601. It uses a space instead of a `T` separator and a
-    two-digit offset, so strict ISO 8601 and RFC 3339 parsers reject it. These
-    fields are therefore typed as plain strings rather than `format: date-time`.
-
-    Fractional seconds are variable width: one to six digits, and omitted
-    entirely when the value falls on a whole second. Do not use a parser that
-    expects a fixed number of digits.
-
-    Webhook event payloads, the received email endpoints, attachment
-    `expires_at`, and `revoked_at` on `DELETE /oauth/grants/{oauth_grant_id}`
-    are the exceptions — they return ISO 8601 and keep `format: date-time`.
+    Most timestamps are Postgres format (`2023-10-06 23:47:56.678+00`), not ISO
+    8601. Fractional seconds are variable width and absent on a whole second, so
+    do not assume a fixed number of digits. Fields that return ISO 8601 are
+    typed `format: date-time`.
 servers:
   - url: https://api.resend.com
 security:
