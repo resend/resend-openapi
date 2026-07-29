@@ -2,13 +2,7 @@ openapi: 3.1.2
 info:
   title: Resend
   version: 1.5.0
-  description: |
-    Resend is the email platform for developers.
-
-    Most timestamps are Postgres format (`2023-10-06 23:47:56.678+00`), not ISO
-    8601. Fractional seconds are variable width and absent on a whole second, so
-    do not assume a fixed number of digits. Fields that return ISO 8601 are
-    typed `format: date-time`.
+  description: 'Resend is the email platform for developers.'
 servers:
   - url: https://api.resend.com
 security:
