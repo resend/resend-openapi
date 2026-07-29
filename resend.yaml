@@ -2471,9 +2471,8 @@ components:
           example: 'Acme <onboarding@resend.dev>'
         created_at:
           type: string
-          format: date-time
           description: The date and time the email was created.
-          example: '2023-04-03T22:13:42.674981+00:00'
+          example: '2023-04-03 22:13:42.674981+00'
         subject:
           type: string
           description: The subject line of the email.
@@ -2609,8 +2608,8 @@ components:
           description: The name of the domain.
         created_at:
           type: string
-          format: date-time
           description: The date and time the domain was created.
+          example: '2023-10-06 23:47:56.678+00'
         status:
           type: string
           enum:
@@ -2726,9 +2725,8 @@ components:
           example: 'not_started'
         created_at:
           type: string
-          format: date-time
           description: The date and time the domain was created.
-          example: '2023-04-26T20:21:26.347412+00:00'
+          example: '2023-04-26 20:21:26.347412+00'
         region:
           type: string
           description: The region where the domain is hosted.
@@ -2859,14 +2857,12 @@ components:
           example: null
         created_at:
           type: string
-          format: date-time
           description: The date and time the claim was created.
-          example: '2023-04-26T20:21:26.347412+00:00'
+          example: '2023-04-26 20:21:26.347412+00'
         expires_at:
           type: string
-          format: date-time
           description: The date and time the claim expires if not verified.
-          example: '2023-05-03T20:21:26.347412+00:00'
+          example: '2023-05-03 20:21:26.347412+00'
     VerifyDomainResponse:
       type: object
       properties:
@@ -2917,9 +2913,8 @@ components:
           example: 'not_started'
         created_at:
           type: string
-          format: date-time
           description: The date and time the domain was created.
-          example: '2023-04-26T20:21:26.347412+00:00'
+          example: '2023-04-26 20:21:26.347412+00'
         region:
           type: string
           description: The region where the domain is hosted.
@@ -3004,12 +2999,12 @@ components:
           description: The name of the API key.
         created_at:
           type: string
-          format: date-time
           description: The date and time the API key was created.
+          example: '2023-10-06 23:47:56.678+00'
         last_used_at:
           type: [string, "null"]
-          format: date-time
           description: The date and time the API key was last used.
+          example: '2023-10-06 23:47:56.678+00'
     ListOAuthGrantsResponse:
       type: object
       properties:
@@ -3041,12 +3036,12 @@ components:
           description: The scopes granted to the OAuth client.
         created_at:
           type: string
-          format: date-time
           description: The date and time the OAuth grant was created.
+          example: '2023-10-06 23:47:56.678+00'
         revoked_at:
           type: [string, "null"]
-          format: date-time
           description: The date and time the OAuth grant was revoked, or null if it is still active.
+          example: '2023-10-06 23:47:56.678+00'
         revoked_reason:
           type: [string, "null"]
           description: The reason the OAuth grant was revoked, or null if it is still active.
@@ -3074,6 +3069,7 @@ components:
           type: string
           format: date-time
           description: The date and time the OAuth grant was revoked.
+          example: '2023-10-06T23:47:56.678Z'
         revoked_reason:
           type: string
           description: The reason the OAuth grant was revoked.
@@ -3135,7 +3131,7 @@ components:
         created_at:
           type: string
           description: The date that the object was created.
-          example: 2023-10-06T22:59:55.977Z
+          example: '2023-10-06 22:59:55.977+00'
     RemoveAudienceResponseSuccess:
       type: object
       deprecated: true
@@ -3176,9 +3172,8 @@ components:
                 example: Registered Users
               created_at:
                 type: string
-                format: date-time
                 description: Timestamp indicating when the audience was created.
-                example: "2023-10-06T22:59:55.977Z"
+                example: "2023-10-06 22:59:55.977+00"
     CreateContactOptions:
       type: object
       required:
@@ -3265,9 +3260,8 @@ components:
           example: Wozniak
         created_at:
           type: string
-          format: date-time
           description: Timestamp indicating when the contact was created.
-          example: "2023-10-06T23:47:56.678Z"
+          example: "2023-10-06 23:47:56.678+00"
         unsubscribed:
           type: boolean
           description: Indicates if the contact is unsubscribed.
@@ -3356,9 +3350,8 @@ components:
                 example: Wozniak
               created_at:
                 type: string
-                format: date-time
                 description: Timestamp indicating when the contact was created.
-                example: "2023-10-06T23:47:56.678Z"
+                example: "2023-10-06 23:47:56.678+00"
               unsubscribed:
                 type: boolean
                 description: Indicates if the contact is unsubscribed.
@@ -3450,14 +3443,12 @@ components:
           example: completed
         created_at:
           type: string
-          format: date-time
           description: Timestamp indicating when the contact import was created.
-          example: "2023-10-06T23:47:56.678Z"
+          example: "2023-10-06 23:47:56.678+00"
         completed_at:
           type: [string, "null"]
-          format: date-time
           description: Timestamp indicating when the contact import completed.
-          example: "2023-10-06T23:50:56.678Z"
+          example: "2023-10-06 23:50:56.678+00"
         counts:
           $ref: '#/components/schemas/ContactImportCounts'
     GetContactImportResponseSuccess:
@@ -3579,19 +3570,16 @@ components:
                 example: 'draft'
               created_at:
                 type: string
-                format: date-time
                 description: Timestamp indicating when the broadcast was created.
-                example: "2023-10-06T22:59:55.977Z"
+                example: "2023-10-06 22:59:55.977+00"
               scheduled_at:
                 type: string
-                format: date-time
                 description: Timestamp indicating when the broadcast is scheduled to be sent.
-                example: "2023-10-06T22:59:55.977Z"
+                example: "2023-10-06 22:59:55.977+00"
               sent_at:
                 type: string
-                format: date-time
                 description: Timestamp indicating when the broadcast was sent.
-                example: "2023-10-06T22:59:55.977Z"
+                example: "2023-10-06 22:59:55.977+00"
               topic_id:
                 type: string
                 description: The topic ID that the broadcast is scoped to.
@@ -3637,19 +3625,16 @@ components:
           example: 'draft'
         created_at:
           type: string
-          format: date-time
           description: Timestamp indicating when the broadcast was created.
-          example: "2023-10-06T22:59:55.977Z"
+          example: "2023-10-06 22:59:55.977+00"
         scheduled_at:
           type: string
-          format: date-time
           description: Timestamp indicating when the broadcast is scheduled to be sent.
-          example: "2023-10-06T22:59:55.977Z"
+          example: "2023-10-06 22:59:55.977+00"
         sent_at:
           type: string
-          format: date-time
           description: Timestamp indicating when the broadcast was sent.
-          example: "2023-10-06T22:59:55.977Z"
+          example: "2023-10-06 22:59:55.977+00"
         text:
           type: [string, "null"]
           description: The plain text version of the broadcast content.
@@ -3903,7 +3888,7 @@ components:
           type: string
           format: date-time
           description: Timestamp when the email was received.
-          example: '2023-10-06:23:47:56.678Z'
+          example: '2023-10-06T23:47:56.678Z'
         attachments:
           type: array
           description: Array of attachments.
@@ -4085,9 +4070,8 @@ components:
           example: 'enabled'
         created_at:
           type: string
-          format: date-time
           description: Timestamp indicating when the webhook was created.
-          example: '2023-10-06T23:47:56.678Z'
+          example: '2023-10-06 23:47:56.678+00'
         signing_secret:
           type: string
           description: The secret key used to verify webhook payloads.
@@ -4130,9 +4114,8 @@ components:
                 example: 'enabled'
               created_at:
                 type: string
-                format: date-time
                 description: Timestamp indicating when the webhook was created.
-                example: '2023-10-06T23:47:56.678Z'
+                example: '2023-10-06 23:47:56.678+00'
     UpdateWebhookRequest:
       type: object
       properties:
@@ -4206,12 +4189,12 @@ components:
               items: {}
         created_at:
           type: string
-          format: date-time
           description: Timestamp indicating when the variable was created.
+          example: '2023-10-06 23:47:56.678+00'
         updated_at:
           type: string
-          format: date-time
           description: Timestamp indicating when the variable was last updated.
+          example: '2023-10-06 23:47:56.678+00'
       required:
         - key
         - type
@@ -4279,20 +4262,20 @@ components:
             $ref: '#/components/schemas/TemplateVariable'
         created_at:
           type: string
-          format: date-time
           description: Timestamp indicating when the template was created.
+          example: '2023-10-06 23:47:56.678+00'
         updated_at:
           type: string
-          format: date-time
           description: Timestamp indicating when the template was last updated.
+          example: '2023-10-06 23:47:56.678+00'
         status:
           type: string
           description: The publication status of the template.
           enum: [draft, published]
         published_at:
           type: [string, "null"]
-          format: date-time
           description: Timestamp indicating when the template was published.
+          example: '2023-10-06 23:47:56.678+00'
         has_unpublished_versions:
           type: boolean
           description: Indicates whether the template has unpublished versions.
@@ -4311,16 +4294,16 @@ components:
           enum: [draft, published]
         published_at:
           type: [string, "null"]
-          format: date-time
           description: Timestamp indicating when the template was published.
+          example: '2023-10-06 23:47:56.678+00'
         created_at:
           type: string
-          format: date-time
           description: Timestamp indicating when the template was created.
+          example: '2023-10-06 23:47:56.678+00'
         updated_at:
           type: string
-          format: date-time
           description: Timestamp indicating when the template was last updated.
+          example: '2023-10-06 23:47:56.678+00'
         alias:
           type: string
           description: The alias of the template.
@@ -4506,8 +4489,8 @@ components:
           description: Filter conditions for the segment.
         created_at:
           type: string
-          format: date-time
           description: Timestamp indicating when the segment was created.
+          example: '2023-10-06 23:47:56.678+00'
     ListSegmentsResponseSuccess:
       type: object
       properties:
@@ -4536,8 +4519,8 @@ components:
                 deprecated: true
               created_at:
                 type: string
-                format: date-time
                 description: Timestamp indicating when the segment was created.
+                example: '2023-10-06 23:47:56.678+00'
     RemoveSegmentResponseSuccess:
       type: object
       properties:
@@ -4623,8 +4606,8 @@ components:
           description: The visibility of the topic.
         created_at:
           type: string
-          format: date-time
           description: Timestamp indicating when the topic was created.
+          example: '2023-10-06 23:47:56.678+00'
     ListTopicsResponseSuccess:
       type: object
       properties:
@@ -4664,8 +4647,8 @@ components:
                 description: The visibility of the topic.
               created_at:
                 type: string
-                format: date-time
                 description: Timestamp indicating when the topic was created.
+                example: '2023-10-06 23:47:56.678+00'
     UpdateTopicOptions:
       type: object
       properties:
@@ -4767,8 +4750,8 @@ components:
           example: Acme Corp
         created_at:
           type: string
-          format: date-time
           description: Timestamp indicating when the contact property was created.
+          example: '2023-10-06 23:47:56.678+00'
     ListContactPropertiesResponseSuccess:
       type: object
       properties:
@@ -4801,8 +4784,8 @@ components:
                 description: The default value when the property is not set for a contact.
               created_at:
                 type: string
-                format: date-time
                 description: Timestamp indicating when the contact property was created.
+                example: '2023-10-06 23:47:56.678+00'
     UpdateContactPropertyOptions:
       type: object
       properties:
@@ -4874,8 +4857,8 @@ components:
                 description: Name of the segment.
               created_at:
                 type: string
-                format: date-time
                 description: Timestamp indicating when the contact was added to the segment.
+                example: '2023-10-06 23:47:56.678+00'
     RemoveContactFromSegmentResponseSuccess:
       type: object
       properties:
@@ -4977,8 +4960,8 @@ components:
           description: The log ID.
         created_at:
           type: string
-          format: date-time
           description: The date the log was created.
+          example: '2023-10-06 23:47:56.678+00'
         endpoint:
           type: string
           description: The API endpoint that was called.
@@ -5011,8 +4994,8 @@ components:
           description: The log ID.
         created_at:
           type: string
-          format: date-time
           description: The date the log was created.
+          example: '2023-10-06 23:47:56.678+00'
         endpoint:
           type: string
           description: The API endpoint that was called.
@@ -5199,9 +5182,11 @@ components:
         created_at:
           type: string
           description: The date and time the automation was created.
+          example: '2023-10-06 23:47:56.678+00'
         updated_at:
           type: string
           description: The date and time the automation was last updated.
+          example: '2023-10-06 23:47:56.678+00'
         steps:
           type: array
           description: The steps in the active version of the automation.
@@ -5230,9 +5215,11 @@ components:
         created_at:
           type: string
           description: The date and time the automation was created.
+          example: '2023-10-06 23:47:56.678+00'
         updated_at:
           type: string
           description: The date and time the automation was last updated.
+          example: '2023-10-06 23:47:56.678+00'
     ListAutomationsResponse:
       type: object
       properties:
@@ -5339,9 +5326,11 @@ components:
         started_at:
           type: [string, "null"]
           description: The date and time the step started executing.
+          example: '2023-10-06 23:47:56.678+00'
         completed_at:
           type: [string, "null"]
           description: The date and time the step completed executing.
+          example: '2023-10-06 23:47:56.678+00'
         output:
           type: [object, "null"]
           description: The output produced by the step, if any.
@@ -5351,6 +5340,7 @@ components:
         created_at:
           type: string
           description: The date and time the step record was created.
+          example: '2023-10-06 23:47:56.678+00'
     AutomationRun:
       type: object
       properties:
@@ -5372,12 +5362,15 @@ components:
         started_at:
           type: [string, "null"]
           description: The date and time the run started.
+          example: '2023-10-06 23:47:56.678+00'
         completed_at:
           type: [string, "null"]
           description: The date and time the run completed.
+          example: '2023-10-06 23:47:56.678+00'
         created_at:
           type: string
           description: The date and time the run was created.
+          example: '2023-10-06 23:47:56.678+00'
         steps:
           type: array
           description: The steps executed in this run, sorted in graph order.
@@ -5400,12 +5393,15 @@ components:
         started_at:
           type: [string, "null"]
           description: The date and time the run started.
+          example: '2023-10-06 23:47:56.678+00'
         completed_at:
           type: [string, "null"]
           description: The date and time the run completed.
+          example: '2023-10-06 23:47:56.678+00'
         created_at:
           type: string
           description: The date and time the run was created.
+          example: '2023-10-06 23:47:56.678+00'
     ListAutomationRunsResponse:
       type: object
       properties:
@@ -5441,9 +5437,11 @@ components:
         created_at:
           type: string
           description: The date and time the event was created.
+          example: '2023-10-06 23:47:56.678+00'
         updated_at:
           type: [string, "null"]
           description: The date and time the event was last updated.
+          example: '2023-10-06 23:47:56.678+00'
     EventSummary:
       type: object
       properties:
@@ -5460,9 +5458,11 @@ components:
         created_at:
           type: string
           description: The date and time the event was created.
+          example: '2023-10-06 23:47:56.678+00'
         updated_at:
           type: [string, "null"]
           description: The date and time the event was last updated.
+          example: '2023-10-06 23:47:56.678+00'
     CreateEventRequest:
       type: object
       required:
@@ -5617,6 +5617,7 @@ components:
           type: string
           format: date-time
           description: Timestamp when the click occurred.
+          example: '2023-10-06T23:47:56.678Z'
         userAgent:
           type: string
           description: User agent string of the browser that clicked the link.
@@ -5740,6 +5741,7 @@ components:
           type: string
           format: date-time
           description: Timestamp when the email was created.
+          example: '2023-10-06T23:47:56.678Z'
         from:
           type: string
           description: Sender email address and name in the format `Name <email@domain.com>`.
@@ -5831,6 +5833,7 @@ components:
           type: string
           format: date-time
           description: Timestamp when the email was received.
+          example: '2023-10-06T23:47:56.678Z'
         from:
           type: string
           description: Sender email address.
@@ -5884,10 +5887,12 @@ components:
           type: string
           format: date-time
           description: Timestamp when the contact was created.
+          example: '2023-10-06T23:47:56.678Z'
         updated_at:
           type: string
           format: date-time
           description: Timestamp when the contact was last updated.
+          example: '2023-10-06T23:47:56.678Z'
         email:
           type: string
           description: Contact's email address.
@@ -5930,6 +5935,7 @@ components:
           type: string
           format: date-time
           description: Timestamp when the domain was created.
+          example: '2023-10-06T23:47:56.678Z'
         region:
           type: string
           enum:
@@ -5958,6 +5964,7 @@ components:
           type: string
           format: date-time
           description: Timestamp when the event was emitted.
+          example: '2023-10-06T23:47:56.678Z'
         data:
           $ref: '#/components/schemas/OutboundEmailEventData'
     EmailDeliveredEvent:
@@ -5975,6 +5982,7 @@ components:
           type: string
           format: date-time
           description: Timestamp when the event was emitted.
+          example: '2023-10-06T23:47:56.678Z'
         data:
           $ref: '#/components/schemas/OutboundEmailEventData'
     EmailDeliveryDelayedEvent:
@@ -5992,6 +6000,7 @@ components:
           type: string
           format: date-time
           description: Timestamp when the event was emitted.
+          example: '2023-10-06T23:47:56.678Z'
         data:
           $ref: '#/components/schemas/OutboundEmailEventData'
     EmailBouncedEvent:
@@ -6009,6 +6018,7 @@ components:
           type: string
           format: date-time
           description: Timestamp when the event was emitted.
+          example: '2023-10-06T23:47:56.678Z'
         data:
           $ref: '#/components/schemas/EmailBouncedEventData'
     EmailComplainedEvent:
@@ -6026,6 +6036,7 @@ components:
           type: string
           format: date-time
           description: Timestamp when the event was emitted.
+          example: '2023-10-06T23:47:56.678Z'
         data:
           $ref: '#/components/schemas/OutboundEmailEventData'
     EmailOpenedEvent:
@@ -6043,6 +6054,7 @@ components:
           type: string
           format: date-time
           description: Timestamp when the event was emitted.
+          example: '2023-10-06T23:47:56.678Z'
         data:
           $ref: '#/components/schemas/OutboundEmailEventData'
     EmailClickedEvent:
@@ -6060,6 +6072,7 @@ components:
           type: string
           format: date-time
           description: Timestamp when the event was emitted.
+          example: '2023-10-06T23:47:56.678Z'
         data:
           $ref: '#/components/schemas/EmailClickedEventData'
     EmailFailedEvent:
@@ -6077,6 +6090,7 @@ components:
           type: string
           format: date-time
           description: Timestamp when the event was emitted.
+          example: '2023-10-06T23:47:56.678Z'
         data:
           $ref: '#/components/schemas/EmailFailedEventData'
     EmailScheduledEvent:
@@ -6094,6 +6108,7 @@ components:
           type: string
           format: date-time
           description: Timestamp when the event was emitted.
+          example: '2023-10-06T23:47:56.678Z'
         data:
           $ref: '#/components/schemas/OutboundEmailEventData'
     EmailSuppressedEvent:
@@ -6111,6 +6126,7 @@ components:
           type: string
           format: date-time
           description: Timestamp when the event was emitted.
+          example: '2023-10-06T23:47:56.678Z'
         data:
           $ref: '#/components/schemas/EmailSuppressedEventData'
     EmailReceivedEvent:
@@ -6128,6 +6144,7 @@ components:
           type: string
           format: date-time
           description: Timestamp when the event was emitted.
+          example: '2023-10-06T23:47:56.678Z'
         data:
           $ref: '#/components/schemas/EmailReceivedEventData'
     ContactCreatedEvent:
@@ -6145,6 +6162,7 @@ components:
           type: string
           format: date-time
           description: Timestamp when the event was emitted.
+          example: '2023-10-06T23:47:56.678Z'
         data:
           $ref: '#/components/schemas/ContactEventData'
     ContactUpdatedEvent:
@@ -6162,6 +6180,7 @@ components:
           type: string
           format: date-time
           description: Timestamp when the event was emitted.
+          example: '2023-10-06T23:47:56.678Z'
         data:
           $ref: '#/components/schemas/ContactEventData'
     ContactDeletedEvent:
@@ -6179,6 +6198,7 @@ components:
           type: string
           format: date-time
           description: Timestamp when the event was emitted.
+          example: '2023-10-06T23:47:56.678Z'
         data:
           $ref: '#/components/schemas/ContactEventData'
     DomainCreatedEvent:
@@ -6196,6 +6216,7 @@ components:
           type: string
           format: date-time
           description: Timestamp when the event was emitted.
+          example: '2023-10-06T23:47:56.678Z'
         data:
           $ref: '#/components/schemas/DomainEventData'
     DomainUpdatedEvent:
@@ -6213,6 +6234,7 @@ components:
           type: string
           format: date-time
           description: Timestamp when the event was emitted.
+          example: '2023-10-06T23:47:56.678Z'
         data:
           $ref: '#/components/schemas/DomainEventData'
     DomainDeletedEvent:
@@ -6230,6 +6252,7 @@ components:
           type: string
           format: date-time
           description: Timestamp when the event was emitted.
+          example: '2023-10-06T23:47:56.678Z'
         data:
           $ref: '#/components/schemas/DomainEventData'
     CreateSuppressionOptions:
@@ -6371,9 +6394,8 @@ components:
           example: 479e3145-dd38-476b-932c-529ceb705947
         created_at:
           type: string
-          format: date-time
           description: Timestamp indicating when the suppression was created.
-          example: "2023-10-06T23:47:56.678Z"
+          example: "2023-10-06 23:47:56.678+00"
     ListSuppressionsResponseSuccess:
       type: object
       properties:
@@ -6413,6 +6435,5 @@ components:
                 example: 479e3145-dd38-476b-932c-529ceb705947
               created_at:
                 type: string
-                format: date-time
                 description: Timestamp indicating when the suppression was created.
-                example: "2023-10-06T23:47:56.678Z"
+                example: "2023-10-06 23:47:56.678+00"
