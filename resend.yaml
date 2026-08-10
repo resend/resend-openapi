@@ -1108,6 +1108,30 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SendBroadcastResponseSuccess'
+  /broadcasts/{id}/cancel:
+    post:
+      tags:
+        - Broadcasts
+      summary: Cancel a broadcast
+      description: >-
+        Cancels a broadcast that is queued or scheduled. Canceling a
+        queued broadcast stops it mid-send; emails already sent are not
+        affected, but no further emails will go out.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The Broadcast ID.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CancelBroadcastResponseSuccess'
   /webhooks:
     post:
       tags:
@@ -3722,6 +3746,17 @@ components:
           type: string
           description: The ID of the broadcast.
           example: 78261eea-8f8b-4381-83c6-79fa7120f1cf
+    CancelBroadcastResponseSuccess:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The ID of the broadcast.
+          example: 78261eea-8f8b-4381-83c6-79fa7120f1cf
+        object:
+          type: string
+          description: The object type of the response.
+          example: broadcast
     RetrievedAttachment:
       type: object
       properties:
