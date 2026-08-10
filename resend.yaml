@@ -1115,7 +1115,6 @@ paths:
       summary: Cancel a broadcast
       description: >-
         Cancels a broadcast that is queued or scheduled. Canceling a
-        scheduled broadcast also cancels the scheduled delivery. Canceling a
         queued broadcast stops it mid-send; emails already sent are not
         affected, but no further emails will go out.
       parameters:
