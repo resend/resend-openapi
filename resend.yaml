@@ -2943,6 +2943,12 @@ components:
           type: string
           description: The region where the domain is hosted.
           example: 'us-east-1'
+        open_tracking:
+          type: boolean
+          description: Whether open tracking is enabled for this domain.
+        click_tracking:
+          type: boolean
+          description: Whether click tracking is enabled for this domain.
         capabilities:
           $ref: '#/components/schemas/DomainCapabilities'
     UpdateDomainResponseSuccess:
