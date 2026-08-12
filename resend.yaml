@@ -47,6 +47,7 @@ tags:
 paths:
   /emails:
     post:
+      operationId: emails/send
       tags:
         - Emails
       summary: Send an email
@@ -71,6 +72,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/SendEmailResponse'
     get:
+      operationId: emails/list
       tags:
         - Emails
       summary: Retrieve a list of emails
@@ -87,6 +89,7 @@ paths:
                 $ref: '#/components/schemas/ListEmailsResponse'
   /emails/{email_id}:
     get:
+      operationId: emails/get
       tags:
         - Emails
       summary: Retrieve a single email
@@ -105,6 +108,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Email'
     patch:
+      operationId: emails/update
       tags:
         - Emails
       summary: Update a single email
@@ -124,6 +128,7 @@ paths:
                 $ref: '#/components/schemas/UpdateEmailOptions'
   /emails/{email_id}/cancel:
     post:
+      operationId: emails/cancel
       tags:
         - Emails
       summary: Cancel the schedule of the e-mail.
@@ -143,6 +148,7 @@ paths:
                 $ref: '#/components/schemas/Email'
   /emails/batch:
     post:
+      operationId: emails/send-batch
       tags:
         - Emails
       summary: Trigger up to 100 batch emails at once.
@@ -170,6 +176,7 @@ paths:
                 $ref: '#/components/schemas/CreateBatchEmailsResponse'
   /emails/{email_id}/attachments:
     get:
+      operationId: emails/list-attachments
       tags:
         - Emails
       summary: Retrieve a list of attachments for a sent email
@@ -210,6 +217,7 @@ paths:
                 $ref: '#/components/schemas/ListAttachmentsResponse'
   /emails/{email_id}/attachments/{attachment_id}:
     get:
+      operationId: emails/get-attachment
       tags:
         - Emails
       summary: Retrieve a single attachment for a sent email
@@ -237,6 +245,7 @@ paths:
                 $ref: '#/components/schemas/RetrievedAttachment'
   /emails/receiving:
     get:
+      operationId: emails/list-receiving
       tags:
         - Receiving Emails
       summary: Retrieve a list of received emails
@@ -270,6 +279,7 @@ paths:
                 $ref: '#/components/schemas/ListReceivedEmailsResponse'
   /emails/receiving/{email_id}:
     get:
+      operationId: emails/get-receiving
       tags:
         - Receiving Emails
       summary: Retrieve a single received email
@@ -290,6 +300,7 @@ paths:
                 $ref: '#/components/schemas/GetReceivedEmailResponse'
   /emails/receiving/{email_id}/attachments:
     get:
+      operationId: emails/list-receiving-attachments
       tags:
         - Receiving Emails
       summary: Retrieve a list of attachments for a received email
@@ -330,6 +341,7 @@ paths:
                 $ref: '#/components/schemas/ListAttachmentsResponse'
   /emails/receiving/{email_id}/attachments/{attachment_id}:
     get:
+      operationId: emails/get-receiving-attachment
       tags:
         - Receiving Emails
       summary: Retrieve a single attachment for a received email
@@ -357,6 +369,7 @@ paths:
                 $ref: '#/components/schemas/RetrievedAttachment'
   /domains:
     post:
+      operationId: domains/create
       tags:
         - Domains
       summary: Create a new domain
@@ -373,6 +386,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/CreateDomainResponse'
     get:
+      operationId: domains/list
       tags:
         - Domains
       summary: Retrieve a list of domains
@@ -389,6 +403,7 @@ paths:
                 $ref: '#/components/schemas/ListDomainsResponse'
   /domains/{domain_id}:
     get:
+      operationId: domains/get
       tags:
         - Domains
       summary: Retrieve a single domain
@@ -407,6 +422,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Domain'
     patch:
+      operationId: domains/update
       tags:
         - Domains
       summary: Update an existing domain
@@ -430,6 +446,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/UpdateDomainResponseSuccess'
     delete:
+      operationId: domains/remove
       tags:
         - Domains
       summary: Remove an existing domain
@@ -449,6 +466,7 @@ paths:
                 $ref: '#/components/schemas/DeleteDomainResponse'
   /domains/{domain_id}/verify:
     post:
+      operationId: domains/verify
       tags:
         - Domains
       summary: Verify an existing domain
@@ -469,6 +487,7 @@ paths:
                 $ref: '#/components/schemas/VerifyDomainResponse'
   /domains/claim:
     post:
+      operationId: domains/create-claim
       tags:
         - Domains
       summary: Claim a domain
@@ -498,6 +517,7 @@ paths:
                 $ref: '#/components/schemas/DomainClaim'
   /domains/{domain_id}/claim:
     get:
+      operationId: domains/get-claim
       tags:
         - Domains
       summary: Retrieve a domain claim
@@ -518,6 +538,7 @@ paths:
                 $ref: '#/components/schemas/DomainClaim'
   /domains/{domain_id}/claim/verify:
     post:
+      operationId: domains/verify-claim
       tags:
         - Domains
       summary: Verify a domain claim
@@ -543,6 +564,7 @@ paths:
                 $ref: '#/components/schemas/DomainClaim'
   /api-keys:
     post:
+      operationId: api-keys/create
       tags:
         - API Keys
       summary: Create a new API key
@@ -559,6 +581,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/CreateApiKeyResponse'
     get:
+      operationId: api-keys/list
       tags:
         - API Keys
       summary: Retrieve a list of API keys
@@ -575,6 +598,7 @@ paths:
                 $ref: '#/components/schemas/ListApiKeysResponse'
   /api-keys/{api_key_id}:
     delete:
+      operationId: api-keys/remove
       tags:
         - API Keys
       summary: Remove an existing API key
@@ -594,6 +618,7 @@ paths:
                 $ref: '#/components/schemas/DeleteApiKeyResponse'
   /oauth/grants:
     get:
+      operationId: oauth/list-grants
       tags:
         - OAuth
       summary: Retrieve a list of OAuth grants
@@ -610,6 +635,7 @@ paths:
                 $ref: '#/components/schemas/ListOAuthGrantsResponse'
   /oauth/grants/{oauth_grant_id}:
     delete:
+      operationId: oauth/revoke-grant
       tags:
         - OAuth
       summary: Revoke an OAuth grant
@@ -629,6 +655,7 @@ paths:
                 $ref: '#/components/schemas/RevokeOAuthGrantResponse'
   /templates:
     post:
+      operationId: templates/create
       tags:
         - Templates
       summary: Create a template
@@ -645,6 +672,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/CreateTemplateResponseSuccess'
     get:
+      operationId: templates/list
       tags:
         - Templates
       summary: Retrieve a list of templates
@@ -661,6 +689,7 @@ paths:
                 $ref: '#/components/schemas/ListTemplatesResponseSuccess'
   /templates/{id}:
     get:
+      operationId: templates/get
       tags:
         - Templates
       summary: Retrieve a single template
@@ -679,6 +708,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Template'
     patch:
+      operationId: templates/update
       tags:
         - Templates
       summary: Update an existing template
@@ -702,6 +732,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/UpdateTemplateResponseSuccess'
     delete:
+      operationId: templates/remove
       tags:
         - Templates
       summary: Remove an existing template
@@ -721,6 +752,7 @@ paths:
                 $ref: '#/components/schemas/RemoveTemplateResponseSuccess'
   /templates/{id}/publish:
     post:
+      operationId: templates/publish
       tags:
         - Templates
       summary: Publish a template
@@ -740,6 +772,7 @@ paths:
                 $ref: '#/components/schemas/PublishTemplateResponseSuccess'
   /templates/{id}/duplicate:
     post:
+      operationId: templates/duplicate
       tags:
         - Templates
       summary: Duplicate a template
@@ -759,6 +792,7 @@ paths:
                 $ref: '#/components/schemas/DuplicateTemplateResponseSuccess'
   /audiences:
     post:
+      operationId: audiences/create
       tags:
         - Audiences
       summary: Create a list of contacts
@@ -777,6 +811,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/CreateAudienceResponseSuccess'
     get:
+      operationId: audiences/list
       tags:
         - Audiences
       summary: Retrieve a list of audiences
@@ -791,6 +826,7 @@ paths:
                 $ref: '#/components/schemas/ListAudiencesResponseSuccess'
   /audiences/{id}:
     delete:
+      operationId: audiences/remove
       tags:
         - Audiences
       summary: Remove an existing audience
@@ -811,6 +847,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/RemoveAudienceResponseSuccess'
     get:
+      operationId: audiences/get
       tags:
         - Audiences
       summary: Retrieve a single audience
@@ -832,6 +869,7 @@ paths:
                 $ref: '#/components/schemas/GetAudienceResponseSuccess'
   /contacts:
     post:
+      operationId: contacts/create
       tags:
         - Contacts
       summary: Create a new contact
@@ -848,6 +886,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/CreateContactResponseSuccess'
     get:
+      operationId: contacts/list
       tags:
         - Contacts
       summary: Retrieve a list of contacts
@@ -870,6 +909,7 @@ paths:
                 $ref: '#/components/schemas/ListContactsResponseSuccess'
   /contacts/imports:
     post:
+      operationId: contacts/create-import
       tags:
         - Contacts
       summary: Create a contact import
@@ -887,6 +927,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/CreateContactImportResponseSuccess'
     get:
+      operationId: contacts/list-imports
       tags:
         - Contacts
       summary: Retrieve a list of contact imports
@@ -914,6 +955,7 @@ paths:
                 $ref: '#/components/schemas/ListContactImportsResponseSuccess'
   /contacts/imports/{id}:
     get:
+      operationId: contacts/get-import
       tags:
         - Contacts
       summary: Retrieve a single contact import
@@ -934,6 +976,7 @@ paths:
                 $ref: '#/components/schemas/GetContactImportResponseSuccess'
   /contacts/{id}:
     get:
+      operationId: contacts/get
       tags:
         - Contacts
       summary: Retrieve a single contact by ID or email
@@ -952,6 +995,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/GetContactResponseSuccess'
     patch:
+      operationId: contacts/update
       tags:
         - Contacts
       summary: Update a single contact by ID or email
@@ -975,6 +1019,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/UpdateContactResponseSuccess'
     delete:
+      operationId: contacts/remove
       tags:
         - Contacts
       summary: Remove an existing contact by ID or email
@@ -994,6 +1039,7 @@ paths:
                 $ref: '#/components/schemas/RemoveContactResponseSuccess'
   /broadcasts:
     post:
+      operationId: broadcasts/create
       tags:
         - Broadcasts
       summary: Create a broadcast
@@ -1010,6 +1056,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/CreateBroadcastResponseSuccess'
     get:
+      operationId: broadcasts/list
       tags:
         - Broadcasts
       summary: Retrieve a list of broadcasts
@@ -1026,6 +1073,7 @@ paths:
                 $ref: '#/components/schemas/ListBroadcastsResponseSuccess'
   /broadcasts/{id}:
     delete:
+      operationId: broadcasts/remove
       tags:
         - Broadcasts
       summary: Remove an existing broadcast that is in the draft status
@@ -1044,6 +1092,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/RemoveBroadcastResponseSuccess'
     get:
+      operationId: broadcasts/get
       tags:
         - Broadcasts
       summary: Retrieve a single broadcast
@@ -1062,6 +1111,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/GetBroadcastResponseSuccess'
     patch:
+      operationId: broadcasts/update
       tags:
         - Broadcasts
       summary: Update an existing broadcast
@@ -1086,6 +1136,7 @@ paths:
                 $ref: '#/components/schemas/UpdateBroadcastResponseSuccess'
   /broadcasts/{id}/send:
     post:
+      operationId: broadcasts/send
       tags:
         - Broadcasts
       summary: Send or schedule a broadcast
@@ -1110,6 +1161,7 @@ paths:
                 $ref: '#/components/schemas/SendBroadcastResponseSuccess'
   /broadcasts/{id}/cancel:
     post:
+      operationId: broadcasts/cancel
       tags:
         - Broadcasts
       summary: Cancel a broadcast
@@ -1134,6 +1186,7 @@ paths:
                 $ref: '#/components/schemas/CancelBroadcastResponseSuccess'
   /webhooks:
     post:
+      operationId: webhooks/create
       tags:
         - Webhooks
       summary: Create a new webhook
@@ -1150,6 +1203,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/CreateWebhookResponse'
     get:
+      operationId: webhooks/list
       tags:
         - Webhooks
       summary: Retrieve a list of webhooks
@@ -1183,6 +1237,7 @@ paths:
                 $ref: '#/components/schemas/ListWebhooksResponse'
   /webhooks/{webhook_id}:
     get:
+      operationId: webhooks/get
       tags:
         - Webhooks
       summary: Retrieve a single webhook
@@ -1202,6 +1257,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/GetWebhookResponse'
     patch:
+      operationId: webhooks/update
       tags:
         - Webhooks
       summary: Update an existing webhook
@@ -1226,6 +1282,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/UpdateWebhookResponse'
     delete:
+      operationId: webhooks/remove
       tags:
         - Webhooks
       summary: Remove an existing webhook
@@ -1246,6 +1303,7 @@ paths:
                 $ref: '#/components/schemas/DeleteWebhookResponse'
   /segments:
     post:
+      operationId: segments/create
       tags:
         - Segments
       summary: Create a new segment
@@ -1262,6 +1320,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/CreateSegmentResponseSuccess'
     get:
+      operationId: segments/list
       tags:
         - Segments
       summary: Retrieve a list of segments
@@ -1278,6 +1337,7 @@ paths:
                 $ref: '#/components/schemas/ListSegmentsResponseSuccess'
   /segments/{id}:
     get:
+      operationId: segments/get
       tags:
         - Segments
       summary: Retrieve a single segment
@@ -1296,6 +1356,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/GetSegmentResponseSuccess'
     delete:
+      operationId: segments/remove
       tags:
         - Segments
       summary: Remove an existing segment
@@ -1315,6 +1376,7 @@ paths:
                 $ref: '#/components/schemas/RemoveSegmentResponseSuccess'
   /topics:
     post:
+      operationId: topics/create
       tags:
         - Topics
       summary: Create a new topic
@@ -1331,6 +1393,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/CreateTopicResponseSuccess'
     get:
+      operationId: topics/list
       tags:
         - Topics
       summary: Retrieve a list of topics
@@ -1347,6 +1410,7 @@ paths:
                 $ref: '#/components/schemas/ListTopicsResponseSuccess'
   /topics/{id}:
     get:
+      operationId: topics/get
       tags:
         - Topics
       summary: Retrieve a single topic
@@ -1365,6 +1429,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/GetTopicResponseSuccess'
     patch:
+      operationId: topics/update
       tags:
         - Topics
       summary: Update an existing topic
@@ -1388,6 +1453,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/UpdateTopicResponseSuccess'
     delete:
+      operationId: topics/remove
       tags:
         - Topics
       summary: Remove an existing topic
@@ -1407,6 +1473,7 @@ paths:
                 $ref: '#/components/schemas/RemoveTopicResponseSuccess'
   /contact-properties:
     post:
+      operationId: contact-properties/create
       tags:
         - Contact Properties
       summary: Create a new contact property
@@ -1423,6 +1490,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/CreateContactPropertyResponseSuccess'
     get:
+      operationId: contact-properties/list
       tags:
         - Contact Properties
       summary: Retrieve a list of contact properties
@@ -1439,6 +1507,7 @@ paths:
                 $ref: '#/components/schemas/ListContactPropertiesResponseSuccess'
   /contact-properties/{id}:
     get:
+      operationId: contact-properties/get
       tags:
         - Contact Properties
       summary: Retrieve a single contact property
@@ -1457,6 +1526,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/GetContactPropertyResponseSuccess'
     patch:
+      operationId: contact-properties/update
       tags:
         - Contact Properties
       summary: Update an existing contact property
@@ -1480,6 +1550,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/UpdateContactPropertyResponseSuccess'
     delete:
+      operationId: contact-properties/remove
       tags:
         - Contact Properties
       summary: Remove an existing contact property
@@ -1499,6 +1570,7 @@ paths:
                 $ref: '#/components/schemas/RemoveContactPropertyResponseSuccess'
   /contacts/{contact_id}/segments:
     get:
+      operationId: contacts/list-segments
       tags:
         - Contacts
       summary: Retrieve a list of segments for a contact
@@ -1521,6 +1593,7 @@ paths:
                 $ref: '#/components/schemas/ListContactSegmentsResponseSuccess'
   /contacts/{contact_id}/segments/{segment_id}:
     post:
+      operationId: contacts/add-segment
       tags:
         - Contacts
       summary: Add a contact to a segment
@@ -1545,6 +1618,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/AddContactToSegmentResponseSuccess'
     delete:
+      operationId: contacts/remove-segment
       tags:
         - Contacts
       summary: Remove a contact from a segment
@@ -1570,6 +1644,7 @@ paths:
                 $ref: '#/components/schemas/RemoveContactFromSegmentResponseSuccess'
   /contacts/{contact_id}/topics:
     get:
+      operationId: contacts/list-topics
       tags:
         - Contacts
       summary: Retrieve topics for a contact
@@ -1591,6 +1666,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/GetContactTopicsResponseSuccess'
     patch:
+      operationId: contacts/update-topics
       tags:
         - Contacts
       summary: Update topics for a contact
@@ -1615,6 +1691,7 @@ paths:
                 $ref: '#/components/schemas/UpdateContactTopicsResponseSuccess'
   /logs:
     get:
+      operationId: logs/list
       tags:
         - Logs
       summary: Retrieve a list of logs
@@ -1631,6 +1708,7 @@ paths:
                 $ref: '#/components/schemas/ListLogsResponse'
   /logs/{log_id}:
     get:
+      operationId: logs/get
       tags:
         - Logs
       summary: Retrieve a single log
@@ -1651,6 +1729,7 @@ paths:
                 $ref: '#/components/schemas/Log'
   /automations:
     post:
+      operationId: automations/create
       tags:
         - Automations
       summary: Create an automation
@@ -1667,6 +1746,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/CreateAutomationResponse'
     get:
+      operationId: automations/list
       tags:
         - Automations
       summary: Retrieve a list of automations
@@ -1692,6 +1772,7 @@ paths:
                 $ref: '#/components/schemas/ListAutomationsResponse'
   /automations/{automation_id}:
     get:
+      operationId: automations/get
       tags:
         - Automations
       summary: Retrieve a single automation
@@ -1711,6 +1792,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Automation'
     patch:
+      operationId: automations/update
       tags:
         - Automations
       summary: Update an automation
@@ -1735,6 +1817,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/PatchAutomationResponse'
     delete:
+      operationId: automations/remove
       tags:
         - Automations
       summary: Delete an automation
@@ -1755,6 +1838,7 @@ paths:
                 $ref: '#/components/schemas/DeleteAutomationResponse'
   /automations/{automation_id}/stop:
     post:
+      operationId: automations/stop
       tags:
         - Automations
       summary: Stop an automation
@@ -1775,6 +1859,7 @@ paths:
                 $ref: '#/components/schemas/StopAutomationResponse'
   /automations/{automation_id}/runs:
     get:
+      operationId: automations/list-runs
       tags:
         - Automations
       summary: Retrieve a list of automation runs
@@ -1804,6 +1889,7 @@ paths:
                 $ref: '#/components/schemas/ListAutomationRunsResponse'
   /automations/{automation_id}/runs/{run_id}:
     get:
+      operationId: automations/get-run
       tags:
         - Automations
       summary: Retrieve a single automation run
@@ -1831,6 +1917,7 @@ paths:
                 $ref: '#/components/schemas/AutomationRun'
   /events:
     post:
+      operationId: events/create
       tags:
         - Events
       summary: Create an event
@@ -1847,6 +1934,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/CreateEventResponse'
     get:
+      operationId: events/list
       tags:
         - Events
       summary: Retrieve a list of events
@@ -1863,6 +1951,7 @@ paths:
                 $ref: '#/components/schemas/ListEventsResponse'
   /events/send:
     post:
+      operationId: events/send
       tags:
         - Events
       summary: Send an event
@@ -1880,6 +1969,7 @@ paths:
                 $ref: '#/components/schemas/SendEventResponse'
   /events/{identifier}:
     get:
+      operationId: events/get
       tags:
         - Events
       summary: Retrieve a single event
@@ -1898,6 +1988,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Event'
     patch:
+      operationId: events/update
       tags:
         - Events
       summary: Update an event
@@ -1921,6 +2012,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/UpdateEventResponse'
     delete:
+      operationId: events/remove
       tags:
         - Events
       summary: Delete an event
@@ -1940,6 +2032,7 @@ paths:
                 $ref: '#/components/schemas/RemoveEventResponse'
   /suppressions:
     post:
+      operationId: suppressions/add
       tags:
         - Suppressions
       summary: Create a suppression
@@ -1957,6 +2050,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/CreateSuppressionResponseSuccess'
     get:
+      operationId: suppressions/list
       tags:
         - Suppressions
       summary: Retrieve a list of suppressions
@@ -1983,6 +2077,7 @@ paths:
                 $ref: '#/components/schemas/ListSuppressionsResponseSuccess'
   /suppressions/batch/add:
     post:
+      operationId: suppressions/batch-add
       tags:
         - Suppressions
       summary: Add up to 100 suppressions at once
@@ -2001,6 +2096,7 @@ paths:
                 $ref: '#/components/schemas/BatchAddSuppressionsResponseSuccess'
   /suppressions/batch/remove:
     post:
+      operationId: suppressions/batch-remove
       tags:
         - Suppressions
       summary: Remove up to 100 suppressions at once
@@ -2019,6 +2115,7 @@ paths:
                 $ref: '#/components/schemas/BatchRemoveSuppressionsResponseSuccess'
   /suppressions/{suppression}:
     get:
+      operationId: suppressions/get
       tags:
         - Suppressions
       summary: Retrieve a single suppression by ID or email
@@ -2037,6 +2134,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/GetSuppressionResponseSuccess'
     delete:
+      operationId: suppressions/remove
       tags:
         - Suppressions
       summary: Remove a single suppression by ID or email
