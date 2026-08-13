@@ -1836,6 +1836,27 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/DeleteAutomationResponse'
+  /automations/{automation_id}/duplicate:
+    post:
+      operationId: automations/duplicate
+      tags:
+        - Automations
+      summary: Duplicate an automation
+      parameters:
+        - name: automation_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The ID of the automation.
+      responses:
+        '201':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DuplicateAutomationResponse'
   /automations/{automation_id}/stop:
     post:
       operationId: automations/stop
@@ -5426,6 +5447,16 @@ components:
           type: boolean
           description: Indicates whether the automation was successfully deleted.
           example: true
+    DuplicateAutomationResponse:
+      type: object
+      properties:
+        object:
+          type: string
+          description: Type of the response object.
+          example: automation
+        id:
+          type: string
+          description: The ID of the duplicated automation.
     StopAutomationResponse:
       type: object
       properties:
