@@ -5457,13 +5457,6 @@ components:
         id:
           type: string
           description: The ID of the duplicated automation.
-        version_id:
-          type: string
-          description: The ID of the duplicated automation version.
-        version_status:
-          type: string
-          description: The status of the duplicated automation version.
-          example: draft
     StopAutomationResponse:
       type: object
       properties:
