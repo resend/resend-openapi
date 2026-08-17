@@ -3400,12 +3400,12 @@ components:
           description: Email address of the contact.
           example: steve.wozniak@gmail.com
         first_name:
-          type: string
-          description: First name of the contact.
+          type: [string, "null"]
+          description: First name of the contact. Null when the contact has no first name.
           example: Steve
         last_name:
-          type: string
-          description: Last name of the contact.
+          type: [string, "null"]
+          description: Last name of the contact. Null when the contact has no last name.
           example: Wozniak
         created_at:
           type: string
@@ -3490,12 +3490,12 @@ components:
                 description: Email address of the contact.
                 example: steve.wozniak@gmail.com
               first_name:
-                type: string
-                description: First name of the contact.
+                type: [string, "null"]
+                description: First name of the contact. Null when the contact has no first name.
                 example: Steve
               last_name:
-                type: string
-                description: Last name of the contact.
+                type: [string, "null"]
+                description: Last name of the contact. Null when the contact has no last name.
                 example: Wozniak
               created_at:
                 type: string
@@ -6067,11 +6067,11 @@ components:
           type: string
           description: Contact's email address.
         first_name:
-          type: string
-          description: Contact's first name.
+          type: [string, "null"]
+          description: Contact's first name. Null when the contact has no first name.
         last_name:
-          type: string
-          description: Contact's last name.
+          type: [string, "null"]
+          description: Contact's last name. Null when the contact has no last name.
         unsubscribed:
           type: boolean
           description: Whether the contact has unsubscribed from all emails sent from your team.
