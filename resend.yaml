@@ -393,6 +393,124 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RetrievedAttachment'
+  /emails/metrics:
+    get:
+      operationId: emails/metrics
+      tags:
+        - Emails
+      summary: Retrieve account-level email metrics
+      description: 'This endpoint is in beta and only available to a limited number of users.'
+      parameters:
+        - name: start_date
+          in: query
+          schema:
+            type: string
+          description: The start of the date range, as an ISO 8601 date or datetime. Must be on or before `end_date`. Defaults to 6 days before `end_date`.
+        - name: end_date
+          in: query
+          schema:
+            type: string
+          description: The end of the date range, as an ISO 8601 date or datetime. Values in the future are clamped to the current time. Defaults to now.
+        - name: timezone
+          in: query
+          schema:
+            type: string
+            default: 'UTC'
+          description: The IANA timezone (e.g. `America/New_York`) used to bucket periods when `period` is in `dimensions`.
+        - name: granularity
+          in: query
+          schema:
+            type: string
+            enum:
+              - hourly
+              - daily
+              - weekly
+              - monthly
+            default: 'daily'
+          description: The bucket size used when `period` is in `dimensions`. The date range can't produce more than 10,000 periods at the chosen granularity.
+        - name: metrics
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+              enum:
+                - received
+                - delivered
+                - complained
+                - suppressed
+                - bounced
+                - bounced_transient
+                - bounced_permanent
+                - bounced_undetermined
+                - opened
+                - clicked
+                - unsubscribed
+                - delivery_delayed
+                - failed
+                - sent
+                - unique_opened
+                - unique_clicked
+                - delivery_rate
+                - open_rate
+                - click_rate
+                - bounce_rate
+                - complaint_rate
+                - unsubscribe_rate
+          description: List of metrics to include in the response. Defaults to all metrics. Accepts a comma-separated value, the parameter repeated, or a mix of both.
+        - name: dimensions
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+              enum:
+                - period
+                - domain
+                - email
+                - broadcast
+          description: List of dimensions to break the response down by. `email` cannot be combined with `broadcast`. Defaults to `[]`, returning a single `totals` row for the whole range, with no `data`. Accepts a comma-separated value, the parameter repeated, or a mix of both.
+        - name: domain_id
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+              format: uuid
+          description: List of sending domain IDs to restrict the response to, up to 100. Accepts a comma-separated value, the parameter repeated, or a mix of both.
+        - name: email_id
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+              format: uuid
+          description: List of email IDs to restrict the response to, up to 100. Cannot be combined with the `broadcast` dimension or `broadcast_id`. Accepts a comma-separated value, the parameter repeated, or a mix of both.
+        - name: broadcast_id
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+              format: uuid
+          description: List of broadcast IDs to restrict the response to, up to 100. Cannot be combined with the `email` dimension or `email_id`. Accepts a comma-separated value, the parameter repeated, or a mix of both.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetEmailsMetricsResponse'
   /domains:
     post:
       operationId: domains/create
@@ -2746,6 +2864,81 @@ components:
           description: Array containing email information.
           items:
             $ref: '#/components/schemas/Email'
+    GetEmailsMetricsResponse:
+      type: object
+      properties:
+        object:
+          type: string
+          description: Type of the response object.
+          example: 'metrics'
+        start_date:
+          type: string
+          description: The start of the requested date range, as an ISO 8601 datetime.
+          example: '2026-07-01T00:00:00.000Z'
+        end_date:
+          type: string
+          description: The end of the requested date range, as an ISO 8601 datetime.
+          example: '2026-07-08T00:00:00.000Z'
+        metrics:
+          type: array
+          description: The metrics included in the response.
+          items:
+            type: string
+        dimensions:
+          type: array
+          description: The dimensions the response is broken down by.
+          items:
+            type: string
+            enum:
+              - period
+              - domain
+              - email
+              - broadcast
+        granularity:
+          type: string
+          enum:
+            - hourly
+            - daily
+            - weekly
+            - monthly
+          description: The bucket size used when `period` is in `dimensions`.
+        totals:
+          type: object
+          description: The requested metrics, totaled over the whole date range.
+          additionalProperties:
+            type: number
+        data:
+          type: array
+          description: One row per unique combination of the requested `dimensions`. Omitted when `dimensions` is empty.
+          items:
+            $ref: '#/components/schemas/EmailMetricsDataRow'
+    EmailMetricsDataRow:
+      type: object
+      description: A single breakdown row. Which dimension fields are present depends on the requested `dimensions`; which metric fields are present depends on the requested `metrics`.
+      properties:
+        period:
+          type: string
+          description: Present when `period` is in `dimensions`.
+        domain_id:
+          type: string
+          format: uuid
+          description: Present when `domain` is in `dimensions`.
+        domain_name:
+          type: string
+          description: Present when `domain` is in `dimensions`.
+        email_id:
+          type: string
+          format: uuid
+          description: Present when `email` is in `dimensions`.
+        broadcast_id:
+          type: string
+          format: uuid
+          description: Present when `broadcast` is in `dimensions`.
+        broadcast_name:
+          type: string
+          description: Present when `broadcast` is in `dimensions`.
+      additionalProperties:
+        type: number
     CreateBatchEmailsResponse:
       type: object
       properties:
