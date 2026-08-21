@@ -399,7 +399,6 @@ paths:
       tags:
         - Emails
       summary: Retrieve account-level email metrics
-      description: 'This endpoint is in beta and only available to a limited number of users.'
       parameters:
         - name: start_date
           in: query
