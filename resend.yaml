@@ -1292,6 +1292,30 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ListBroadcastRecipientsResponseSuccess'
+  /broadcasts/{id}/clicked-links:
+    get:
+      operationId: broadcasts/list-clicked-links
+      tags:
+        - Broadcasts
+      summary: Retrieve a broadcast's clicked links
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The Broadcast ID.
+        - $ref: '#/components/parameters/PaginationLimit'
+        - $ref: '#/components/parameters/PaginationAfter'
+        - $ref: '#/components/parameters/PaginationBefore'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListBroadcastClickedLinksResponseSuccess'
   /webhooks:
     post:
       operationId: webhooks/create
@@ -4083,6 +4107,39 @@ components:
                       type: integer
                       description: The number of times this recipient clicked this URL.
                       example: 2
+    ListBroadcastClickedLinksResponseSuccess:
+      type: object
+      properties:
+        object:
+          type: string
+          description: Type of the response object.
+          example: list
+        has_more:
+          type: boolean
+          description: Indicates if there are more results available.
+          example: false
+        data:
+          type: array
+          description: Array containing the broadcast's clicked links.
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                description: An opaque cursor for this row, used only for pagination. It does not identify any entity in Resend.
+                example: b2Zmc2V0OjA
+              url:
+                type: string
+                description: The URL that was clicked.
+                example: https://resend.com/pricing
+              clicks:
+                type: integer
+                description: Total number of clicks on this URL.
+                example: 42
+              unique_clicks:
+                type: integer
+                description: Number of unique clicks on this URL.
+                example: 30
     RetrievedAttachment:
       type: object
       properties:
