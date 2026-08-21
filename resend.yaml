@@ -1234,6 +1234,64 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CancelBroadcastResponseSuccess'
+  /broadcasts/{id}/recipients:
+    get:
+      operationId: broadcasts/recipients
+      tags:
+        - Broadcasts
+      summary: Retrieve broadcast recipients
+      description: >-
+        Retrieve the recipients of a broadcast for a given event type, such
+        as who opened, clicked, or bounced.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The Broadcast ID.
+        - name: type
+          in: query
+          required: true
+          schema:
+            type: string
+            enum:
+              - sent
+              - delivered
+              - opened
+              - clicked
+              - bounced
+              - complained
+              - unsubscribed
+              - suppressed
+          description: The recipient event type to filter by.
+        - name: email
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Filter recipients by email address.
+        - name: bounce_type
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - permanent
+              - transient
+              - undetermined
+          description: Filter bounced recipients by bounce type. Only valid when `type` is `bounced`.
+        - $ref: '#/components/parameters/PaginationLimit'
+        - $ref: '#/components/parameters/PaginationAfter'
+        - $ref: '#/components/parameters/PaginationBefore'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListBroadcastRecipientsResponseSuccess'
   /webhooks:
     post:
       operationId: webhooks/create
@@ -3971,6 +4029,60 @@ components:
           type: string
           description: The object type of the response.
           example: broadcast
+    ListBroadcastRecipientsResponseSuccess:
+      type: object
+      properties:
+        object:
+          type: string
+          description: Type of the response object.
+          example: list
+        has_more:
+          type: boolean
+          description: Indicates if there are more results available.
+          example: false
+        data:
+          type: array
+          description: Array containing broadcast recipients.
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                description: Opaque cursor identifying this row, used for pagination.
+                example: b2Zmc2V0OjA
+              contact_id:
+                type: [string, "null"]
+                description: The ID of the contact associated with this recipient, if one exists.
+                example: e169aa45-1ecf-4183-9955-b1499d5701d3
+              email:
+                type: string
+                description: The recipient's email address.
+                example: steve.wozniak@gmail.com
+              count:
+                type: integer
+                description: The number of times this recipient triggered the event. Only present when `type` is `opened` or `clicked`.
+                example: 3
+              bounce_type:
+                type: string
+                enum:
+                  - permanent
+                  - transient
+                  - undetermined
+                description: The type of bounce. Only present when `type` is `bounced`.
+              clicked_links:
+                type: array
+                description: The links this recipient clicked. Only present when `type` is `clicked`.
+                items:
+                  type: object
+                  properties:
+                    url:
+                      type: string
+                      description: The clicked URL.
+                      example: https://resend.com/pricing
+                    clicks:
+                      type: integer
+                      description: The number of times this recipient clicked this URL.
+                      example: 2
     RetrievedAttachment:
       type: object
       properties:
