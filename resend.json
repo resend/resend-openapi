@@ -2,7 +2,7 @@
   "openapi": "3.1.2",
   "info": {
     "title": "Resend",
-    "version": "1.5.0",
+    "version": "1.5.1",
     "description": "Resend is the email platform for developers."
   },
   "servers": [
@@ -2199,7 +2199,7 @@
             "schema": {
               "type": "string"
             },
-            "description": "Filter recipients by email address."
+            "description": "Filter recipients whose email address contains this value."
           },
           {
             "name": "bounce_type",
@@ -5819,12 +5819,18 @@
             "example": "steve.wozniak@gmail.com"
           },
           "first_name": {
-            "type": "string",
+            "type": [
+              "string",
+              "null"
+            ],
             "description": "First name of the contact.",
             "example": "Steve"
           },
           "last_name": {
-            "type": "string",
+            "type": [
+              "string",
+              "null"
+            ],
             "description": "Last name of the contact.",
             "example": "Wozniak"
           },
@@ -5935,12 +5941,18 @@
                   "example": "steve.wozniak@gmail.com"
                 },
                 "first_name": {
-                  "type": "string",
+                  "type": [
+                    "string",
+                    "null"
+                  ],
                   "description": "First name of the contact.",
                   "example": "Steve"
                 },
                 "last_name": {
-                  "type": "string",
+                  "type": [
+                    "string",
+                    "null"
+                  ],
                   "description": "Last name of the contact.",
                   "example": "Wozniak"
                 },
@@ -6797,6 +6809,16 @@
             },
             "description": "The reply-to addresses.",
             "example": []
+          },
+          "received_for": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "The recipient addresses the email was forwarded for, taken from the `for` clause of the message's `Received` headers.",
+            "example": [
+              "forwarded@example.com"
+            ]
           },
           "html": {
             "type": [
@@ -9646,6 +9668,16 @@
             },
             "description": "CC recipients."
           },
+          "received_for": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "The recipient addresses the email was forwarded for, taken from the `for` clause of the message's `Received` headers.",
+            "example": [
+              "forwarded@example.com"
+            ]
+          },
           "attachments": {
             "type": "array",
             "items": {
@@ -9697,11 +9729,17 @@
             "description": "Contact's email address."
           },
           "first_name": {
-            "type": "string",
+            "type": [
+              "string",
+              "null"
+            ],
             "description": "Contact's first name."
           },
           "last_name": {
-            "type": "string",
+            "type": [
+              "string",
+              "null"
+            ],
             "description": "Contact's last name."
           },
           "unsubscribed": {
