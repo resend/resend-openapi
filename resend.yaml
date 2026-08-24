@@ -3401,11 +3401,11 @@ components:
           example: steve.wozniak@gmail.com
         first_name:
           type: [string, "null"]
-          description: First name of the contact. Null when the contact has no first name.
+          description: First name of the contact.
           example: Steve
         last_name:
           type: [string, "null"]
-          description: Last name of the contact. Null when the contact has no last name.
+          description: Last name of the contact.
           example: Wozniak
         created_at:
           type: string
@@ -3491,11 +3491,11 @@ components:
                 example: steve.wozniak@gmail.com
               first_name:
                 type: [string, "null"]
-                description: First name of the contact. Null when the contact has no first name.
+                description: First name of the contact.
                 example: Steve
               last_name:
                 type: [string, "null"]
-                description: Last name of the contact. Null when the contact has no last name.
+                description: Last name of the contact.
                 example: Wozniak
               created_at:
                 type: string
@@ -6068,10 +6068,10 @@ components:
           description: Contact's email address.
         first_name:
           type: [string, "null"]
-          description: Contact's first name. Null when the contact has no first name.
+          description: Contact's first name.
         last_name:
           type: [string, "null"]
-          description: Contact's last name. Null when the contact has no last name.
+          description: Contact's last name.
         unsubscribed:
           type: boolean
           description: Whether the contact has unsubscribed from all emails sent from your team.
