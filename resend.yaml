@@ -1388,7 +1388,7 @@ paths:
           required: false
           schema:
             type: string
-          description: Filter recipients by email address.
+          description: Filter recipients whose email address contains this value.
         - name: bounce_type
           in: query
           required: false
