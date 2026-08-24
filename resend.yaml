@@ -1,7 +1,7 @@
 openapi: 3.1.2
 info:
   title: Resend
-  version: 1.5.0
+  version: 1.5.1
   description: 'Resend is the email platform for developers.'
 servers:
   - url: https://api.resend.com
@@ -3763,11 +3763,11 @@ components:
           description: Email address of the contact.
           example: steve.wozniak@gmail.com
         first_name:
-          type: string
+          type: [string, "null"]
           description: First name of the contact.
           example: Steve
         last_name:
-          type: string
+          type: [string, "null"]
           description: Last name of the contact.
           example: Wozniak
         created_at:
@@ -3853,11 +3853,11 @@ components:
                 description: Email address of the contact.
                 example: steve.wozniak@gmail.com
               first_name:
-                type: string
+                type: [string, "null"]
                 description: First name of the contact.
                 example: Steve
               last_name:
-                type: string
+                type: [string, "null"]
                 description: Last name of the contact.
                 example: Wozniak
               created_at:
@@ -6517,10 +6517,10 @@ components:
           type: string
           description: Contact's email address.
         first_name:
-          type: string
+          type: [string, "null"]
           description: Contact's first name.
         last_name:
-          type: string
+          type: [string, "null"]
           description: Contact's last name.
         unsubscribed:
           type: boolean
