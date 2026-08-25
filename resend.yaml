@@ -3088,6 +3088,10 @@ components:
     CreateDomainResponse:
       type: object
       properties:
+        object:
+          type: string
+          description: The type of object.
+          example: 'domain'
         id:
           type: string
           description: The ID of the domain.
@@ -3137,8 +3141,10 @@ components:
           description: Track clicks within the body of each HTML email.
         tls:
           type: string
-          description: enforced | opportunistic.
-          default: "opportunistic"
+          enum:
+            - opportunistic
+            - enforced
+          description: TLS mode. Opportunistic attempts secure connection but falls back to unencrypted. Enforced requires TLS or email won't be sent. Omit to keep the current value.
         capabilities:
           $ref: '#/components/schemas/DomainCapabilities'
         tracking_subdomain:
@@ -3185,6 +3191,10 @@ components:
         priority:
           type: integer
           description: The priority of the record (only applicable for MX records).
+        routing_policy:
+          type: string
+          description: The routing policy of the record (only returned for some DNS providers).
+          example: 'Auto'
     Domain:
       type: object
       properties:
@@ -3456,11 +3466,15 @@ components:
             - sending_access
           description: The API key can have full access to Resend’s API or be only restricted to send emails. * full_access - Can create, delete, get, and update any resource. * sending_access - Can only send emails.
         domain_id:
-          type: string
+          type: [string, "null"]
           description: Restrict an API key to send emails only from a specific domain. Only used when the permission is sending_access.
     CreateApiKeyResponse:
       type: object
       properties:
+        object:
+          type: string
+          description: The type of object.
+          example: 'api_key'
         id:
           type: string
           description: The ID of the API key.
