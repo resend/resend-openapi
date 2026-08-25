@@ -1565,12 +1565,7 @@ paths:
             format: uuid
           description: The Webhook ID.
         - $ref: '#/components/parameters/PaginationLimit'
-        - name: after
-          in: query
-          required: false
-          schema:
-            type: string
-          description: Pagination cursor to fetch results after this webhook event ID.
+        - $ref: '#/components/parameters/PaginationAfter'
       responses:
         '200':
           description: OK
@@ -1626,12 +1621,7 @@ paths:
             type: string
           description: The Webhook Event ID.
         - $ref: '#/components/parameters/PaginationLimit'
-        - name: after
-          in: query
-          required: false
-          schema:
-            type: string
-          description: Pagination cursor to fetch results after this webhook event attempt ID.
+        - $ref: '#/components/parameters/PaginationAfter'
       responses:
         '200':
           description: OK
@@ -4890,15 +4880,16 @@ components:
               id:
                 type: string
                 description: The ID of the webhook event.
-                example: 'msg_2vY8PezvvzTiCLILH2T3F1its6A'
+                example: 'msg_1srOrx2ZWZBpBUvZwXKQmoEYga2'
               type:
                 type: string
                 description: The type of the event.
                 example: 'email.sent'
               created_at:
                 type: string
+                format: date-time
                 description: Timestamp indicating when the event was created.
-                example: '2025-08-25T14:00:00.000Z'
+                example: '2026-08-22T15:28:00.000Z'
               status:
                 type: string
                 enum:
@@ -4918,15 +4909,16 @@ components:
         id:
           type: string
           description: The ID of the webhook event.
-          example: 'msg_2vY8PezvvzTiCLILH2T3F1its6A'
+          example: 'msg_1srOrx2ZWZBpBUvZwXKQmoEYga2'
         type:
           type: string
           description: The type of the event.
           example: 'email.sent'
         created_at:
           type: string
+          format: date-time
           description: Timestamp indicating when the event was created.
-          example: '2025-08-25T14:00:00.000Z'
+          example: '2026-08-22T15:28:00.000Z'
         status:
           type: string
           enum:
@@ -4935,14 +4927,24 @@ components:
             - success
             - failed
           description: The delivery status of the event for this webhook.
-          example: 'success'
+          example: 'attempting'
         next_attempt_at:
           type: [string, "null"]
-          description: Timestamp of the next delivery attempt. Null once the event has succeeded or permanently failed.
-          example: null
+          format: date-time
+          description: Timestamp of the next scheduled delivery attempt, or null when none is scheduled. Always null once the event has succeeded or permanently failed.
+          example: '2026-08-22T15:33:00.000Z'
         payload:
           type: object
           description: The event payload sent to the webhook endpoint.
+          example:
+            type: 'email.sent'
+            created_at: '2026-08-22T15:28:00.000Z'
+            data:
+              email_id: '571f1f42-1c2d-4b1f-8f8e-8b3b5b3b5b3b'
+              from: 'onboarding@resend.dev'
+              to: ['delivered@resend.dev']
+              subject: 'Welcome'
+              created_at: '2026-08-22T15:27:59.000Z'
     ListWebhookEventAttemptsResponse:
       type: object
       properties:
@@ -4963,7 +4965,7 @@ components:
               id:
                 type: string
                 description: The ID of the webhook event attempt.
-                example: 'atmpt_2vY8PezvvzTiCLILH2T3F1its6A'
+                example: 'atmpt_1srOrx2ZWZBpBUvZwXKQmoEYga2'
               http_status_code:
                 type: integer
                 description: The HTTP status code returned by the webhook endpoint.
@@ -4971,11 +4973,12 @@ components:
               response:
                 type: string
                 description: The response body returned by the webhook endpoint.
-                example: 'OK'
+                example: '{"ok":true}'
               sent_at:
                 type: string
+                format: date-time
                 description: Timestamp indicating when the attempt was sent.
-                example: '2025-08-25T14:00:00.000Z'
+                example: '2026-08-22T15:33:12.000Z'
     TemplateVariable:
       type: object
       properties:
