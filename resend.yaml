@@ -1058,12 +1058,6 @@ paths:
         - Contacts
       summary: Retrieve a list of contacts
       parameters:
-        - name: segment_id
-          in: query
-          required: false
-          schema:
-            type: string
-          description: Filter contacts by segment ID.
         - $ref: '#/components/parameters/PaginationLimit'
         - $ref: '#/components/parameters/PaginationAfter'
         - $ref: '#/components/parameters/PaginationBefore'
@@ -1860,7 +1854,7 @@ paths:
             type: string
           description: The Segment ID.
       responses:
-        '200':
+        '201':
           description: OK
           content:
             application/json:
@@ -3668,6 +3662,10 @@ components:
           type: string
           description: Type of the response object.
           example: list
+        has_more:
+          type: boolean
+          description: Indicates if there are more results available.
+          example: false
         data:
           type: array
           description: Array containing audience information.
@@ -3709,20 +3707,32 @@ components:
           example: false
         properties:
           type: object
-          additionalProperties: true
+          additionalProperties:
+            type: [string, number, "null"]
           description: A map of custom property keys and values to create.
         segments:
           type: array
           items:
-            type: string
-          description: Array of segment IDs to add the contact to.
+            type: object
+            required:
+              - id
+            properties:
+              id:
+                type: string
+                format: uuid
+                description: The segment ID.
+          description: Array of segments to add the contact to.
         topics:
           type: array
           items:
             type: object
+            required:
+              - id
+              - subscription
             properties:
               id:
                 type: string
+                format: uuid
                 description: The topic ID.
               subscription:
                 type: string
@@ -3731,11 +3741,6 @@ components:
                   - opt_out
                 description: The subscription status for this topic.
           description: Array of topic subscriptions for the contact.
-        audience_id:
-          type: string
-          description: Unique identifier of the audience to which the contact belongs.
-          example: 78261eea-8f8b-4381-83c6-79fa7120f1cf
-          deprecated: true
     CreateContactResponseSuccess:
       type: object
       properties:
@@ -3780,15 +3785,26 @@ components:
           example: false
         properties:
           type: object
-          additionalProperties: true
-          description: A map of custom property keys and values.
+          additionalProperties:
+            type: object
+            properties:
+              type:
+                type: string
+                enum:
+                  - string
+                  - number
+                  - boolean
+                description: The property type.
+              value:
+                oneOf:
+                  - type: string
+                  - type: number
+                  - type: boolean
+                description: The property value.
+          description: A map of custom property keys to objects with the property type and value.
     UpdateContactOptions:
       type: object
       properties:
-        email:
-          type: string
-          description: Email address of the contact.
-          example: steve.wozniak@gmail.com
         first_name:
           type: string
           description: First name of the contact.
@@ -3803,7 +3819,8 @@ components:
           example: false
         properties:
           type: object
-          additionalProperties: true
+          additionalProperties:
+            type: [string, number, boolean, "null"]
           description: A map of custom property keys and values to update.
     UpdateContactResponseSuccess:
       type: object
@@ -3823,7 +3840,7 @@ components:
           type: string
           description: Type of the response object.
           example: contact
-        id:
+        contact:
           type: string
           description: Unique identifier for the removed contact.
           example: 520784e2-887d-4c25-b53c-4ad46ad38100
@@ -3838,6 +3855,10 @@ components:
           type: string
           description: Type of the response object.
           example: list
+        has_more:
+          type: boolean
+          description: Indicates if there are more results available.
+          example: false
         data:
           type: array
           description: Array containing contact information.
@@ -3886,9 +3907,9 @@ components:
           enum:
             - upsert
             - skip
-          default: skip
+          default: upsert
           description: Strategy to use when an imported contact already exists.
-          example: skip
+          example: upsert
         segments:
           type: string
           description: JSON-encoded array of segments to add imported contacts to.
@@ -5063,13 +5084,6 @@ components:
         name:
           type: string
           description: The name of the segment.
-        audience_id:
-          type: string
-          description: The ID of the audience this segment belongs to.
-          deprecated: true
-        filter:
-          type: object
-          description: Filter conditions for the segment.
     CreateSegmentResponseSuccess:
       type: object
       properties:
@@ -5081,6 +5095,10 @@ components:
           type: string
           description: The object type of the response.
           example: segment
+        name:
+          type: string
+          description: The name of the segment.
+          example: Active Users
     GetSegmentResponseSuccess:
       type: object
       properties:
@@ -5096,13 +5114,6 @@ components:
           type: string
           description: The name of the segment.
           example: Active Users
-        audience_id:
-          type: string
-          description: The ID of the audience this segment belongs to.
-          deprecated: true
-        filter:
-          type: object
-          description: Filter conditions for the segment.
         created_at:
           type: string
           description: Timestamp indicating when the segment was created.
@@ -5129,10 +5140,6 @@ components:
               name:
                 type: string
                 description: Name of the segment.
-              audience_id:
-                type: string
-                description: The ID of the audience this segment belongs to.
-                deprecated: true
               created_at:
                 type: string
                 description: Timestamp indicating when the segment was created.
@@ -5206,7 +5213,7 @@ components:
           description: The name of the topic.
           example: Newsletter
         description:
-          type: string
+          type: [string, "null"]
           description: A description of the topic.
         default_subscription:
           type: string
@@ -5247,7 +5254,7 @@ components:
                 type: string
                 description: Name of the topic.
               description:
-                type: string
+                type: [string, "null"]
                 description: A description of the topic.
               default_subscription:
                 type: string
@@ -5322,11 +5329,14 @@ components:
           enum:
             - string
             - number
+            - boolean
           description: The property type.
         fallback_value:
           oneOf:
             - type: string
             - type: number
+            - type: boolean
+            - type: "null"
           description: The default value to use when the property is not set for a contact. Must match the type specified in the type field.
     CreateContactPropertyResponseSuccess:
       type: object
@@ -5362,6 +5372,8 @@ components:
           oneOf:
             - type: string
             - type: number
+            - type: boolean
+            - type: "null"
           description: The default value when the property is not set for a contact.
           example: Acme Corp
         created_at:
@@ -5397,6 +5409,8 @@ components:
                 oneOf:
                   - type: string
                   - type: number
+                  - type: boolean
+                  - type: "null"
                 description: The default value when the property is not set for a contact.
               created_at:
                 type: string
@@ -5409,6 +5423,8 @@ components:
           oneOf:
             - type: string
             - type: number
+            - type: boolean
+            - type: "null"
           description: The default value to use when the property is not set for a contact. Must match the type of the property.
     UpdateContactPropertyResponseSuccess:
       type: object
@@ -5439,16 +5455,14 @@ components:
     AddContactToSegmentResponseSuccess:
       type: object
       properties:
-        object:
-          type: string
-          description: The object type.
-          example: contact_segment
-        contact_id:
+        id:
           type: string
           description: The ID of the contact.
-        segment_id:
+          example: 479e3145-dd38-476b-932c-529ceb705947
+        audienceId:
           type: string
           description: The ID of the segment.
+          example: 78261eea-8f8b-4381-83c6-79fa7120f1cf
     ListContactSegmentsResponseSuccess:
       type: object
       properties:
@@ -5473,7 +5487,7 @@ components:
                 description: Name of the segment.
               created_at:
                 type: string
-                description: Timestamp indicating when the contact was added to the segment.
+                description: Timestamp indicating when the segment was created.
                 example: '2023-10-06 23:47:56.678+00'
     RemoveContactFromSegmentResponseSuccess:
       type: object
@@ -5482,12 +5496,14 @@ components:
           type: string
           description: The object type.
           example: contact_segment
-        contact_id:
+        id:
           type: string
           description: The ID of the contact.
-        segment_id:
+          example: 479e3145-dd38-476b-932c-529ceb705947
+        audienceId:
           type: string
           description: The ID of the segment.
+          example: 78261eea-8f8b-4381-83c6-79fa7120f1cf
         deleted:
           type: boolean
           description: Indicates whether the contact was successfully removed from the segment.
@@ -5515,7 +5531,7 @@ components:
                 type: string
                 description: Name of the topic.
               description:
-                type: string
+                type: [string, "null"]
                 description: Description of the topic.
               subscription:
                 type: string
@@ -5523,25 +5539,28 @@ components:
                   - opt_in
                   - opt_out
                 description: The subscription status for this topic.
+              created_at:
+                type: string
+                description: Timestamp indicating when the topic was created.
+                example: '2023-10-06 23:47:56.678+00'
     UpdateContactTopicsOptions:
-      type: object
-      required:
-        - topics
-      properties:
-        topics:
-          type: array
-          items:
-            type: object
-            properties:
-              id:
-                type: string
-                description: The ID of the topic.
-              subscription:
-                type: string
-                enum:
-                  - opt_in
-                  - opt_out
-                description: The subscription status (opt_in or opt_out).
+      type: array
+      items:
+        type: object
+        required:
+          - id
+          - subscription
+        properties:
+          id:
+            type: string
+            format: uuid
+            description: The ID of the topic.
+          subscription:
+            type: string
+            enum:
+              - opt_in
+              - opt_out
+            description: The subscription status (opt_in or opt_out).
     UpdateContactTopicsResponseSuccess:
       type: object
       properties:
@@ -5549,24 +5568,10 @@ components:
           type: string
           description: The object type.
           example: contact_topics
-        contact_id:
+        id:
           type: string
           description: The ID of the contact.
-        topics:
-          type: array
-          description: Array of updated topic subscriptions.
-          items:
-            type: object
-            properties:
-              id:
-                type: string
-                description: The ID of the topic.
-              subscription:
-                type: string
-                enum:
-                  - opt_in
-                  - opt_out
-                description: The subscription status.
+          example: 479e3145-dd38-476b-932c-529ceb705947
     LogSummary:
       type: object
       properties:
