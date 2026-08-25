@@ -1,0 +1,20 @@
+resend.yaml
+  s_a6cd714394bc21::t_04f76240856afa 2592-2710
+  s_a6cd714394bc21::t_00f311e66a805b 466-539
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.8",
+  "base_commit_sha": "6846127f6c43b880dd63e963208b86763d5ab67a",
+  "prompts": {},
+  "sessions": {
+    "s_a6cd714394bc21": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "a62b2e71-32c2-4f96-be76-1e3903e0a2b0",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "João Melo <jopcmelo@gmail.com>"
+    }
+  }
+}
