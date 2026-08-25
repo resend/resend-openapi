@@ -99,6 +99,7 @@ paths:
           required: true
           schema:
             type: string
+            format: uuid
           description: The ID of the email.
       responses:
         '200':
@@ -118,14 +119,21 @@ paths:
           required: true
           schema:
             type: string
+            format: uuid
           description: The ID of the email.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateEmailOptions'
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UpdateEmailOptions'
+                $ref: '#/components/schemas/UpdateEmailResponse'
   /emails/{email_id}/cancel:
     post:
       operationId: emails/cancel
@@ -138,6 +146,7 @@ paths:
           required: true
           schema:
             type: string
+            format: uuid
           description: The ID of the email.
       responses:
         '200':
@@ -145,7 +154,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Email'
+                $ref: '#/components/schemas/CancelEmailResponse'
   /emails/{email_id}/share:
     post:
       operationId: emails/share
@@ -158,6 +167,7 @@ paths:
           required: true
           schema:
             type: string
+            format: uuid
           description: The ID of the email.
       requestBody:
         required: false
@@ -186,6 +196,16 @@ paths:
             type: string
             maxLength: 256
           description: A unique identifier for the request to ensure emails are only sent once. [Learn more](https://resend.com/docs/dashboard/emails/idempotency-keys)
+        - in: header
+          name: x-batch-validation
+          required: false
+          schema:
+            type: string
+            enum:
+              - strict
+              - permissive
+            default: 'strict'
+          description: In `strict` mode, the whole batch is rejected when any email fails validation. In `permissive` mode, valid emails are sent and failures are reported per email in the `errors` field of the response.
       requestBody:
         content:
           application/json:
@@ -193,6 +213,8 @@ paths:
               type: array
               items:
                 $ref: '#/components/schemas/SendEmailRequest'
+              minItems: 1
+              maxItems: 100
       responses:
         '200':
           description: OK
@@ -317,6 +339,16 @@ paths:
             type: string
             format: uuid
           description: The ID of the received email.
+        - name: html_format
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - data_uri
+              - cid
+            default: 'data_uri'
+          description: Controls how inline images appear in `html`. With `data_uri` they are inlined as base64 `data:` URIs. With `cid` the original `<img src="cid:...">` references are kept, where each `cid:` matches the `content_id` of an attachment. The form actually served is reported as `html_format` on the response body.
       responses:
         '200':
           description: OK
@@ -2711,15 +2743,13 @@ components:
     SendEmailRequest:
       type: object
       required:
-        - from
         - to
-        - subject
       properties:
         from:
           type: string
-          description: Sender email address. To include a friendly name, use the format "Your Name <sender@domain.com>".
+          description: Sender email address. Required unless a `template` provides it. To include a friendly name, use the format "Your Name <sender@domain.com>".
         to:
-          description: Recipient email address. For multiple addresses, send as an array of strings. Max 50.
+          description: Recipient email address. For multiple addresses, send as an array of strings. Max 50 recipients across `to`, `cc`, and `bcc`.
           oneOf:
             - type: string
             - type: array
@@ -2729,7 +2759,8 @@ components:
               maxItems: 50
         subject:
           type: string
-          description: Email subject.
+          maxLength: 2000
+          description: Email subject. Required unless a `template` provides it.
         bcc:
           description: Bcc recipient email address. For multiple addresses, send as an array of strings.
           oneOf:
@@ -2737,6 +2768,7 @@ components:
             - type: array
               items:
                 type: string
+              maxItems: 50
         cc:
           description: Cc recipient email address. For multiple addresses, send as an array of strings.
           oneOf:
@@ -2744,6 +2776,7 @@ components:
             - type: array
               items:
                 type: string
+              maxItems: 50
         reply_to:
           description: Reply-to email address. For multiple addresses, send as an array of strings.
           oneOf:
@@ -2751,6 +2784,7 @@ components:
             - type: array
               items:
                 type: string
+              maxItems: 50
         html:
           type: string
           description: The HTML version of the message.
@@ -2766,7 +2800,7 @@ components:
           description: Custom headers to add to the email.
         scheduled_at:
           type: string
-          description: Schedule email to be sent later. The date should be in ISO 8601 format.
+          description: Schedule email to be sent later. The date should be in natural language (e.g. `in 1 min`) or ISO 8601 format (e.g. `2026-08-05T11:52:01.858Z`). Must be a future date within 30 days.
         attachments:
           type: array
           items:
@@ -2775,6 +2809,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Tag'
+          maxItems: 75
         topic_id:
           type: string
           description: The topic ID to scope the email to. If the recipient is a contact and opted-in to the topic, the email is sent. If opted-out, the email is not sent. If the recipient is not a contact, the email is sent if the topic's default subscription is opt_in.
@@ -2832,10 +2867,34 @@ components:
           description: The ID of the sent email.
     UpdateEmailOptions:
       type: object
+      required:
+        - scheduled_at
       properties:
         scheduled_at:
           type: string
-          description: Schedule email to be sent later. The date should be in ISO 8601 format.
+          description: Schedule email to be sent later. The date should be in natural language (e.g. `in 1 min`) or ISO 8601 format (e.g. `2026-08-05T11:52:01.858Z`). Must be a future date within 30 days.
+    UpdateEmailResponse:
+      type: object
+      properties:
+        object:
+          type: string
+          description: The type of object.
+          example: 'email'
+        id:
+          type: string
+          description: The ID of the updated email.
+          example: '4ef9a417-02e9-4d39-ad75-9611e0fcc33c'
+    CancelEmailResponse:
+      type: object
+      properties:
+        object:
+          type: string
+          description: The type of object.
+          example: 'email'
+        id:
+          type: string
+          description: The ID of the canceled email.
+          example: '4ef9a417-02e9-4d39-ad75-9611e0fcc33c'
     ShareEmailOptions:
       type: object
       properties:
@@ -2929,6 +2988,47 @@ components:
             - sent
             - suppressed
           example: 'delivered'
+        scheduled_at:
+          type: [string, "null"]
+          description: The date and time the email is scheduled to be sent, or null when the email is not scheduled.
+          example: null
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/Tag'
+          description: The tags attached to the email. Only returned when retrieving a single email that has tags.
+        bounce:
+          type: object
+          description: Bounce details. Only returned when retrieving a single email whose `last_event` is `bounced`.
+          properties:
+            message:
+              type: [string, "null"]
+              description: The bounce message reported by the receiving server.
+            type:
+              type: [string, "null"]
+              enum:
+                - Undetermined
+                - Transient
+                - Permanent
+                - null
+              description: The bounce type.
+            subType:
+              type: [string, "null"]
+              enum:
+                - Undetermined
+                - General
+                - NoEmail
+                - MailboxFull
+                - MessageTooLarge
+                - ContentRejected
+                - AttachmentRejected
+                - null
+              description: The bounce subtype.
+            diagnosticCode:
+              type: array
+              items:
+                type: string
+              description: The diagnostic codes reported for the bounce.
     ListEmailsResponse:
       type: object
       properties:
@@ -3031,6 +3131,18 @@ components:
               id:
                 type: string
                 description: The ID of the sent email.
+        errors:
+          type: array
+          description: Per-email validation failures. Only returned when the `x-batch-validation` header is `permissive`.
+          items:
+            type: object
+            properties:
+              index:
+                type: integer
+                description: The position of the failed email in the request array.
+              message:
+                type: string
+                description: The validation error message.
     DomainCapabilities:
       type: object
       description: Configure the domain capabilities for sending and receiving emails. At least one capability must be enabled.
@@ -4345,8 +4457,7 @@ components:
           description: The ID of the attachment.
           example: '660e8400-e29b-41d4-a716-446655440000'
         filename:
-          type: string
-          nullable: true
+          type: [string, "null"]
           description: The filename of the attachment.
           example: 'document.pdf'
         content_type:
@@ -4358,11 +4469,11 @@ components:
           description: The content ID for inline attachments.
           example: 'img001'
         content_disposition:
-          type: string
-          nullable: true
+          type: [string, "null"]
           enum:
             - inline
             - attachment
+            - null
           description: How the attachment should be displayed.
           example: 'attachment'
         download_url:
@@ -4401,8 +4512,7 @@ components:
                 description: The ID of the attachment.
                 example: '660e8400-e29b-41d4-a716-446655440000'
               filename:
-                type: string
-                nullable: true
+                type: [string, "null"]
                 description: The filename of the attachment.
                 example: 'document.pdf'
               content_type:
@@ -4414,11 +4524,11 @@ components:
                 description: The content ID for inline attachments.
                 example: 'img001'
               content_disposition:
-                type: string
-                nullable: true
+                type: [string, "null"]
                 enum:
                   - inline
                   - attachment
+                  - null
                 description: How the attachment should be displayed.
                 example: 'attachment'
               download_url:
@@ -4492,6 +4602,13 @@ components:
           type: [string, "null"]
           description: The HTML content of the email.
           example: '<p>Email content</p>'
+        html_format:
+          type: string
+          enum:
+            - data_uri
+            - cid
+          description: The form of inline image references served in `html`. Reports `data_uri` when `html_format=cid` was requested but the raw message is no longer available.
+          example: 'data_uri'
         text:
           type: [string, "null"]
           description: The plain text content of the email.
@@ -4500,6 +4617,17 @@ components:
           type: [object, "null"]
           description: The email headers.
           example: {'X-Custom-Header': 'value'}
+        raw:
+          type: [object, "null"]
+          description: A signed link to download the raw MIME message, or null when the raw message is not available.
+          properties:
+            download_url:
+              type: string
+              description: Signed URL to download the raw MIME message.
+            expires_at:
+              type: string
+              format: date-time
+              description: Timestamp when the download URL expires.
         created_at:
           type: string
           format: date-time
@@ -4516,8 +4644,7 @@ components:
                 format: uuid
                 description: The ID of the attachment.
               filename:
-                type: string
-                nullable: true
+                type: [string, "null"]
                 description: The filename of the attachment.
               content_type:
                 type: string
@@ -4526,11 +4653,11 @@ components:
                 type: string
                 description: The content ID for inline attachments.
               content_disposition:
-                type: string
-                nullable: true
+                type: [string, "null"]
                 enum:
                   - inline
                   - attachment
+                  - null
                 description: How the attachment should be displayed.
               size:
                 type: integer
@@ -4606,8 +4733,7 @@ components:
                       format: uuid
                       description: The ID of the attachment.
                     filename:
-                      type: string
-                      nullable: true
+                      type: [string, "null"]
                       description: The filename of the attachment.
                     content_type:
                       type: string
@@ -4616,11 +4742,11 @@ components:
                       type: string
                       description: The content ID for inline attachments.
                     content_disposition:
-                      type: string
-                      nullable: true
+                      type: [string, "null"]
                       enum:
                         - inline
                         - attachment
+                        - null
                       description: How the attachment should be displayed.
                     size:
                       type: integer
