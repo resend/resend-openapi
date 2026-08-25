@@ -1550,6 +1550,85 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/DeleteWebhookResponse'
+  /webhooks/{webhook_id}/events:
+    get:
+      operationId: webhooks/list-events
+      tags:
+        - Webhooks
+      summary: Retrieve a list of webhook events
+      parameters:
+        - name: webhook_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The Webhook ID.
+        - $ref: '#/components/parameters/PaginationLimit'
+        - $ref: '#/components/parameters/PaginationAfter'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListWebhookEventsResponse'
+  /webhooks/{webhook_id}/events/{event_id}:
+    get:
+      operationId: webhooks/get-event
+      tags:
+        - Webhooks
+      summary: Retrieve a single webhook event
+      parameters:
+        - name: webhook_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The Webhook ID.
+        - name: event_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The Webhook Event ID.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetWebhookEventResponse'
+  /webhooks/{webhook_id}/events/{event_id}/attempts:
+    get:
+      operationId: webhooks/list-event-attempts
+      tags:
+        - Webhooks
+      summary: Retrieve a list of webhook event attempts
+      parameters:
+        - name: webhook_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The Webhook ID.
+        - name: event_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The Webhook Event ID.
+        - $ref: '#/components/parameters/PaginationLimit'
+        - $ref: '#/components/parameters/PaginationAfter'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListWebhookEventAttemptsResponse'
   /segments:
     post:
       operationId: segments/create
@@ -4781,6 +4860,125 @@ components:
           type: boolean
           description: Indicates whether the webhook was successfully deleted.
           example: true
+    ListWebhookEventsResponse:
+      type: object
+      properties:
+        object:
+          type: string
+          description: Type of the response object.
+          example: 'list'
+        has_more:
+          type: boolean
+          description: Indicates if there are more results available.
+          example: false
+        data:
+          type: array
+          description: Array containing webhook event information.
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                description: The ID of the webhook event.
+                example: 'msg_1srOrx2ZWZBpBUvZwXKQmoEYga2'
+              type:
+                type: string
+                description: The type of the event.
+                example: 'email.sent'
+              created_at:
+                type: string
+                format: date-time
+                description: Timestamp indicating when the event was created.
+                example: '2026-08-22T15:28:00.000Z'
+              status:
+                type: string
+                enum:
+                  - pending
+                  - attempting
+                  - success
+                  - failed
+                description: The delivery status of the event for this webhook.
+                example: 'success'
+    GetWebhookEventResponse:
+      type: object
+      properties:
+        object:
+          type: string
+          description: The type of object.
+          example: 'webhook_event'
+        id:
+          type: string
+          description: The ID of the webhook event.
+          example: 'msg_1srOrx2ZWZBpBUvZwXKQmoEYga2'
+        type:
+          type: string
+          description: The type of the event.
+          example: 'email.sent'
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp indicating when the event was created.
+          example: '2026-08-22T15:28:00.000Z'
+        status:
+          type: string
+          enum:
+            - pending
+            - attempting
+            - success
+            - failed
+          description: The delivery status of the event for this webhook.
+          example: 'attempting'
+        next_attempt_at:
+          type: [string, "null"]
+          format: date-time
+          description: Timestamp of the next scheduled delivery attempt, or null when none is scheduled. Always null once the event has succeeded or permanently failed.
+          example: '2026-08-22T15:33:00.000Z'
+        payload:
+          type: object
+          description: The event payload sent to the webhook endpoint.
+          example:
+            type: 'email.sent'
+            created_at: '2026-08-22T15:28:00.000Z'
+            data:
+              email_id: '571f1f42-1c2d-4b1f-8f8e-8b3b5b3b5b3b'
+              from: 'onboarding@resend.dev'
+              to: ['delivered@resend.dev']
+              subject: 'Welcome'
+              created_at: '2026-08-22T15:27:59.000Z'
+    ListWebhookEventAttemptsResponse:
+      type: object
+      properties:
+        object:
+          type: string
+          description: Type of the response object.
+          example: 'list'
+        has_more:
+          type: boolean
+          description: Indicates if there are more results available.
+          example: false
+        data:
+          type: array
+          description: Array containing webhook event attempt information.
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                description: The ID of the webhook event attempt.
+                example: 'atmpt_1srOrx2ZWZBpBUvZwXKQmoEYga2'
+              http_status_code:
+                type: integer
+                description: The HTTP status code returned by the webhook endpoint.
+                example: 200
+              response:
+                type: string
+                description: The response body returned by the webhook endpoint.
+                example: '{"ok":true}'
+              sent_at:
+                type: string
+                format: date-time
+                description: Timestamp indicating when the attempt was sent.
+                example: '2026-08-22T15:33:12.000Z'
     TemplateVariable:
       type: object
       properties:
