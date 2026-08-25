@@ -43,7 +43,7 @@ tags:
   - name: Events
     description: Create and manage Events through the Resend API.
   - name: OAuth
-    description: List and manage OAuth grants through the Resend API.
+    description: Authorize OAuth clients and manage OAuth grants through the Resend API.
 paths:
   /emails:
     post:
@@ -783,6 +783,126 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/DeleteApiKeyResponse'
+  /oauth/authorize:
+    get:
+      operationId: oauth/authorize
+      tags:
+        - OAuth
+      summary: Start the OAuth authorization code + PKCE flow
+      description: Browser redirect endpoint, not a JSON API call. Open this URL in the user's browser. Resend redirects to the dashboard consent screen, and after approval the browser returns to the client's `redirect_uri` with a `code` and the original `state`.
+      security: []
+      parameters:
+        - name: client_id
+          in: query
+          required: true
+          schema:
+            type: string
+          description: The `client_id` from registration, or the HTTPS URL of a Client ID Metadata Document.
+        - name: response_type
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [code]
+          description: Must be `code`.
+        - name: redirect_uri
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uri
+          description: Must match one of the client's registered redirect URIs. The URI must not include a fragment.
+        - name: scope
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Space-delimited list of requested scopes. If omitted, defaults to the client's full registered scope set.
+        - name: state
+          in: query
+          required: false
+          schema:
+            type: string
+            maxLength: 1024
+          description: Opaque value returned unchanged on the redirect back to the client.
+        - name: code_challenge
+          in: query
+          required: true
+          schema:
+            type: string
+          description: The base64url-encoded SHA-256 hash of the `code_verifier`.
+        - name: code_challenge_method
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [S256]
+          description: Must be `S256`.
+      responses:
+        '302':
+          description: Redirect to the Resend dashboard consent screen.
+  /oauth/register:
+    post:
+      operationId: oauth/register
+      tags:
+        - OAuth
+      summary: Register an OAuth client
+      description: RFC 7591 Dynamic Client Registration. This endpoint is unauthenticated and rate-limited per IP. By default it issues a public PKCE client. Register with a `client_secret_*` authentication method to get a confidential client, which is issued a `client_secret` in the response.
+      security: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterOAuthClientRequest'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegisterOAuthClientResponse'
+  /oauth/token:
+    post:
+      operationId: oauth/token
+      tags:
+        - OAuth
+      summary: Exchange an authorization code or refresh token for tokens
+      description: RFC 6749 token endpoint. Handles the `authorization_code` grant (with mandatory PKCE) and the `refresh_token` grant (with rotation and reuse detection). Accepts `application/json` and `application/x-www-form-urlencoded` bodies. Confidential clients authenticate with `client_secret_basic` or `client_secret_post`.
+      security: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OAuthTokenRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/OAuthTokenRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OAuthTokenResponse'
+  /oauth/revoke:
+    post:
+      operationId: oauth/revoke
+      tags:
+        - OAuth
+      summary: Revoke a refresh token
+      description: RFC 7009 token revocation. Revoking a refresh token revokes the entire grant. Access tokens cannot be revoked individually. Per RFC 7009 the endpoint returns `200` with an empty body even when the token is unknown. Confidential clients authenticate with `client_secret_basic` or `client_secret_post`.
+      security: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RevokeOAuthTokenRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/RevokeOAuthTokenRequest'
+      responses:
+        '200':
+          description: OK
   /oauth/grants:
     get:
       operationId: oauth/list-grants
@@ -951,12 +1071,44 @@ paths:
             type: string
           description: The Template ID or alias.
       responses:
-        '200':
+        '201':
           description: OK
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/DuplicateTemplateResponseSuccess'
+  /templates/{id}/versions:
+    get:
+      operationId: templates/list-versions
+      tags:
+        - Templates
+      summary: Retrieve a list of template versions
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The Template ID or alias.
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - draft
+              - published
+          description: Filter versions by status.
+        - $ref: '#/components/parameters/PaginationLimit'
+        - $ref: '#/components/parameters/PaginationAfter'
+        - $ref: '#/components/parameters/PaginationBefore'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListTemplateVersionsResponseSuccess'
   /audiences:
     post:
       operationId: audiences/create
@@ -2008,6 +2160,7 @@ paths:
             enum:
               - enabled
               - disabled
+              - draining
           description: Filter automations by status.
         - $ref: '#/components/parameters/PaginationLimit'
         - $ref: '#/components/parameters/PaginationAfter'
@@ -3567,6 +3720,211 @@ components:
         revoked_reason:
           type: string
           description: The reason the OAuth grant was revoked.
+          example: 'revoked_from_api'
+    RegisterOAuthClientRequest:
+      type: object
+      required:
+        - client_name
+        - redirect_uris
+      properties:
+        client_name:
+          type: string
+          minLength: 1
+          maxLength: 200
+          description: A human-readable name for the client.
+        redirect_uris:
+          type: array
+          minItems: 1
+          maxItems: 10
+          items:
+            type: string
+            format: uri
+            maxLength: 2048
+          description: URIs the authorization server may redirect to after the user approves the request. Plain http URIs must use a loopback address. Fragments are not allowed.
+        grant_types:
+          type: array
+          items:
+            type: string
+            enum:
+              - authorization_code
+              - refresh_token
+          default: [authorization_code, refresh_token]
+          description: The grant types the client will use. Must include `authorization_code`.
+        response_types:
+          type: array
+          items:
+            type: string
+            enum: [code]
+          description: Accepted for RFC 7591 compliance. Every client uses `code`.
+        scope:
+          type: string
+          maxLength: 500
+          description: Space-delimited list of scopes the client requests. If omitted, defaults to the full supported scope set.
+        token_endpoint_auth_method:
+          type: string
+          enum:
+            - none
+            - client_secret_basic
+            - client_secret_post
+          default: none
+          description: How the client authenticates at the token endpoint. Use `none` for public PKCE clients. The `client_secret_*` methods issue a confidential client.
+        client_uri:
+          type: string
+          format: uri
+          maxLength: 2048
+          description: The URL of the client's home page.
+        logo_uri:
+          type: string
+          format: uri
+          maxLength: 2048
+          description: The URL of the client's logo.
+    RegisterOAuthClientResponse:
+      type: object
+      properties:
+        client_id:
+          type: string
+          description: The ID of the registered client.
+        client_id_issued_at:
+          type: integer
+          description: Unix timestamp (seconds) of when the client ID was issued.
+        client_name:
+          type: string
+          description: The name of the client.
+        redirect_uris:
+          type: array
+          items:
+            type: string
+          description: The registered redirect URIs.
+        grant_types:
+          type: array
+          items:
+            type: string
+          description: The registered grant types.
+        response_types:
+          type: array
+          items:
+            type: string
+          description: The supported response types.
+        token_endpoint_auth_method:
+          type: string
+          description: The registered token endpoint authentication method.
+        scope:
+          type: string
+          description: Space-delimited list of scopes the client may request.
+        client_uri:
+          type: string
+          description: The URL of the client's home page, when provided.
+        logo_uri:
+          type: string
+          description: The URL of the client's logo, when provided.
+        client_secret:
+          type: string
+          description: The client secret. Only returned for confidential clients, and only in this response.
+        client_secret_expires_at:
+          type: integer
+          description: Unix timestamp (seconds) of when the client secret expires. `0` means the secret never expires. Only returned for confidential clients.
+    OAuthTokenRequest:
+      oneOf:
+        - $ref: '#/components/schemas/OAuthAuthorizationCodeGrantRequest'
+        - $ref: '#/components/schemas/OAuthRefreshTokenGrantRequest'
+      discriminator:
+        propertyName: grant_type
+        mapping:
+          authorization_code: '#/components/schemas/OAuthAuthorizationCodeGrantRequest'
+          refresh_token: '#/components/schemas/OAuthRefreshTokenGrantRequest'
+    OAuthAuthorizationCodeGrantRequest:
+      type: object
+      required:
+        - grant_type
+        - client_id
+        - code
+        - redirect_uri
+        - code_verifier
+      properties:
+        grant_type:
+          type: string
+          enum: [authorization_code]
+          description: Must be `authorization_code`.
+        client_id:
+          type: string
+          description: The client ID. Can be omitted from the body when sent in a `client_secret_basic` Authorization header.
+        client_secret:
+          type: string
+          description: The client secret. Only for confidential clients that use `client_secret_post`.
+        code:
+          type: string
+          description: The authorization code returned to the client's redirect URI.
+        redirect_uri:
+          type: string
+          format: uri
+          description: Must match the `redirect_uri` of the original authorization request.
+        code_verifier:
+          type: string
+          description: The PKCE code verifier that matches the `code_challenge` of the authorization request.
+    OAuthRefreshTokenGrantRequest:
+      type: object
+      required:
+        - grant_type
+        - client_id
+        - refresh_token
+      properties:
+        grant_type:
+          type: string
+          enum: [refresh_token]
+          description: Must be `refresh_token`.
+        client_id:
+          type: string
+          description: The client ID. Can be omitted from the body when sent in a `client_secret_basic` Authorization header.
+        client_secret:
+          type: string
+          description: The client secret. Only for confidential clients that use `client_secret_post`.
+        refresh_token:
+          type: string
+          description: The refresh token to exchange. Refresh tokens rotate on every use.
+        scope:
+          type: string
+          description: Space-delimited list of scopes to issue. Must not exceed the originally granted scopes. If omitted, the granted scopes are used.
+    OAuthTokenResponse:
+      type: object
+      properties:
+        access_token:
+          type: string
+          description: The access token, a signed JWT.
+        token_type:
+          type: string
+          description: The token type.
+          example: 'Bearer'
+        expires_in:
+          type: integer
+          description: The lifetime of the access token, in seconds.
+          example: 900
+        refresh_token:
+          type: string
+          description: The rotated refresh token. Omitted when the client did not register the `refresh_token` grant type.
+        scope:
+          type: string
+          description: Space-delimited list of scopes attached to the token.
+    RevokeOAuthTokenRequest:
+      type: object
+      required:
+        - token
+        - client_id
+      properties:
+        token:
+          type: string
+          description: The refresh token to revoke.
+        token_type_hint:
+          type: string
+          description: Optional per RFC 7009. The value `access_token` fails, because access token revocation is not supported. Other values are ignored.
+        client_id:
+          type: string
+          description: The client ID. Can be omitted from the body when sent in a `client_secret_basic` Authorization header.
+        client_secret:
+          type: string
+          description: The client secret. Only for confidential clients that use `client_secret_post`.
+        revoked_reason:
+          type: string
+          description: The reason the OAuth grant was revoked.
     DeleteApiKeyResponse:
       type: object
       properties:
@@ -4795,14 +5153,8 @@ components:
           description: The type of the variable.
           enum: [string, number, boolean, object, list]
         fallback_value:
-          description: The fallback value of the variable.
-          oneOf:
-            - type: string
-            - type: number
-            - type: boolean
-            - type: object
-            - type: array
-              items: {}
+          type: [string, "null"]
+          description: The fallback value of the variable, serialized as a string. Values of type `object` and `list` are returned as JSON strings.
         created_at:
           type: string
           description: Timestamp indicating when the variable was created.
@@ -4856,10 +5208,10 @@ components:
           type: string
           description: The alias of the template.
         from:
-          type: string
+          type: [string, "null"]
           description: Sender email address. To include a friendly name, use the format "Your Name <sender@domain.com>".
         subject:
-          type: string
+          type: [string, "null"]
           description: Email subject.
         reply_to:
           type: [array, "null"]
@@ -4867,10 +5219,10 @@ components:
             type: string
           description: Reply-to email addresses.
         html:
-          type: string
+          type: [string, "null"]
           description: The HTML version of the template.
         text:
-          type: string
+          type: [string, "null"]
           description: The plain text version of the template.
         variables:
           type: array
@@ -4881,7 +5233,7 @@ components:
           description: Timestamp indicating when the template was created.
           example: '2023-10-06 23:47:56.678+00'
         updated_at:
-          type: string
+          type: [string, "null"]
           description: Timestamp indicating when the template was last updated.
           example: '2023-10-06 23:47:56.678+00'
         status:
@@ -4917,7 +5269,7 @@ components:
           description: Timestamp indicating when the template was created.
           example: '2023-10-06 23:47:56.678+00'
         updated_at:
-          type: string
+          type: [string, "null"]
           description: Timestamp indicating when the template was last updated.
           example: '2023-10-06 23:47:56.678+00'
         alias:
@@ -5055,6 +5407,63 @@ components:
           type: string
           description: The object type of the response.
           example: template
+    TemplateVersion:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The ID of the template version.
+        user_id:
+          type: [string, "null"]
+          description: The ID of the user who created the version.
+        html:
+          type: [string, "null"]
+          description: The HTML version of the template.
+        text:
+          type: [string, "null"]
+          description: The plain text version of the template.
+        from:
+          type: [string, "null"]
+          description: Sender email address. To include a friendly name, use the format "Your Name <sender@domain.com>".
+        subject:
+          type: [string, "null"]
+          description: Email subject.
+        reply_to:
+          type: [array, "null"]
+          items:
+            type: string
+          description: Reply-to email addresses.
+        status:
+          type: string
+          enum: [draft, published]
+          description: The publication status of the version.
+        published_at:
+          type: [string, "null"]
+          description: Timestamp indicating when the version was published.
+          example: '2023-10-06 23:47:56.678+00'
+        created_at:
+          type: string
+          description: Timestamp indicating when the version was created.
+          example: '2023-10-06 23:47:56.678+00'
+        updated_at:
+          type: [string, "null"]
+          description: Timestamp indicating when the version was last updated.
+          example: '2023-10-06 23:47:56.678+00'
+    ListTemplateVersionsResponseSuccess:
+      type: object
+      properties:
+        object:
+          type: string
+          description: Type of the response object.
+          example: list
+        data:
+          type: array
+          description: Array containing template versions.
+          items:
+            $ref: '#/components/schemas/TemplateVersion'
+        has_more:
+          type: boolean
+          description: Indicates if there are more template versions to retrieve.
     CreateSegmentOptions:
       type: object
       required:
@@ -5794,6 +6203,7 @@ components:
           enum:
             - enabled
             - disabled
+            - draining
           description: The current status of the automation.
         created_at:
           type: string
@@ -5827,6 +6237,7 @@ components:
           enum:
             - enabled
             - disabled
+            - draining
           description: The current status of the automation.
         created_at:
           type: string
@@ -5984,6 +6395,7 @@ components:
             - completed
             - failed
             - cancelled
+            - quota_exceeded
           description: The current status of the automation run.
         started_at:
           type: [string, "null"]
@@ -6015,6 +6427,7 @@ components:
             - completed
             - failed
             - cancelled
+            - quota_exceeded
           description: The current status of the automation run.
         started_at:
           type: [string, "null"]
