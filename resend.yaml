@@ -1216,7 +1216,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CreateBroadcastOptions'
       responses:
-        '201':
+        '200':
           description: OK
           content:
             application/json:
@@ -1250,6 +1250,7 @@ paths:
           required: true
           schema:
             type: string
+            format: uuid
           description: The Broadcast ID.
       responses:
         '200':
@@ -1269,6 +1270,7 @@ paths:
           required: true
           schema:
             type: string
+            format: uuid
           description: The Broadcast ID.
       responses:
         '200':
@@ -3984,17 +3986,22 @@ components:
             $ref: '#/components/schemas/ContactImport'
     CreateBroadcastOptions:
       type: object
+      description: >-
+        Provide exactly one of `segment_id` or `audience_id`. At least one
+        of `html` or `text` is required.
       required:
         - from
         - subject
-        - segment_id
       properties:
         name:
           type: string
-          description: Name of the broadcast.
+          maxLength: 70
+          description: Name of the broadcast. Defaults to `Untitled`.
         segment_id:
           type: string
-          description: Unique identifier of the segment this broadcast will be sent to.
+          description: >-
+            Unique identifier of the segment this broadcast will be sent to.
+            Required unless `audience_id` is provided.
         audience_id:
           type: string
           description: Use `segment_id` instead. Unique identifier of the segment this broadcast will be sent to.
@@ -4068,12 +4075,12 @@ components:
                 description: Name of the broadcast.
                 example: November announcements
               audience_id:
-                type: string
+                type: [string, "null"]
                 description: Deprecated. Use segment_id instead.
                 example: 78261eea-8f8b-4381-83c6-79fa7120f1cf
                 deprecated: true
               segment_id:
-                type: string
+                type: [string, "null"]
                 description: Unique identifier of the segment this broadcast will be sent to.
                 example: 78261eea-8f8b-4381-83c6-79fa7120f1cf
               status:
@@ -4085,20 +4092,20 @@ components:
                 description: Timestamp indicating when the broadcast was created.
                 example: "2023-10-06 22:59:55.977+00"
               scheduled_at:
-                type: string
+                type: [string, "null"]
                 description: Timestamp indicating when the broadcast is scheduled to be sent.
                 example: "2023-10-06 22:59:55.977+00"
               sent_at:
-                type: string
+                type: [string, "null"]
                 description: Timestamp indicating when the broadcast was sent.
                 example: "2023-10-06 22:59:55.977+00"
-              topic_id:
-                type: string
-                description: The topic ID that the broadcast is scoped to.
-                example: b6d24b8e-af0b-4c3c-be0c-359bbd97381e
     GetBroadcastResponseSuccess:
       type: object
       properties:
+        object:
+          type: string
+          description: The object type of the response.
+          example: broadcast
         id:
           type: string
           description: Unique identifier for the broadcast.
@@ -4115,20 +4122,20 @@ components:
           type: [string, "null"]
           description: Unique identifier of the segment this broadcast will be sent to.
         from:
-          type: string
+          type: [string, "null"]
           description: The email address of the sender.
           example: 'Acme <onboarding@resend.dev>'
         subject:
-          type: string
+          type: [string, "null"]
           description: The subject line of the email.
           example: 'Hello World'
         reply_to:
-          type: array
+          type: [array, "null"]
           items:
             type: string
           description: The email addresses to which replies should be sent.
         preview_text:
-          type: string
+          type: [string, "null"]
           description: The preview text of the email.
           example: 'Here are our announcements'
         status:
@@ -4140,11 +4147,11 @@ components:
           description: Timestamp indicating when the broadcast was created.
           example: "2023-10-06 22:59:55.977+00"
         scheduled_at:
-          type: string
+          type: [string, "null"]
           description: Timestamp indicating when the broadcast is scheduled to be sent.
           example: "2023-10-06 22:59:55.977+00"
         sent_at:
-          type: string
+          type: [string, "null"]
           description: Timestamp indicating when the broadcast was sent.
           example: "2023-10-06 22:59:55.977+00"
         text:
@@ -4164,6 +4171,7 @@ components:
       properties:
         name:
           type: string
+          maxLength: 70
           description: Name of the broadcast.
         audience_id:
           type: string
@@ -4230,6 +4238,10 @@ components:
     SendBroadcastResponseSuccess:
       type: object
       properties:
+        object:
+          type: string
+          description: The object type of the response.
+          example: broadcast
         id:
           type: string
           description: The ID of the broadcast.
