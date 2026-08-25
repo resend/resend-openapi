@@ -1462,6 +1462,8 @@ paths:
           required: false
           schema:
             type: integer
+            minimum: 1
+            maximum: 100
           description: Maximum number of webhooks to return.
         - name: after
           in: query
@@ -4633,7 +4635,7 @@ components:
       properties:
         endpoint:
           type: string
-          description: The URL where webhook events will be sent.
+          description: The URL where webhook events will be sent. Must use the https scheme.
           example: 'https://webhook.example.com/handler'
         events:
           type: array
@@ -4737,7 +4739,7 @@ components:
       properties:
         endpoint:
           type: string
-          description: The URL where webhook events will be sent.
+          description: The URL where webhook events will be sent. Must use the https scheme.
           example: 'https://webhook.example.com/new-handler'
         events:
           type: array
@@ -5632,8 +5634,8 @@ components:
           type: [string, "null"]
           description: The user agent of the request.
         request_body:
-          type: [object, "null"]
-          description: The request body sent to the API.
+          type: [object, array, "null"]
+          description: The request body sent to the API. Endpoints that accept a top-level array, such as `POST /emails/batch`, log an array.
         response_body:
           type: [object, "null"]
           description: The response body returned by the API.
@@ -7020,8 +7022,7 @@ components:
           description: Origin of the suppression.
           example: manual
         source_id:
-          type: string
-          nullable: true
+          type: [string, "null"]
           description: Identifier of the event that caused the suppression, such as the email that bounced or complained.
           example: 479e3145-dd38-476b-932c-529ceb705947
         created_at:
@@ -7061,8 +7062,7 @@ components:
                 description: Origin of the suppression.
                 example: manual
               source_id:
-                type: string
-                nullable: true
+                type: [string, "null"]
                 description: Identifier of the event that caused the suppression, such as the email that bounced or complained.
                 example: 479e3145-dd38-476b-932c-529ceb705947
               created_at:
