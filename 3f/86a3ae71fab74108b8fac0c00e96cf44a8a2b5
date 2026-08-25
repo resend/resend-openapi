@@ -1,0 +1,23 @@
+resend.yaml
+  s_86890eb5bb682c::t_6049067743e2a8 1568
+  s_86890eb5bb682c::t_89da5de68333c2 1624
+  s_86890eb5bb682c::t_2ee17785cf098f 4883,4890,4892
+  s_86890eb5bb682c::t_6c794b5c93a722 4912,4919,4921,4930,4933-4935,4939-4947
+  s_86890eb5bb682c::t_b92e0177de1f98 4968,4976,4979,4981
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "3f86a3ae71fab74108b8fac0c00e96cf44a8a2b5",
+  "prompts": {},
+  "sessions": {
+    "s_86890eb5bb682c": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ba0a9904-6c48-437f-a1c4-d0633c4c83f8",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Gabriel Miranda <gabriel@resend.com>"
+    }
+  }
+}
