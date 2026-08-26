@@ -1683,6 +1683,30 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GetSegmentResponseSuccess'
+    patch:
+      operationId: segments/update
+      tags:
+        - Segments
+      summary: Update an existing segment
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The Segment ID.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSegmentOptions'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateSegmentResponseSuccess'
     delete:
       operationId: segments/remove
       tags:
@@ -5305,6 +5329,25 @@ components:
           type: string
           description: Timestamp indicating when the segment was created.
           example: '2023-10-06 23:47:56.678+00'
+    UpdateSegmentOptions:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          description: The name of the segment.
+    UpdateSegmentResponseSuccess:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The ID of the segment.
+          example: 78261eea-8f8b-4381-83c6-79fa7120f1cf
+        object:
+          type: string
+          description: The object type.
+          example: segment
     ListSegmentsResponseSuccess:
       type: object
       properties:
