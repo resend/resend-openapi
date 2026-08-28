@@ -3817,7 +3817,11 @@ components:
         segments:
           type: array
           items:
-            type: string
+            type: object
+            properties:
+              id:
+                type: string
+                description: The segment ID
           description: Array of segment IDs to add the contact to.
         topics:
           type: array
