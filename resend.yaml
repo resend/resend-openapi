@@ -1600,6 +1600,38 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GetWebhookEventResponse'
+  /webhooks/{webhook_id}/events/{event_id}/replay:
+    post:
+      operationId: webhooks/replay-event
+      tags:
+        - Webhooks
+      summary: Replay a webhook event
+      description: >-
+        Queues one more delivery of the event to the webhook. The event must be
+        retrievable through the get event endpoint and the webhook must be enabled;
+        a disabled webhook returns a 422 validation_error. A manual replay does not
+        schedule automatic retries.
+      parameters:
+        - name: webhook_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The Webhook ID.
+        - name: event_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The Webhook Event ID.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReplayWebhookEventResponse'
   /webhooks/{webhook_id}/events/{event_id}/attempts:
     get:
       operationId: webhooks/list-event-attempts
@@ -5007,6 +5039,17 @@ components:
                 format: date-time
                 description: Timestamp indicating when the attempt was sent.
                 example: '2026-08-22T15:33:12.000Z'
+    ReplayWebhookEventResponse:
+      type: object
+      properties:
+        object:
+          type: string
+          description: The type of object.
+          example: 'webhook_event'
+        id:
+          type: string
+          description: The ID of the replayed webhook event.
+          example: 'msg_1srOrx2ZWZBpBUvZwXKQmoEYga2'
     TemplateVariable:
       type: object
       properties:
