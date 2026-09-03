@@ -1600,35 +1600,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GetWebhookEventResponse'
-  /webhooks/{webhook_id}/events/{event_id}/attempts:
-    get:
-      operationId: webhooks/list-event-attempts
-      tags:
-        - Webhooks
-      summary: Retrieve a list of webhook event attempts
-      parameters:
-        - name: webhook_id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-          description: The Webhook ID.
-        - name: event_id
-          in: path
-          required: true
-          schema:
-            type: string
-          description: The Webhook Event ID.
-        - $ref: '#/components/parameters/PaginationLimit'
-        - $ref: '#/components/parameters/PaginationAfter'
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ListWebhookEventAttemptsResponse'
   /webhooks/{webhook_id}/events/{event_id}/replay:
     post:
       operationId: webhooks/replay-event
@@ -1661,6 +1632,35 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ReplayWebhookEventResponse'
+  /webhooks/{webhook_id}/events/{event_id}/attempts:
+    get:
+      operationId: webhooks/list-event-attempts
+      tags:
+        - Webhooks
+      summary: Retrieve a list of webhook event attempts
+      parameters:
+        - name: webhook_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The Webhook ID.
+        - name: event_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The Webhook Event ID.
+        - $ref: '#/components/parameters/PaginationLimit'
+        - $ref: '#/components/parameters/PaginationAfter'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListWebhookEventAttemptsResponse'
   /segments:
     post:
       operationId: segments/create
