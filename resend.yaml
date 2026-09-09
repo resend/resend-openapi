@@ -1550,6 +1550,31 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/DeleteWebhookResponse'
+  /webhooks/{webhook_id}/signing-secret/rotate:
+    post:
+      operationId: webhooks/rotate-signing-secret
+      tags:
+        - Webhooks
+      summary: Rotate a webhook signing secret
+      description: >-
+        Generates a new signing secret for the webhook and returns it. Payloads
+        delivered after the rotation are signed with the new secret. A webhook that
+        does not exist or was removed returns a 404 not_found.
+      parameters:
+        - name: webhook_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The Webhook ID.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RotateWebhookSigningSecretResponse'
   /webhooks/{webhook_id}/events:
     get:
       operationId: webhooks/list-events
@@ -4904,6 +4929,22 @@ components:
           format: uuid
           description: The ID of the updated webhook.
           example: '479e3145-dd38-476b-932c-529ceb705947'
+    RotateWebhookSigningSecretResponse:
+      type: object
+      properties:
+        object:
+          type: string
+          description: The type of object.
+          example: 'webhook'
+        id:
+          type: string
+          format: uuid
+          description: The ID of the webhook.
+          example: '479e3145-dd38-476b-932c-529ceb705947'
+        signing_secret:
+          type: string
+          description: The new secret key used to verify webhook payloads.
+          example: 'whsec_...'
     DeleteWebhookResponse:
       type: object
       properties:
