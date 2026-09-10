@@ -1557,11 +1557,10 @@ paths:
         - Webhooks
       summary: Rotate a webhook signing secret
       description: >-
-        Generates a new signing secret for the webhook and returns it. Payloads
-        delivered after the rotation are signed with the new secret. The previous
-        secret keeps verifying payloads for 24 hours, so both secrets are accepted
-        during that window. A webhook that does not exist or was removed returns a
-        404 not_found.
+        Generates a new signing secret for the webhook and returns it. For 24 hours
+        after the rotation, payloads are signed with both the new and the previous
+        secret, so either one verifies them. After that, only the new secret does.
+        A webhook that does not exist or was removed returns a 404 not_found.
       parameters:
         - name: webhook_id
           in: path
