@@ -1351,6 +1351,32 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CancelBroadcastResponseSuccess'
+  /broadcasts/{id}/duplicate:
+    post:
+      operationId: broadcasts/duplicate
+      tags:
+        - Broadcasts
+      summary: Duplicate a broadcast
+      description: >-
+        Creates a new draft broadcast with the same segment, topic, sender,
+        subject, reply-to, preview text, and content as the source. The copy
+        is named after the source with " (copy)" appended, truncated to 70
+        characters.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The Broadcast ID.
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DuplicateBroadcastResponseSuccess'
   /broadcasts/{id}/recipients:
     get:
       operationId: broadcasts/recipients
@@ -4407,6 +4433,17 @@ components:
           type: string
           description: The ID of the broadcast.
           example: 78261eea-8f8b-4381-83c6-79fa7120f1cf
+        object:
+          type: string
+          description: The object type of the response.
+          example: broadcast
+    DuplicateBroadcastResponseSuccess:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The ID of the duplicated broadcast.
+          example: 1f85ae38-f5b9-4c1f-8766-667a53970fea
         object:
           type: string
           description: The object type of the response.
