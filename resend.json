@@ -2154,6 +2154,40 @@
         }
       }
     },
+    "/broadcasts/{id}/duplicate": {
+      "post": {
+        "operationId": "broadcasts/duplicate",
+        "tags": [
+          "Broadcasts"
+        ],
+        "summary": "Duplicate a broadcast",
+        "description": "Creates a new draft broadcast with the same segment, topic, sender, subject, reply-to, preview text, and content as the source. The copy is named after the source with \" (copy)\" appended, truncated to 70 characters.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "The Broadcast ID."
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DuplicateBroadcastResponseSuccess"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/broadcasts/{id}/recipients": {
       "get": {
         "operationId": "broadcasts/recipients",
@@ -2465,6 +2499,40 @@
         }
       }
     },
+    "/webhooks/{webhook_id}/signing-secret/rotate": {
+      "post": {
+        "operationId": "webhooks/rotate-signing-secret",
+        "tags": [
+          "Webhooks"
+        ],
+        "summary": "Rotate a webhook signing secret",
+        "description": "Generates a new signing secret for the webhook and returns it. Payloads delivered after the rotation are signed with the new secret. The previous secret keeps verifying payloads for 24 hours, so both secrets are accepted during that window. A webhook that does not exist or was removed returns a 404 not_found.",
+        "parameters": [
+          {
+            "name": "webhook_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "The Webhook ID."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RotateWebhookSigningSecretResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/webhooks/{webhook_id}/events": {
       "get": {
         "operationId": "webhooks/list-events",
@@ -2539,6 +2607,49 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/GetWebhookEventResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/webhooks/{webhook_id}/events/{event_id}/replay": {
+      "post": {
+        "operationId": "webhooks/replay-event",
+        "tags": [
+          "Webhooks"
+        ],
+        "summary": "Replay a webhook event",
+        "description": "Queues one more delivery of the event to the webhook. The event must be retrievable through the get event endpoint and the webhook must be enabled; a disabled webhook returns a 422 validation_error. A manual replay does not schedule automatic retries.",
+        "parameters": [
+          {
+            "name": "webhook_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "The Webhook ID."
+          },
+          {
+            "name": "event_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "The Webhook Event ID."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReplayWebhookEventResponse"
                 }
               }
             }
@@ -5920,7 +6031,13 @@
           "segments": {
             "type": "array",
             "items": {
-              "type": "string"
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "description": "The segment ID"
+                }
+              }
             },
             "description": "Array of segment IDs to add the contact to."
           },
@@ -6649,6 +6766,21 @@
             "type": "string",
             "description": "The ID of the broadcast.",
             "example": "78261eea-8f8b-4381-83c6-79fa7120f1cf"
+          },
+          "object": {
+            "type": "string",
+            "description": "The object type of the response.",
+            "example": "broadcast"
+          }
+        }
+      },
+      "DuplicateBroadcastResponseSuccess": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The ID of the duplicated broadcast.",
+            "example": "1f85ae38-f5b9-4c1f-8766-667a53970fea"
           },
           "object": {
             "type": "string",
@@ -7400,6 +7532,27 @@
           }
         }
       },
+      "RotateWebhookSigningSecretResponse": {
+        "type": "object",
+        "properties": {
+          "object": {
+            "type": "string",
+            "description": "The type of object.",
+            "example": "webhook"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The ID of the webhook.",
+            "example": "479e3145-dd38-476b-932c-529ceb705947"
+          },
+          "signing_secret": {
+            "type": "string",
+            "description": "The new secret key used to verify webhook payloads.",
+            "example": "whsec_..."
+          }
+        }
+      },
       "DeleteWebhookResponse": {
         "type": "object",
         "properties": {
@@ -7577,6 +7730,21 @@
                 }
               }
             }
+          }
+        }
+      },
+      "ReplayWebhookEventResponse": {
+        "type": "object",
+        "properties": {
+          "object": {
+            "type": "string",
+            "description": "The type of object.",
+            "example": "webhook_event"
+          },
+          "id": {
+            "type": "string",
+            "description": "The ID of the replayed webhook event.",
+            "example": "msg_1srOrx2ZWZBpBUvZwXKQmoEYga2"
           }
         }
       },
