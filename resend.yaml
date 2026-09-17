@@ -2866,6 +2866,36 @@ webhooks:
       responses:
         '2XX':
           description: Return any 2xx status code to acknowledge receipt of the event.
+  suppression.added:
+    post:
+      summary: Suppression added
+      description: Occurs whenever an email address was added to the suppression list.
+      tags:
+        - Webhook Events
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SuppressionAddedEvent'
+      responses:
+        '2XX':
+          description: Return any 2xx status code to acknowledge receipt of the event.
+  suppression.removed:
+    post:
+      summary: Suppression removed
+      description: Occurs whenever an email address was removed from the suppression list.
+      tags:
+        - Webhook Events
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SuppressionRemovedEvent'
+      responses:
+        '2XX':
+          description: Return any 2xx status code to acknowledge receipt of the event.
 components:
   securitySchemes:
     bearerAuth:
@@ -6949,6 +6979,37 @@ components:
           items:
             $ref: '#/components/schemas/WebhookDomainRecord'
           description: DNS records required for domain verification.
+    SuppressionEventData:
+      type: object
+      required:
+        - id
+        - email
+        - origin
+        - source_id
+        - created_at
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the suppression.
+        email:
+          type: string
+          description: Email address that is suppressed.
+        origin:
+          type: string
+          enum:
+            - bounce
+            - complaint
+            - manual
+          description: Origin of the suppression.
+        source_id:
+          type: string
+          nullable: true
+          description: Identifier of the event that caused the suppression, such as the email that bounced or complained. Null for manually added suppressions.
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp when the suppression was created.
+          example: '2023-10-06T23:47:56.678Z'
     EmailSentEvent:
       type: object
       required:
@@ -7255,6 +7316,42 @@ components:
           example: '2023-10-06T23:47:56.678Z'
         data:
           $ref: '#/components/schemas/DomainEventData'
+    SuppressionAddedEvent:
+      type: object
+      required:
+        - type
+        - created_at
+        - data
+      properties:
+        type:
+          type: string
+          const: suppression.added
+          description: The event type.
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp when the event was emitted.
+          example: '2023-10-06T23:47:56.678Z'
+        data:
+          $ref: '#/components/schemas/SuppressionEventData'
+    SuppressionRemovedEvent:
+      type: object
+      required:
+        - type
+        - created_at
+        - data
+      properties:
+        type:
+          type: string
+          const: suppression.removed
+          description: The event type.
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp when the event was emitted.
+          example: '2023-10-06T23:47:56.678Z'
+        data:
+          $ref: '#/components/schemas/SuppressionEventData'
     CreateSuppressionOptions:
       type: object
       required:
