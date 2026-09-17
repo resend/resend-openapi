@@ -7002,8 +7002,7 @@ components:
             - manual
           description: Origin of the suppression.
         source_id:
-          type: string
-          nullable: true
+          type: [string, "null"]
           description: Identifier of the event that caused the suppression, such as the email that bounced or complained. Null for manually added suppressions.
         created_at:
           type: string
