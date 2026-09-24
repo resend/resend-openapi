@@ -5320,6 +5320,10 @@
           },
           "tls": {
             "type": "string",
+            "enum": [
+              "opportunistic",
+              "enforced"
+            ],
             "description": "enforced | opportunistic.",
             "default": "opportunistic"
           },
@@ -6106,7 +6110,13 @@
           },
           "properties": {
             "type": "object",
-            "additionalProperties": true,
+            "additionalProperties": {
+              "type": [
+                "string",
+                "number",
+                "null"
+              ]
+            },
             "description": "A map of custom property keys and values to create."
           },
           "segments": {
@@ -6242,7 +6252,14 @@
           },
           "properties": {
             "type": "object",
-            "additionalProperties": true,
+            "additionalProperties": {
+              "type": [
+                "string",
+                "number",
+                "boolean",
+                "null"
+              ]
+            },
             "description": "A map of custom property keys and values to update."
           }
         }
