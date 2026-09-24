@@ -3373,6 +3373,9 @@ components:
           description: Track clicks within the body of each HTML email.
         tls:
           type: string
+          enum:
+            - opportunistic
+            - enforced
           description: enforced | opportunistic.
           default: "opportunistic"
         capabilities:
@@ -3945,7 +3948,8 @@ components:
           example: false
         properties:
           type: object
-          additionalProperties: true
+          additionalProperties:
+            type: [string, number, "null"]
           description: A map of custom property keys and values to create.
         segments:
           type: array
@@ -4043,7 +4047,8 @@ components:
           example: false
         properties:
           type: object
-          additionalProperties: true
+          additionalProperties:
+            type: [string, number, boolean, "null"]
           description: A map of custom property keys and values to update.
     UpdateContactResponseSuccess:
       type: object
