@@ -1676,15 +1676,6 @@
         "summary": "Retrieve a list of contacts",
         "parameters": [
           {
-            "name": "segment_id",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Filter contacts by segment ID."
-          },
-          {
             "$ref": "#/components/parameters/PaginationLimit"
           },
           {
@@ -2859,6 +2850,48 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/RemoveSegmentResponseSuccess"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/segments/{id}/contacts": {
+      "get": {
+        "operationId": "segments/list-contacts",
+        "tags": [
+          "Segments"
+        ],
+        "summary": "Retrieve a list of contacts in a segment",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "The Segment ID."
+          },
+          {
+            "$ref": "#/components/parameters/PaginationLimit"
+          },
+          {
+            "$ref": "#/components/parameters/PaginationAfter"
+          },
+          {
+            "$ref": "#/components/parameters/PaginationBefore"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListContactsResponseSuccess"
                 }
               }
             }
@@ -6256,6 +6289,11 @@
             "type": "string",
             "description": "Type of the response object.",
             "example": "list"
+          },
+          "has_more": {
+            "type": "boolean",
+            "description": "Indicates if there are more results available.",
+            "example": false
           },
           "data": {
             "type": "array",
