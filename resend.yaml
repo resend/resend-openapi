@@ -44,6 +44,8 @@ tags:
     description: Create and manage Events through the Resend API.
   - name: OAuth
     description: List and manage OAuth grants through the Resend API.
+  - name: Usage
+    description: Retrieve your account usage and plan limits through the Resend API.
 paths:
   /emails:
     post:
@@ -2628,6 +2630,20 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RemoveSuppressionResponseSuccess'
+  /usage:
+    get:
+      operationId: usage/get
+      tags:
+        - Usage
+      summary: Retrieve account usage
+      description: Retrieve your account's current usage and plan limits.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetUsageResponseSuccess'
 webhooks:
   email.sent:
     post:
@@ -3256,6 +3272,121 @@ components:
           description: Present when `broadcast` is in `dimensions`.
       additionalProperties:
         type: number
+    GetUsageResponseSuccess:
+      type: object
+      properties:
+        object:
+          type: string
+          description: The type of object.
+          example: 'usage'
+        emails:
+          type: object
+          properties:
+            daily:
+              type: object
+              properties:
+                used:
+                  type: integer
+                  description: Emails sent and received in the current day.
+                limit:
+                  type: [integer, "null"]
+                  description: The daily plan limit, or `null` when the account has a monthly sending subscription.
+                sent:
+                  type: integer
+                  description: Emails sent today.
+                received:
+                  type: integer
+                  description: Emails received today.
+                resets_at:
+                  type: string
+                  description: When the daily counter resets, as an ISO 8601 datetime.
+            monthly:
+              type: object
+              properties:
+                used:
+                  type: integer
+                  description: Emails sent and received in the current billing period.
+                limit:
+                  type: integer
+                  description: The monthly plan limit.
+                sent:
+                  type: integer
+                  description: Emails sent this billing period.
+                received:
+                  type: integer
+                  description: Emails received this billing period.
+                resets_at:
+                  type: string
+                  description: When the monthly counter resets, as an ISO 8601 datetime.
+        contacts:
+          type: object
+          properties:
+            used:
+              type: integer
+              description: Contacts currently stored.
+            limit:
+              type: integer
+              description: The plan limit.
+        segments:
+          type: object
+          properties:
+            used:
+              type: integer
+              description: Segments currently created.
+            limit:
+              type: [integer, "null"]
+              description: The plan limit, or `null` when the account has a contacts subscription.
+        broadcasts:
+          type: object
+          properties:
+            used:
+              type: integer
+              description: Broadcasts sent.
+            limit:
+              type: 'null'
+              description: Always `null`; broadcasts aren't limited.
+        ai_credits:
+          type: object
+          properties:
+            used:
+              type: integer
+              description: AI credits consumed in the current period.
+            limit:
+              type: [integer, "null"]
+              description: The plan limit, or `null` when unlimited.
+            next_increase_at:
+              type: [string, "null"]
+              description: When the AI credit balance next increases, as an ISO 8601 datetime, or `null` when unknown.
+        automation_runs:
+          type: object
+          properties:
+            used:
+              type: integer
+              description: Automation runs in the current billing period.
+            limit:
+              type: integer
+              description: The plan limit.
+            resets_at:
+              type: string
+              description: When the counter resets, as an ISO 8601 datetime.
+        domains:
+          type: object
+          properties:
+            used:
+              type: integer
+              description: Domains currently added.
+            limit:
+              type: [integer, "null"]
+              description: The plan limit, or `null` when unlimited.
+        rate_limit:
+          type: object
+          properties:
+            limit:
+              type: integer
+              description: The number of requests allowed per `duration`.
+            duration:
+              type: string
+              description: The rate-limit window, e.g. `'1000ms'`.
     CreateBatchEmailsResponse:
       type: object
       properties:
