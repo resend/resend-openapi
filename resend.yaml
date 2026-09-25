@@ -3279,10 +3279,6 @@ components:
           type: string
           description: The type of object.
           example: 'usage'
-        generated_at:
-          type: string
-          description: When this usage snapshot was generated, as an ISO 8601 datetime.
-          example: '2026-07-17T00:00:00.000Z'
         emails:
           type: object
           properties:
