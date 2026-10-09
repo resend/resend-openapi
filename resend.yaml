@@ -2830,6 +2830,124 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UpdateInboxAgentResponseSuccess'
+  /inboxes/{inbox_id}/labels:
+    get:
+      operationId: inboxes/list-labels
+      tags:
+        - Inboxes
+      summary: Retrieve a list of inbox labels
+      description: Returns every label on the inbox, oldest first. The list is not paginated.
+      parameters:
+        - name: inbox_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The Inbox ID. An email address is not accepted.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListInboxLabelsResponseSuccess'
+    post:
+      operationId: inboxes/create-label
+      tags:
+        - Inboxes
+      summary: Create a label on an inbox
+      description: >-
+        A label is a named, colored tag that belongs to one inbox. An inbox can
+        have at most 100 labels. Label names are unique per inbox, compared
+        without case. A duplicate name or a full inbox returns a 422
+        validation_error.
+      parameters:
+        - name: inbox_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The Inbox ID. An email address is not accepted.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateInboxLabelOptions'
+      responses:
+        '201':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateInboxLabelResponseSuccess'
+  /inboxes/{inbox_id}/labels/{label_id}:
+    patch:
+      operationId: inboxes/update-label
+      tags:
+        - Inboxes
+      summary: Update an existing inbox label
+      description: >-
+        Renames or recolors a label. Omitted fields keep their current value. A
+        new name must not match another label on the inbox, compared without
+        case, or the request returns a 422 validation_error.
+      parameters:
+        - name: inbox_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The Inbox ID. An email address is not accepted.
+        - name: label_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The Label ID.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateInboxLabelOptions'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateInboxLabelResponseSuccess'
+    delete:
+      operationId: inboxes/remove-label
+      tags:
+        - Inboxes
+      summary: Remove an existing inbox label
+      description: Deletes the label and removes it from every thread that carries it.
+      parameters:
+        - name: inbox_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The Inbox ID. An email address is not accepted.
+        - name: label_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The Label ID.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RemoveInboxLabelResponseSuccess'
 webhooks:
   email.sent:
     post:
@@ -8367,3 +8485,188 @@ components:
           format: uuid
           description: The ID of the inbox agent.
           example: a1f84a4e-6f2b-4f0a-9c1d-8a2e5b3c7d90
+    InboxLabel:
+      type: object
+      required:
+        - id
+        - name
+        - color
+        - created_at
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: The ID of the label.
+          example: 7f9c1d2e-4a6b-4c3d-8e15-9b0a7c6d5e34
+        name:
+          type: string
+          description: The name of the label.
+          example: Urgent
+        color:
+          type: string
+          enum:
+            - cyan
+            - teal
+            - grass
+            - lime
+            - yellow
+            - orange
+            - iris
+            - plum
+            - crimson
+            - bronze
+            - mauve
+          description: The color of the label.
+          example: crimson
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp when the label was created.
+          example: '2026-08-05T14:07:42.881Z'
+    ListInboxLabelsResponseSuccess:
+      type: object
+      required:
+        - object
+        - data
+      properties:
+        object:
+          type: string
+          description: Type of the response object.
+          example: list
+        data:
+          type: array
+          description: The labels on the inbox, oldest first.
+          items:
+            $ref: '#/components/schemas/InboxLabel'
+    CreateInboxLabelOptions:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 64
+          description: >-
+            The name of the label. Max 64 characters. Leading and trailing whitespace is trimmed. Must not match another label on the inbox, compared without case.
+          example: Urgent
+        color:
+          type: string
+          enum:
+            - cyan
+            - teal
+            - grass
+            - lime
+            - yellow
+            - orange
+            - iris
+            - plum
+            - crimson
+            - bronze
+            - mauve
+          description: The color of the label. When omitted, a random color from this list is used.
+          example: crimson
+    CreateInboxLabelResponseSuccess:
+      type: object
+      required:
+        - object
+        - id
+        - name
+        - color
+        - created_at
+      properties:
+        object:
+          type: string
+          description: Type of the response object.
+          example: inbox_label
+        id:
+          type: string
+          format: uuid
+          description: The ID of the label.
+          example: 7f9c1d2e-4a6b-4c3d-8e15-9b0a7c6d5e34
+        name:
+          type: string
+          description: The name of the label.
+          example: Urgent
+        color:
+          type: string
+          enum:
+            - cyan
+            - teal
+            - grass
+            - lime
+            - yellow
+            - orange
+            - iris
+            - plum
+            - crimson
+            - bronze
+            - mauve
+          description: The color of the label.
+          example: crimson
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp when the label was created.
+          example: '2026-08-05T14:07:42.881Z'
+    UpdateInboxLabelOptions:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 64
+          description: >-
+            A new name for the label. Max 64 characters. Leading and trailing whitespace is trimmed. Must not match another label on the inbox, compared without case.
+          example: Billing
+        color:
+          type: string
+          enum:
+            - cyan
+            - teal
+            - grass
+            - lime
+            - yellow
+            - orange
+            - iris
+            - plum
+            - crimson
+            - bronze
+            - mauve
+          description: A new color for the label.
+          example: orange
+    UpdateInboxLabelResponseSuccess:
+      type: object
+      required:
+        - object
+        - id
+      properties:
+        object:
+          type: string
+          description: Type of the response object.
+          example: inbox_label
+        id:
+          type: string
+          format: uuid
+          description: The ID of the updated label.
+          example: 7f9c1d2e-4a6b-4c3d-8e15-9b0a7c6d5e34
+    RemoveInboxLabelResponseSuccess:
+      type: object
+      required:
+        - object
+        - id
+        - deleted
+      properties:
+        object:
+          type: string
+          description: Type of the response object.
+          example: inbox_label
+        id:
+          type: string
+          format: uuid
+          description: The ID of the removed label.
+          example: 7f9c1d2e-4a6b-4c3d-8e15-9b0a7c6d5e34
+        deleted:
+          type: boolean
+          description: Indicates whether the label was deleted.
+          example: true
