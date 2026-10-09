@@ -3473,6 +3473,209 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ForwardInboxThreadEmailResponseSuccess'
+  /inboxes/{inbox_id}/drafts:
+    get:
+      operationId: inboxes/list-drafts
+      tags:
+        - Inboxes
+      summary: Retrieve a list of drafts
+      description: >-
+        Returns the unsent drafts on the inbox, most recently updated first.
+        The `after` and `before` cursors take a Draft ID from the current page.
+        A cursor that is not an unsent draft on this inbox returns a 404.
+      parameters:
+        - name: inbox_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The Inbox ID. An email address is not accepted.
+        - $ref: '#/components/parameters/PaginationLimit'
+        - $ref: '#/components/parameters/PaginationAfter'
+        - $ref: '#/components/parameters/PaginationBefore'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListInboxDraftsResponseSuccess'
+    post:
+      operationId: inboxes/create-draft
+      tags:
+        - Inboxes
+      summary: Create a draft
+      description: >-
+        Creates an unsent draft on the inbox. Omit `thread_id` and
+        `reply_to_email_id` for a draft that starts a new thread. Pass both
+        together for a reply draft in an existing thread. A reply draft
+        without `to` is addressed to the sender of the email it replies to, or
+        to its Reply-To when set. Send `to: []` to leave it empty.
+        At least one of `to`, `cc`, `bcc`, `subject`, `text` or `html` must be
+        non-empty. The combined recipients of `to`, `cc` and
+        `bcc` cannot exceed 50. Returns 201 for a new draft. Only one unsent
+        reply draft can target an email, so a reply draft request for an
+        email that already has one returns 200 with the existing draft.
+      parameters:
+        - name: inbox_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The Inbox ID. An email address is not accepted.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateInboxDraftOptions'
+      responses:
+        '201':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateInboxDraftResponseSuccess'
+        '200':
+          description: The reply draft for this email already exists. The response body is the existing draft.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateInboxDraftResponseSuccess'
+  /inboxes/{inbox_id}/drafts/{draft_id}:
+    get:
+      operationId: inboxes/get-draft
+      tags:
+        - Inboxes
+      summary: Retrieve a single draft
+      parameters:
+        - name: inbox_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The Inbox ID. An email address is not accepted.
+        - name: draft_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The Draft ID.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetInboxDraftResponseSuccess'
+    patch:
+      operationId: inboxes/update-draft
+      tags:
+        - Inboxes
+      summary: Update an existing draft
+      description: >-
+        Updates the content of an unsent draft. Omitted fields are left
+        unchanged. Send at least one of `to`, `cc`, `bcc`, `subject`, `text` or
+        `html`. A request that sets `text` or `html` replaces the whole body.
+        The body part you omit from that request becomes `null`. The merged draft must still
+        contain at least one non-empty field, and its combined recipients
+        cannot exceed 50. A draft that was already sent, or that changed
+        during the request, returns a 409.
+      parameters:
+        - name: inbox_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The Inbox ID. An email address is not accepted.
+        - name: draft_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The Draft ID.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateInboxDraftOptions'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateInboxDraftResponseSuccess'
+    delete:
+      operationId: inboxes/remove-draft
+      tags:
+        - Inboxes
+      summary: Remove an existing draft
+      description: >-
+        Discards an unsent draft. A draft that was already sent, or that
+        changed during the request, returns a 409.
+      parameters:
+        - name: inbox_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The Inbox ID. An email address is not accepted.
+        - name: draft_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The Draft ID.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RemoveInboxDraftResponseSuccess'
+  /inboxes/{inbox_id}/drafts/{draft_id}/send:
+    post:
+      operationId: inboxes/send-draft
+      tags:
+        - Inboxes
+      summary: Send a draft
+      description: >-
+        Sends the draft from the inbox address. A reply draft is sent in its
+        thread. A draft without a thread starts a new thread. The draft must
+        have at least one recipient, or the request returns a 422. A draft that
+        was already sent returns a 409. The request takes no body.
+      parameters:
+        - name: inbox_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The Inbox ID. An email address is not accepted.
+        - name: draft_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The Draft ID.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SendInboxDraftResponseSuccess'
 webhooks:
   email.sent:
     post:
@@ -9912,3 +10115,344 @@ components:
           format: date-time
           description: Timestamp when the forward was sent.
           example: '2026-08-05T14:12:04.110Z'
+    InboxDraft:
+      type: object
+      required:
+        - object
+        - id
+        - type
+        - to
+        - cc
+        - bcc
+        - subject
+        - html
+        - text
+        - thread_id
+        - reply_to_email_id
+        - email_id
+        - created_at
+        - updated_at
+      properties:
+        object:
+          type: string
+          description: The object type.
+          example: inbox_draft
+        id:
+          type: string
+          format: uuid
+          description: The ID of the draft.
+          example: c3a1e8b4-2d5f-4a7c-9e10-6b8d7f5a4c32
+        type:
+          type: string
+          enum:
+            - standalone
+            - reply
+          description: '`reply` when the draft replies to an email in an existing thread. `standalone` when the draft starts a new thread.'
+          example: standalone
+        to:
+          type: [array, "null"]
+          items:
+            type: string
+          description: The recipients. `null` or empty when no recipients are set.
+          example:
+            - ada@example.org
+        cc:
+          type: array
+          items:
+            type: string
+          description: The CC recipients.
+          example: []
+        bcc:
+          type: array
+          items:
+            type: string
+          description: The BCC recipients.
+          example: []
+        subject:
+          type: [string, "null"]
+          description: The subject.
+          example: Refund for order 1041
+        html:
+          type: [string, "null"]
+          description: The HTML body.
+          example: <p>Refund issued for order 1041.</p>
+        text:
+          type: [string, "null"]
+          description: The plain text body.
+          example: Refund issued for order 1041.
+        thread_id:
+          type: [string, "null"]
+          format: uuid
+          description: The Thread ID when the draft is a reply. `null` otherwise.
+          example: null
+        reply_to_email_id:
+          type: [string, "null"]
+          format: uuid
+          description: The Email ID the draft replies to. `null` otherwise.
+          example: null
+        email_id:
+          type: [string, "null"]
+          format: uuid
+          description: The ID of the outbound email queued when the draft was sent. `null` until the draft is sent.
+          example: null
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp when the draft was created.
+          example: '2026-08-05T14:12:04.110Z'
+        updated_at:
+          type: string
+          format: date-time
+          description: Timestamp when the draft was last saved.
+          example: '2026-08-05T14:12:04.110Z'
+    InboxDraftListItem:
+      type: object
+      required:
+        - id
+        - type
+        - to
+        - cc
+        - bcc
+        - subject
+        - snippet
+        - thread_id
+        - reply_to_email_id
+        - updated_at
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: The ID of the draft.
+          example: c3a1e8b4-2d5f-4a7c-9e10-6b8d7f5a4c32
+        type:
+          type: string
+          enum:
+            - standalone
+            - reply
+          description: '`reply` when the draft replies to an email in an existing thread. `standalone` when the draft starts a new thread.'
+          example: standalone
+        to:
+          type: [array, "null"]
+          items:
+            type: string
+          description: The recipients. `null` or empty when no recipients are set.
+          example:
+            - ada@example.org
+        cc:
+          type: array
+          items:
+            type: string
+          description: The CC recipients.
+          example: []
+        bcc:
+          type: array
+          items:
+            type: string
+          description: The BCC recipients.
+          example: []
+        subject:
+          type: [string, "null"]
+          description: The subject.
+          example: Refund for order 1041
+        snippet:
+          type: [string, "null"]
+          description: A short preview of the body.
+          example: Refund issued for order 1041.
+        thread_id:
+          type: [string, "null"]
+          format: uuid
+          description: The Thread ID when the draft is a reply. `null` otherwise.
+          example: null
+        reply_to_email_id:
+          type: [string, "null"]
+          format: uuid
+          description: The Email ID the draft replies to. `null` otherwise.
+          example: null
+        updated_at:
+          type: string
+          format: date-time
+          description: Timestamp when the draft was last saved.
+          example: '2026-08-05T14:12:04.110Z'
+    ListInboxDraftsResponseSuccess:
+      type: object
+      required:
+        - object
+        - has_more
+        - data
+      properties:
+        object:
+          type: string
+          description: Type of the response object.
+          example: list
+        has_more:
+          type: boolean
+          description: Indicates if there are more results available.
+          example: false
+        data:
+          type: array
+          description: The unsent drafts on this page, most recently updated first.
+          items:
+            $ref: '#/components/schemas/InboxDraftListItem'
+    CreateInboxDraftOptions:
+      type: object
+      description: >-
+        At least one of `to`, `cc`, `bcc`, `subject`, `text` or `html` must be non-empty. The combined recipients of `to`, `cc` and `bcc` cannot exceed 50. `thread_id` and `reply_to_email_id` must be sent together or not at all.
+      properties:
+        to:
+          description: >-
+            The recipients. For multiple addresses, send an array of strings. Each value can include a friendly name, for example `Ada Lovelace <ada@example.org>`.
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+              maxItems: 50
+            - type: 'null'
+          example:
+            - ada@example.org
+        cc:
+          description: The CC recipients. For multiple addresses, send an array of strings.
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+              maxItems: 50
+            - type: 'null'
+        bcc:
+          description: The BCC recipients. For multiple addresses, send an array of strings.
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+              maxItems: 50
+            - type: 'null'
+        subject:
+          type: [string, "null"]
+          minLength: 1
+          maxLength: 2000
+          description: The subject. Max 2000 characters. A string that is only whitespace, or that contains a line break, is rejected.
+          example: Refund for order 1041
+        html:
+          type: [string, "null"]
+          description: The HTML body.
+          example: <p>Refund issued for order 1041.</p>
+        text:
+          type: [string, "null"]
+          description: The plain text body.
+          example: Refund issued for order 1041.
+        thread_id:
+          type: string
+          format: uuid
+          description: The Thread ID to reply in. Must be sent with `reply_to_email_id`.
+          example: 4d8e2a1c-9b3f-4c6d-8a21-3e5f7c9c0d12
+        reply_to_email_id:
+          type: string
+          format: uuid
+          description: >-
+            The Email ID to reply to, as returned in `data[].id` by the list thread emails endpoint. Must be sent with `thread_id`.
+          example: 5b1a9f47-2c8d-4e6f-9a03-1d2e3f4a5b60
+    CreateInboxDraftResponseSuccess:
+      $ref: '#/components/schemas/InboxDraft'
+    GetInboxDraftResponseSuccess:
+      $ref: '#/components/schemas/InboxDraft'
+    UpdateInboxDraftOptions:
+      type: object
+      description: >-
+        Send at least one of `to`, `cc`, `bcc`, `subject`, `text` or `html`. Omitted fields are left unchanged. Setting `text` or `html` replaces the whole body, so the body part you omit becomes `null`. The merged draft must contain at least one non-empty field, and its combined recipients cannot exceed 50.
+      minProperties: 1
+      properties:
+        to:
+          description: >-
+            The recipients. For multiple addresses, send an array of strings. Each value can include a friendly name. Pass `null` to clear.
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+              maxItems: 50
+            - type: 'null'
+          example:
+            - ada@example.org
+        cc:
+          description: The CC recipients. Pass `null` or `[]` to clear.
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+              maxItems: 50
+            - type: 'null'
+        bcc:
+          description: The BCC recipients. Pass `null` or `[]` to clear.
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+              maxItems: 50
+            - type: 'null'
+        subject:
+          type: [string, "null"]
+          minLength: 1
+          maxLength: 2000
+          description: The subject. Max 2000 characters. Must not contain a line break. Pass `null` to clear.
+          example: Refund issued for order 1041
+        html:
+          type: [string, "null"]
+          description: The HTML body. Pass `null` to clear.
+        text:
+          type: [string, "null"]
+          description: The plain text body. Pass `null` to clear.
+    UpdateInboxDraftResponseSuccess:
+      $ref: '#/components/schemas/InboxDraft'
+    RemoveInboxDraftResponseSuccess:
+      type: object
+      required:
+        - object
+        - id
+        - deleted
+      properties:
+        object:
+          type: string
+          description: The object type.
+          example: inbox_draft
+        id:
+          type: string
+          format: uuid
+          description: The ID of the draft.
+          example: c3a1e8b4-2d5f-4a7c-9e10-6b8d7f5a4c32
+        deleted:
+          type: boolean
+          enum:
+            - true
+          description: Indicates whether the draft was successfully deleted.
+          example: true
+    SendInboxDraftResponseSuccess:
+      type: object
+      required:
+        - object
+        - id
+        - thread_id
+        - email_id
+      properties:
+        object:
+          type: string
+          description: The object type.
+          example: inbox_draft
+        id:
+          type: string
+          format: uuid
+          description: The ID of the draft.
+          example: c3a1e8b4-2d5f-4a7c-9e10-6b8d7f5a4c32
+        thread_id:
+          type: string
+          format: uuid
+          description: The Thread ID the sent email belongs to.
+          example: 4d8e2a1c-9b3f-4c6d-8a21-3e5f7c9c0d12
+        email_id:
+          type: string
+          format: uuid
+          description: The ID of the queued outbound email.
+          example: 6a0c8e58-3d9e-4f7a-8b14-2e3f4a5b6c71
