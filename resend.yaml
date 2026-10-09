@@ -2776,6 +2776,60 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RemoveInboxResponseSuccess'
+  /inboxes/{inbox_id}/agent:
+    get:
+      operationId: inboxes/get-agent
+      tags:
+        - Inboxes
+      summary: Retrieve the agent settings for an inbox
+      description: >-
+        Returns the agent settings of the inbox. An inbox without a configured
+        agent returns empty settings: `instructions` and `tone` are null and
+        `enabled_actions` is an empty array.
+      parameters:
+        - name: inbox_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The Inbox ID. An email address is not accepted.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetInboxAgentResponseSuccess'
+    patch:
+      operationId: inboxes/update-agent
+      tags:
+        - Inboxes
+      summary: Update the agent settings for an inbox
+      description: >-
+        Updates the agent settings of the inbox. The agent is created when the
+        inbox has none. Omitted fields keep their current value.
+      parameters:
+        - name: inbox_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The Inbox ID. An email address is not accepted.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateInboxAgentOptions'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateInboxAgentResponseSuccess'
 webhooks:
   email.sent:
     post:
@@ -8224,3 +8278,92 @@ components:
           type: boolean
           description: Indicates whether the inbox was successfully deleted.
           example: true
+    InboxAgent:
+      type: object
+      required:
+        - object
+        - instructions
+        - tone
+        - enabled_actions
+      properties:
+        object:
+          type: string
+          description: The object type. Always `inbox_agent`.
+          example: inbox_agent
+        instructions:
+          type: [string, "null"]
+          description: Instructions the agent follows when it handles the threads of the inbox. Null when no instructions are set.
+          example: Answer refund questions yourself. Escalate legal threats.
+        tone:
+          type: [string, "null"]
+          description: The tone the agent writes in, such as `friendly and concise`. Null when no tone is set.
+          example: friendly and concise
+        enabled_actions:
+          type: array
+          description: The actions the agent can take. Empty when no actions are enabled.
+          items:
+            type: string
+            enum:
+              - draft_reply
+              - forward_thread
+              - add_labels
+              - assign_thread
+              - mark_as_spam
+              - archive_thread
+              - delete_thread
+          example:
+            - draft_reply
+            - add_labels
+    GetInboxAgentResponseSuccess:
+      $ref: '#/components/schemas/InboxAgent'
+    UpdateInboxAgentOptions:
+      type: object
+      description: >-
+        At least one of `instructions`, `tone`, or `enabled_actions` must be provided. Omitted fields keep their current value.
+      properties:
+        instructions:
+          type: [string, "null"]
+          minLength: 1
+          maxLength: 4000
+          description: >-
+            Instructions the agent follows when it handles the threads of the inbox. Max 4000 characters. Leading and trailing whitespace is trimmed, and the trimmed value must not be empty. Send null to clear the instructions.
+          example: Answer refund questions yourself. Escalate legal threats.
+        tone:
+          type: [string, "null"]
+          minLength: 1
+          maxLength: 64
+          description: >-
+            The tone the agent writes in, such as `friendly and concise`. Max 64 characters. Leading and trailing whitespace is trimmed, and the trimmed value must not be empty. Send null to clear the tone.
+          example: friendly and concise
+        enabled_actions:
+          type: array
+          description: >-
+            The actions the agent can take. Replaces the whole set. Send an empty array to disable all actions.
+          items:
+            type: string
+            enum:
+              - draft_reply
+              - forward_thread
+              - add_labels
+              - assign_thread
+              - mark_as_spam
+              - archive_thread
+              - delete_thread
+          example:
+            - draft_reply
+            - add_labels
+    UpdateInboxAgentResponseSuccess:
+      type: object
+      required:
+        - object
+        - id
+      properties:
+        object:
+          type: string
+          description: The object type. Always `inbox_agent`.
+          example: inbox_agent
+        id:
+          type: string
+          format: uuid
+          description: The ID of the inbox agent.
+          example: a1f84a4e-6f2b-4f0a-9c1d-8a2e5b3c7d90
