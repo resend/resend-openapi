@@ -3306,6 +3306,173 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RemoveInboxThreadResponseSuccess'
+  /inboxes/{inbox_id}/threads/{thread_id}/emails:
+    get:
+      operationId: inboxes/list-thread-emails
+      tags:
+        - Inboxes
+      summary: Retrieve a list of thread emails
+      description: >-
+        Returns the messages of a thread, oldest first. Pass the `id` of the
+        last message as `after` to get the next, newer page. Pass the `id` of
+        the first message as `before` to get the previous, older page. You
+        cannot combine `after` and `before`.
+      parameters:
+        - name: inbox_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The Inbox ID. An email address is not accepted.
+        - name: thread_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The Thread ID.
+        - $ref: '#/components/parameters/PaginationLimit'
+        - $ref: '#/components/parameters/PaginationAfter'
+        - $ref: '#/components/parameters/PaginationBefore'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListInboxThreadEmailsResponseSuccess'
+  /inboxes/{inbox_id}/threads/{thread_id}/emails/{email_id}:
+    get:
+      operationId: inboxes/get-thread-email
+      tags:
+        - Inboxes
+      summary: Retrieve a single thread email
+      parameters:
+        - name: inbox_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The Inbox ID. An email address is not accepted.
+        - name: thread_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The Thread ID.
+        - name: email_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The Email ID, as returned in `data[].id` by the list thread emails endpoint.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetInboxThreadEmailResponseSuccess'
+  /inboxes/{inbox_id}/threads/{thread_id}/emails/{email_id}/reply:
+    post:
+      operationId: inboxes/reply-thread-email
+      tags:
+        - Inboxes
+      summary: Reply to a thread email
+      description: >-
+        Sends a reply from the inbox address right away, with no stored draft.
+        The `to` recipients come from the message you reply to. For a message
+        the inbox received, the reply goes to its `Reply-To` addresses, or to
+        its sender when it has no `Reply-To`. For a message the inbox sent, the
+        reply goes to that message's `to` recipients. Set `reply_all` to also
+        copy the other recipients of the message. The reply threads under the
+        message through the `In-Reply-To` and `References` headers.
+      parameters:
+        - name: inbox_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The Inbox ID. An email address is not accepted.
+        - name: thread_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The Thread ID.
+        - name: email_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The Email ID of the message to reply to, as returned in `data[].id` by the list thread emails endpoint.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReplyInboxThreadEmailOptions'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReplyInboxThreadEmailResponseSuccess'
+  /inboxes/{inbox_id}/threads/{thread_id}/emails/{email_id}/forward:
+    post:
+      operationId: inboxes/forward-thread-email
+      tags:
+        - Inboxes
+      summary: Forward a thread email
+      description: >-
+        Forwards a message from the inbox address right away, with no stored
+        draft. The original message is quoted under a forwarded-message banner,
+        below the optional `html` or `text` note. The attachments of the original
+        message are sent with the forward. The request fails when they exceed 10
+        files or 25 MB in total.
+      parameters:
+        - name: inbox_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The Inbox ID. An email address is not accepted.
+        - name: thread_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The Thread ID.
+        - name: email_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The Email ID of the message to forward, as returned in `data[].id` by the list thread emails endpoint.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ForwardInboxThreadEmailOptions'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForwardInboxThreadEmailResponseSuccess'
 webhooks:
   email.sent:
     post:
@@ -9333,3 +9500,415 @@ components:
           description: >-
             True when this call moved the thread to `trash`. False when the thread was already there.
           example: true
+    InboxThreadEmailAttachment:
+      type: object
+      required:
+        - id
+        - filename
+        - size
+      properties:
+        id:
+          type: string
+          description: The ID of the attachment. Not always a UUID. On a sent message, it is the position of the attachment in the sent email, starting at `0`.
+          example: 9d4f2b81-6c3a-4e7d-8b12-0a5c6d7e8f90
+        filename:
+          type: [string, "null"]
+          description: The filename of the attachment.
+          example: receipt.pdf
+        size:
+          type: [integer, "null"]
+          description: The size of the attachment in bytes.
+          example: 20841
+    InboxThreadEmail:
+      type: object
+      required:
+        - id
+        - direction
+        - from
+        - to
+        - cc
+        - bcc
+        - reply_to
+        - subject
+        - message_id
+        - html
+        - text
+        - attachments
+        - read
+        - received_at
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: The ID of the message.
+          example: 5b1a9f47-2c8d-4e6f-9a03-1d2e3f4a5b60
+        direction:
+          type: string
+          enum:
+            - inbound
+            - outbound
+          description: Whether the inbox received the message (`inbound`) or sent it (`outbound`).
+          example: inbound
+        from:
+          type: string
+          description: Sender email address. Includes the display name when the sender has one, in the format "Name <sender@domain.com>".
+          example: Ada Lovelace <ada@example.org>
+        to:
+          type: array
+          items:
+            type: string
+          description: The recipients of the message.
+          example: ['support@acme.com']
+        cc:
+          type: array
+          items:
+            type: string
+          description: The CC recipients of the message.
+          example: []
+        bcc:
+          type: array
+          items:
+            type: string
+          description: The BCC recipients of the message.
+          example: []
+        reply_to:
+          type: array
+          items:
+            type: string
+          description: The Reply-To addresses of the message.
+          example: ['replies@example.org']
+        subject:
+          type: [string, "null"]
+          description: The subject of the message.
+          example: Refund for order 1041
+        message_id:
+          type: [string, "null"]
+          description: The Message-ID header of the message.
+          example: '<1041@example.org>'
+        html:
+          type: [string, "null"]
+          description: The HTML body.
+          example: '<p>Could I get a refund for order 1041?</p>'
+        text:
+          type: [string, "null"]
+          description: The plain-text body.
+          example: Could I get a refund for order 1041?
+        attachments:
+          type: array
+          description: The attachments of the message.
+          items:
+            $ref: '#/components/schemas/InboxThreadEmailAttachment'
+        read:
+          type: boolean
+          description: Whether the message has been read.
+          example: false
+        received_at:
+          type: string
+          format: date-time
+          description: Timestamp when the inbox received the message, or when the inbox sent it.
+          example: '2026-08-05T14:03:11.229Z'
+    ListInboxThreadEmailsResponseSuccess:
+      type: object
+      required:
+        - object
+        - has_more
+        - data
+      properties:
+        object:
+          type: string
+          description: Type of the response object.
+          example: list
+        has_more:
+          type: boolean
+          description: Indicates if there are more results available.
+          example: false
+        data:
+          type: array
+          description: The messages of the thread on this page, oldest first.
+          items:
+            $ref: '#/components/schemas/InboxThreadEmail'
+    GetInboxThreadEmailResponseSuccess:
+      $ref: '#/components/schemas/InboxThreadEmail'
+    ReplyInboxThreadEmailOptions:
+      type: object
+      description: At least one of `html` or `text` must contain more than whitespace.
+      properties:
+        cc:
+          description: >-
+            CC recipient email address. For multiple addresses, send as an array of strings. Without `reply_all`, the reply copies only these addresses. With `reply_all`, these addresses are merged with the copied recipients, without duplicates. `cc` and `bcc` combined must be fewer than 50 addresses. After the `to` recipients are added, the reply cannot exceed 50 recipients.
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+              maxItems: 50
+          example: ['billing@acme.com']
+        bcc:
+          description: >-
+            BCC recipient email address. For multiple addresses, send as an array of strings. BCC recipients of the original message are never copied.
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+              maxItems: 50
+          example: ['records@acme.com']
+        html:
+          type: string
+          description: The HTML body of the reply.
+          example: '<p>Refund issued for order 1041.</p>'
+        text:
+          type: string
+          description: The plain-text body of the reply.
+          example: Refund issued for order 1041.
+        subject:
+          type: string
+          minLength: 1
+          maxLength: 2000
+          description: The subject of the reply. Cannot contain a line break. When omitted, the thread subject is used, prefixed with `Re:` if it does not already start with it.
+          example: 'Re: Refund for order 1041'
+        reply_all:
+          type: boolean
+          default: false
+          description: >-
+            Reply to everyone on the original message. The reply goes to the author of the message, or to its `Reply-To` addresses if it has any. The other `to` and `cc` recipients of the message are copied in `cc`. The inbox address is always excluded. For a message the inbox sent, the reply goes to that message's `to` recipients and copies its `cc` recipients.
+          example: false
+    ReplyInboxThreadEmailResponseSuccess:
+      type: object
+      required:
+        - id
+        - email_id
+        - direction
+        - from
+        - to
+        - cc
+        - bcc
+        - reply_to
+        - subject
+        - message_id
+        - html
+        - text
+        - attachments
+        - read
+        - received_at
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: The ID of the queued outbound email.
+          example: 6a0c8e58-3d9e-4f7a-8b14-2e3f4a5b6c71
+        email_id:
+          type: string
+          format: uuid
+          description: The ID of the queued outbound email. Same value as `id`.
+          example: 6a0c8e58-3d9e-4f7a-8b14-2e3f4a5b6c71
+        direction:
+          type: string
+          enum:
+            - outbound
+          description: Always `outbound`.
+          example: outbound
+        from:
+          type: string
+          description: The inbox address the reply was sent from. Includes the inbox display name when it has one, in the format `Name <address>`.
+          example: support@acme.com
+        to:
+          type: array
+          items:
+            type: string
+          description: The recipients of the reply.
+          example: ['replies@example.org']
+        cc:
+          type: array
+          items:
+            type: string
+          description: The CC recipients of the reply.
+          example: ['billing@acme.com']
+        bcc:
+          type: array
+          items:
+            type: string
+          description: The BCC recipients of the reply.
+          example: ['records@acme.com']
+        reply_to:
+          type: array
+          items:
+            type: string
+          description: Always empty in this response.
+          example: []
+        subject:
+          type: string
+          description: The subject of the sent reply.
+          example: 'Re: Refund for order 1041'
+        message_id:
+          type: "null"
+          description: Always `null` in this response.
+          example: null
+        html:
+          type: [string, "null"]
+          description: The HTML body of the reply.
+          example: '<p>Refund issued for order 1041.</p>'
+        text:
+          type: [string, "null"]
+          description: The plain-text body of the reply.
+          example: Refund issued for order 1041.
+        attachments:
+          type: array
+          description: Always empty in this response.
+          items:
+            $ref: '#/components/schemas/InboxThreadEmailAttachment'
+          example: []
+        read:
+          type: boolean
+          description: Always `true`.
+          example: true
+        received_at:
+          type: string
+          format: date-time
+          description: Timestamp when the reply was sent.
+          example: '2026-08-05T14:12:04.110Z'
+    ForwardInboxThreadEmailOptions:
+      type: object
+      required:
+        - to
+      properties:
+        to:
+          description: >-
+            Recipient email address. For multiple addresses, send as an array of strings. Must name at least one address. `to`, `cc` and `bcc` combined cannot exceed 50 recipients.
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+              minItems: 1
+              maxItems: 50
+          example: ['colleague@example.org']
+        cc:
+          description: CC recipient email address. For multiple addresses, send as an array of strings. Counts toward the 50-recipient limit.
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+              maxItems: 50
+          example: ['billing@acme.com']
+        bcc:
+          description: BCC recipient email address. For multiple addresses, send as an array of strings. Counts toward the 50-recipient limit.
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+              maxItems: 50
+          example: ['records@acme.com']
+        html:
+          type: string
+          description: An HTML note sent above the quoted original.
+          example: '<p>Flagging this refund request for you.</p>'
+        text:
+          type: string
+          description: A plain-text note sent above the quoted original.
+          example: Flagging this refund request for you.
+        subject:
+          type: string
+          minLength: 1
+          maxLength: 2000
+          description: The subject of the forward. Cannot contain a line break. When omitted, the thread subject is used, prefixed with `Fwd:` if it does not already start with it.
+          example: 'Fwd: Refund for order 1041'
+    ForwardInboxThreadEmailResponseSuccess:
+      type: object
+      required:
+        - id
+        - email_id
+        - direction
+        - from
+        - to
+        - cc
+        - bcc
+        - reply_to
+        - subject
+        - message_id
+        - html
+        - text
+        - attachments
+        - read
+        - received_at
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: The ID of the queued outbound email.
+          example: 6a0c8e58-3d9e-4f7a-8b14-2e3f4a5b6c71
+        email_id:
+          type: string
+          format: uuid
+          description: The ID of the queued outbound email. Same value as `id`.
+          example: 6a0c8e58-3d9e-4f7a-8b14-2e3f4a5b6c71
+        direction:
+          type: string
+          enum:
+            - outbound
+          description: Always `outbound`.
+          example: outbound
+        from:
+          type: string
+          description: The inbox address the forward was sent from. Includes the inbox display name when it has one, in the format `Name <address>`.
+          example: support@acme.com
+        to:
+          type: array
+          items:
+            type: string
+          description: The recipients of the forward.
+          example: ['colleague@example.org']
+        cc:
+          type: array
+          items:
+            type: string
+          description: The CC recipients of the forward.
+          example: ['billing@acme.com']
+        bcc:
+          type: array
+          items:
+            type: string
+          description: The BCC recipients of the forward.
+          example: ['records@acme.com']
+        reply_to:
+          type: array
+          items:
+            type: string
+          description: Always empty in this response.
+          example: []
+        subject:
+          type: string
+          description: The subject of the sent forward.
+          example: 'Fwd: Refund for order 1041'
+        message_id:
+          type: "null"
+          description: Always `null` in this response.
+          example: null
+        html:
+          type: [string, "null"]
+          description: The HTML body, with the note and the quoted original.
+          example: "<div>Flagging this refund request for you.<br>\n<br>\n---------- Forwarded message ---------<br>\nFrom: Ada Lovelace &lt;ada@example.org&gt;<br>\nSubject: Refund for order 1041<br>\nTo: support@acme.com<br>\n<br>\nCould I get a refund for order 1041?</div>"
+        text:
+          type: [string, "null"]
+          description: The plain-text body, with the note and the quoted original.
+          example: "Flagging this refund request for you.\n\n---------- Forwarded message ---------\nFrom: Ada Lovelace <ada@example.org>\nSubject: Refund for order 1041\nTo: support@acme.com\n\nCould I get a refund for order 1041?"
+        attachments:
+          type: array
+          description: The attachments sent with the forward, which include the attachments of the original message. The `id` of each item is its position, starting at `0`.
+          items:
+            $ref: '#/components/schemas/InboxThreadEmailAttachment'
+          example:
+            - id: '0'
+              filename: receipt.pdf
+              size: 20841
+        read:
+          type: boolean
+          description: Always `true`.
+          example: true
+        received_at:
+          type: string
+          format: date-time
+          description: Timestamp when the forward was sent.
+          example: '2026-08-05T14:12:04.110Z'
