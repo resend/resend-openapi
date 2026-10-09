@@ -46,6 +46,8 @@ tags:
     description: List and manage OAuth grants through the Resend API.
   - name: Usage
     description: Retrieve your account usage and plan limits through the Resend API.
+  - name: Inboxes
+    description: Create and manage Inboxes through the Resend API.
 paths:
   /emails:
     post:
@@ -2644,6 +2646,136 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GetUsageResponseSuccess'
+  /inboxes:
+    post:
+      operationId: inboxes/create
+      tags:
+        - Inboxes
+      summary: Create an inbox
+      description: >-
+        Creates an inbox that sends and receives email at an address on one of
+        your domains. The domain must belong to the team. Without `forwarding`,
+        the domain must have receiving enabled, with DKIM and SPF verified and
+        the inbound MX record verified or pending. With `forwarding` set to
+        `true`, the domain only needs DKIM and SPF verified for sending, and
+        Resend generates a `receiving_address` on the team inbound domain. A
+        domain that does not meet these rules returns a 422 validation_error.
+        An address or receiving address that is already in use returns a 409.
+        A team that has reached the inbox limit of its plan returns a 403
+        validation_error.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateInboxOptions'
+      responses:
+        '201':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateInboxResponseSuccess'
+    get:
+      operationId: inboxes/list
+      tags:
+        - Inboxes
+      summary: Retrieve a list of inboxes
+      description: >-
+        Returns the inboxes of the team, newest first. The list items carry
+        fewer fields than a single inbox. Retrieve an inbox to get all its
+        fields.
+      parameters:
+        - $ref: '#/components/parameters/PaginationLimit'
+        - $ref: '#/components/parameters/PaginationAfter'
+        - $ref: '#/components/parameters/PaginationBefore'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListInboxesResponseSuccess'
+  /inboxes/{inbox_id}:
+    get:
+      operationId: inboxes/get
+      tags:
+        - Inboxes
+      summary: Retrieve a single inbox by ID or email address
+      parameters:
+        - name: inbox_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: >-
+            The Inbox ID or the inbox email address, such as
+            `support@acme.com`. A value that contains `@` must be a valid email
+            address, and the match is case-insensitive. Any other value must be
+            a UUID.
+          example: b3e2b2b6-3f0e-4c8e-9ad3-2f43a1e2c7f1
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetInboxResponseSuccess'
+    patch:
+      operationId: inboxes/update
+      tags:
+        - Inboxes
+      summary: Update an existing inbox
+      description: >-
+        Updates the internal name of the inbox or the name recipients see when
+        mail is sent from it. At least one of `name` or `from_name` is
+        required.
+      parameters:
+        - name: inbox_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The Inbox ID. An email address is not accepted.
+          example: b3e2b2b6-3f0e-4c8e-9ad3-2f43a1e2c7f1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateInboxOptions'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateInboxResponseSuccess'
+    delete:
+      operationId: inboxes/remove
+      tags:
+        - Inboxes
+      summary: Remove an existing inbox
+      description: >-
+        Removes the inbox. An inbox that does not exist or was already removed
+        returns a 404 not_found.
+      parameters:
+        - name: inbox_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The Inbox ID. An email address is not accepted.
+          example: b3e2b2b6-3f0e-4c8e-9ad3-2f43a1e2c7f1
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RemoveInboxResponseSuccess'
 webhooks:
   email.sent:
     post:
@@ -7889,3 +8021,206 @@ components:
                 type: string
                 description: Timestamp indicating when the suppression was created.
                 example: "2023-10-06 23:47:56.678+00"
+    Inbox:
+      type: object
+      required:
+        - object
+        - id
+        - name
+        - email_address
+        - domain_id
+        - receiving_address
+        - from_name
+        - unread
+        - drafts
+        - last_received
+        - created_at
+      properties:
+        object:
+          type: string
+          description: The object type. Always `inbox`.
+          example: inbox
+        id:
+          type: string
+          format: uuid
+          description: The ID of the inbox.
+          example: b3e2b2b6-3f0e-4c8e-9ad3-2f43a1e2c7f1
+        name:
+          type: string
+          description: Internal name for the inbox. Recipients do not see it. Falls back to the inbox email address.
+          example: Customer Support
+        email_address:
+          type: string
+          description: The address of the inbox.
+          example: support@acme.com
+        domain_id:
+          type: string
+          format: uuid
+          description: The ID of the domain that owns the address.
+          example: d91cd9bd-1176-453e-8fc1-35364d380206
+        receiving_address:
+          type: [string, "null"]
+          description: The address to forward mail to when forwarding is enabled. `null` otherwise.
+          example: null
+        from_name:
+          type: [string, "null"]
+          description: The name recipients see when mail is sent from this inbox. `null` when not set.
+          example: Ada from Support
+        unread:
+          type: integer
+          description: The number of unread threads in the inbox.
+          example: 3
+        drafts:
+          type: integer
+          description: The number of unsent drafts.
+          example: 2
+        last_received:
+          type: [string, "null"]
+          format: date-time
+          description: ISO 8601 timestamp when a thread in this inbox was last active. `null` when the inbox has no threads.
+          example: '2026-08-05T14:03:11.229Z'
+        created_at:
+          type: string
+          format: date-time
+          description: ISO 8601 timestamp when the inbox was created.
+          example: '2026-08-01T09:12:44.512Z'
+    CreateInboxOptions:
+      type: object
+      required:
+        - email_address
+      properties:
+        email_address:
+          type: string
+          description: >-
+            The inbox email address on one of your domains. The API trims and lowercases it. The part before the `@` is at most 64 characters and contains only letters, numbers, and `. _ % + -`. It cannot start or end with a dot or contain two dots in a row.
+          example: support@acme.com
+        name:
+          type: string
+          maxLength: 64
+          description: Internal name for the inbox. Recipients do not see it. Max 64 characters. Defaults to `email_address`.
+          example: Customer Support
+        from_name:
+          type: string
+          maxLength: 78
+          description: >-
+            The name recipients see when mail is sent from this inbox. A plain name, not a `Name <email>` address. Max 78 characters. It cannot contain a colon, `<`, `>`, line breaks, or other control characters. An email address inside the name must be on a domain the team has verified for sending. An empty string leaves it unset.
+          example: Ada from Support
+        forwarding:
+          type: boolean
+          default: false
+          description: >-
+            When `true`, Resend provisions a receiving address so you can receive mail without adding an MX record. The address is returned in `receiving_address`.
+    CreateInboxResponseSuccess:
+      $ref: '#/components/schemas/Inbox'
+    GetInboxResponseSuccess:
+      $ref: '#/components/schemas/Inbox'
+    ListInboxesResponseSuccess:
+      type: object
+      required:
+        - object
+        - has_more
+        - data
+      properties:
+        object:
+          type: string
+          description: Type of the response object.
+          example: list
+        has_more:
+          type: boolean
+          description: Indicates if there are more results available.
+          example: false
+        data:
+          type: array
+          description: Array containing inbox information.
+          items:
+            type: object
+            required:
+              - id
+              - name
+              - email_address
+              - from_name
+              - unread
+              - last_received
+            properties:
+              id:
+                type: string
+                format: uuid
+                description: The ID of the inbox.
+                example: b3e2b2b6-3f0e-4c8e-9ad3-2f43a1e2c7f1
+              name:
+                type: [string, "null"]
+                description: Internal name for the inbox. Recipients do not see it.
+                example: Customer Support
+              email_address:
+                type: string
+                description: The address of the inbox.
+                example: support@acme.com
+              from_name:
+                type: [string, "null"]
+                description: The name recipients see when mail is sent from this inbox. `null` when not set.
+                example: Ada from Support
+              unread:
+                type: integer
+                description: The number of unread threads in the inbox.
+                example: 3
+              last_received:
+                type: [string, "null"]
+                format: date-time
+                description: ISO 8601 timestamp when a thread in this inbox was last active. `null` when the inbox has no threads.
+                example: '2026-08-05T14:03:11.229Z'
+    UpdateInboxOptions:
+      type: object
+      description: Provide at least one of `name` or `from_name`.
+      anyOf:
+        - required:
+            - name
+        - required:
+            - from_name
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 64
+          description: New internal name for the inbox. Recipients do not see it. Between 1 and 64 characters after trimming.
+          example: Customer Support
+        from_name:
+          type: string
+          maxLength: 78
+          description: >-
+            The name recipients see when mail is sent from this inbox. A plain name, not a `Name <email>` address. Max 78 characters. It cannot contain a colon, `<`, `>`, line breaks, or other control characters. An email address inside the name must be on a domain the team has verified for sending. An empty string removes it.
+          example: Ada from Support
+    UpdateInboxResponseSuccess:
+      type: object
+      required:
+        - object
+        - id
+      properties:
+        object:
+          type: string
+          description: The object type.
+          example: inbox
+        id:
+          type: string
+          format: uuid
+          description: The ID of the inbox.
+          example: b3e2b2b6-3f0e-4c8e-9ad3-2f43a1e2c7f1
+    RemoveInboxResponseSuccess:
+      type: object
+      required:
+        - object
+        - id
+        - deleted
+      properties:
+        object:
+          type: string
+          description: The object type.
+          example: inbox
+        id:
+          type: string
+          format: uuid
+          description: The ID of the inbox.
+          example: b3e2b2b6-3f0e-4c8e-9ad3-2f43a1e2c7f1
+        deleted:
+          type: boolean
+          description: Indicates whether the inbox was successfully deleted.
+          example: true
