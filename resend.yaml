@@ -4022,6 +4022,216 @@ webhooks:
       responses:
         '2XX':
           description: Return any 2xx status code to acknowledge receipt of the event.
+  inbox.created:
+    post:
+      summary: Inbox created
+      description: Occurs whenever an inbox was created.
+      tags:
+        - Webhook Events
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InboxCreatedEvent'
+      responses:
+        '2XX':
+          description: Return any 2xx status code to acknowledge receipt of the event.
+  inbox.updated:
+    post:
+      summary: Inbox updated
+      description: Occurs whenever the settings of an inbox changed.
+      tags:
+        - Webhook Events
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InboxUpdatedEvent'
+      responses:
+        '2XX':
+          description: Return any 2xx status code to acknowledge receipt of the event.
+  inbox.deleted:
+    post:
+      summary: Inbox deleted
+      description: Occurs whenever an inbox was deleted. The payload carries only the inbox ID.
+      tags:
+        - Webhook Events
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InboxDeletedEvent'
+      responses:
+        '2XX':
+          description: Return any 2xx status code to acknowledge receipt of the event.
+  inbox.thread.created:
+    post:
+      summary: Inbox thread created
+      description: Occurs whenever the first email of a thread landed in an inbox, inbound or outbound. The `source` is always `system`, because the email pipeline sends this event, even when the API or an agent sent the email.
+      tags:
+        - Webhook Events
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InboxThreadCreatedEvent'
+      responses:
+        '2XX':
+          description: Return any 2xx status code to acknowledge receipt of the event.
+  inbox.email.received:
+    post:
+      summary: Inbox email received
+      description: Occurs whenever an inbound email was added to a thread. The `source` is always `system`.
+      tags:
+        - Webhook Events
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InboxEmailReceivedEvent'
+      responses:
+        '2XX':
+          description: Return any 2xx status code to acknowledge receipt of the event.
+  inbox.email.sent:
+    post:
+      summary: Inbox email sent
+      description: Occurs whenever an outbound email was accepted for delivery and added to a thread. The `source` is always `system`. When the email comes from a draft, `inbox.draft.sent` fires first, from the send call.
+      tags:
+        - Webhook Events
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InboxEmailSentEvent'
+      responses:
+        '2XX':
+          description: Return any 2xx status code to acknowledge receipt of the event.
+  inbox.thread.folder.updated:
+    post:
+      summary: Inbox thread folder updated
+      description: Occurs whenever a thread moved between folders. Moving a thread to a label can send both this event and `inbox.thread.labels.updated` for the same thread.
+      tags:
+        - Webhook Events
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InboxThreadFolderUpdatedEvent'
+      responses:
+        '2XX':
+          description: Return any 2xx status code to acknowledge receipt of the event.
+  inbox.thread.assigned:
+    post:
+      summary: Inbox thread assigned
+      description: Occurs whenever a thread was assigned or reassigned.
+      tags:
+        - Webhook Events
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InboxThreadAssignedEvent'
+      responses:
+        '2XX':
+          description: Return any 2xx status code to acknowledge receipt of the event.
+  inbox.thread.unassigned:
+    post:
+      summary: Inbox thread unassigned
+      description: Occurs whenever a thread was unassigned.
+      tags:
+        - Webhook Events
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InboxThreadUnassignedEvent'
+      responses:
+        '2XX':
+          description: Return any 2xx status code to acknowledge receipt of the event.
+  inbox.thread.labels.updated:
+    post:
+      summary: Inbox thread labels updated
+      description: Occurs whenever a label was applied to or removed from a thread. One event carries one label. Deleting a label does not send this event for the threads that had it.
+      tags:
+        - Webhook Events
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InboxThreadLabelsUpdatedEvent'
+      responses:
+        '2XX':
+          description: Return any 2xx status code to acknowledge receipt of the event.
+  inbox.draft.created:
+    post:
+      summary: Inbox draft created
+      description: Occurs whenever a draft was created, standalone or reply.
+      tags:
+        - Webhook Events
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InboxDraftCreatedEvent'
+      responses:
+        '2XX':
+          description: Return any 2xx status code to acknowledge receipt of the event.
+  inbox.draft.updated:
+    post:
+      summary: Inbox draft updated
+      description: Occurs whenever a draft was edited.
+      tags:
+        - Webhook Events
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InboxDraftUpdatedEvent'
+      responses:
+        '2XX':
+          description: Return any 2xx status code to acknowledge receipt of the event.
+  inbox.draft.sent:
+    post:
+      summary: Inbox draft sent
+      description: Occurs whenever a draft was sent. This event fires from the send call. `inbox.email.sent` follows once the email is accepted for delivery.
+      tags:
+        - Webhook Events
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InboxDraftSentEvent'
+      responses:
+        '2XX':
+          description: Return any 2xx status code to acknowledge receipt of the event.
+  inbox.draft.deleted:
+    post:
+      summary: Inbox draft deleted
+      description: Occurs whenever a draft was discarded. The draft is already gone, so the payload has no `draft` object.
+      tags:
+        - Webhook Events
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InboxDraftDeletedEvent'
+      responses:
+        '2XX':
+          description: Return any 2xx status code to acknowledge receipt of the event.
 components:
   securitySchemes:
     bearerAuth:
@@ -10456,3 +10666,719 @@ components:
           format: uuid
           description: The ID of the queued outbound email.
           example: 6a0c8e58-3d9e-4f7a-8b14-2e3f4a5b6c71
+    InboxEventSource:
+      type: string
+      enum:
+        - api
+        - dashboard
+        - agent
+        - system
+      description: What made the change.
+      example: dashboard
+    InboxEventEmailAttachment:
+      type: object
+      description: An attachment on an email in an inbox webhook event.
+      required:
+        - id
+        - filename
+        - size
+      properties:
+        id:
+          type: string
+          description: The ID of the attachment. Not always a UUID. Outbound attachments are identified by their position in the sent email.
+          example: 2a0c9ce0-3112-4728-976e-47ddcd16a318
+        filename:
+          type: [string, "null"]
+          description: The filename of the attachment.
+          example: invoice.pdf
+        size:
+          type: [integer, "null"]
+          description: The size of the attachment in bytes.
+          example: 48213
+    InboxEventEmail:
+      type: object
+      description: The email carried by an inbox webhook event. It has no `html` or `text`.
+      required:
+        - id
+        - direction
+        - from
+        - to
+        - cc
+        - bcc
+        - reply_to
+        - subject
+        - message_id
+        - attachments
+        - read
+        - received_at
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: The ID of the email.
+          example: 4ef9a417-02e9-4d39-ad75-9611e0fcc33c
+        direction:
+          type: string
+          enum:
+            - inbound
+            - outbound
+          description: Whether the email was received by the inbox or sent from it.
+          example: inbound
+        from:
+          type: string
+          description: The sender, as an address or as `Name <address>`.
+          example: Steve Wozniak <steve@acme.com>
+        to:
+          type: array
+          items:
+            type: string
+          description: The recipients of the email.
+          example:
+            - support@acme.com
+        cc:
+          type: array
+          items:
+            type: string
+          description: The CC recipients of the email.
+        bcc:
+          type: array
+          items:
+            type: string
+          description: The BCC recipients of the email.
+        reply_to:
+          type: array
+          items:
+            type: string
+          description: The Reply-To addresses.
+        subject:
+          type: [string, "null"]
+          description: The subject of the email.
+          example: Question about my invoice
+        message_id:
+          type: [string, "null"]
+          description: The Message-ID header of the email.
+          example: <CAF7c1f0a2e5d3b@mail.acme.com>
+        attachments:
+          type: array
+          items:
+            $ref: '#/components/schemas/InboxEventEmailAttachment'
+          description: The attachments on the email.
+        read:
+          type: boolean
+          description: Whether the email has been read.
+          example: false
+        received_at:
+          type: string
+          format: date-time
+          description: Timestamp when the email arrived or was sent.
+          example: '2026-09-29T12:00:00.000Z'
+    InboxEventDraft:
+      type: object
+      description: The draft carried by an inbox webhook event. It has no `html` or `text`.
+      required:
+        - object
+        - id
+        - type
+        - to
+        - cc
+        - bcc
+        - subject
+        - thread_id
+        - reply_to_email_id
+        - email_id
+        - created_at
+        - updated_at
+      properties:
+        object:
+          type: string
+          description: The object type. Always `inbox_draft`.
+          example: inbox_draft
+        id:
+          type: string
+          format: uuid
+          description: The ID of the draft.
+          example: 9a2b7c4d-1e3f-4a5b-8c6d-0e1f2a3b4c5d
+        type:
+          type: string
+          enum:
+            - standalone
+            - reply
+          description: '`standalone` for a new conversation, or `reply`.'
+          example: reply
+        to:
+          type: [array, "null"]
+          items:
+            type: string
+          description: The recipients.
+          example:
+            - steve@acme.com
+        cc:
+          type: array
+          items:
+            type: string
+          description: The CC recipients.
+        bcc:
+          type: array
+          items:
+            type: string
+          description: The BCC recipients.
+        subject:
+          type: [string, "null"]
+          description: The subject.
+          example: 'Re: Question about my invoice'
+        thread_id:
+          type: [string, "null"]
+          format: uuid
+          description: The ID of the thread when this draft is a reply. Null otherwise.
+          example: 7c1f0a2e-5d3b-4e8a-9f61-2b8d4c6e1a90
+        reply_to_email_id:
+          type: [string, "null"]
+          format: uuid
+          description: The ID of the email this draft replies to. Null otherwise.
+          example: 4ef9a417-02e9-4d39-ad75-9611e0fcc33c
+        email_id:
+          type: [string, "null"]
+          format: uuid
+          description: The ID of the queued outbound email after send. Null until then.
+          example: null
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp when the draft was created.
+          example: '2026-09-29T11:58:00.000Z'
+        updated_at:
+          type: string
+          format: date-time
+          description: Timestamp when the draft was last saved.
+          example: '2026-09-29T12:00:00.000Z'
+    InboxEventData:
+      type: object
+      description: The data of an `inbox.created` or `inbox.updated` event.
+      required:
+        - source
+        - inbox_id
+      properties:
+        source:
+          $ref: '#/components/schemas/InboxEventSource'
+        inbox_id:
+          type: string
+          format: uuid
+          description: The ID of the inbox.
+          example: b3e2b2b6-3f0e-4c8e-9ad3-2f43a1e2c7f1
+        inbox:
+          $ref: '#/components/schemas/Inbox'
+          description: The inbox as it is when the webhook is sent. Absent when the inbox no longer exists.
+    InboxDeletedEventData:
+      type: object
+      description: The data of an `inbox.deleted` event.
+      required:
+        - source
+        - inbox_id
+      properties:
+        source:
+          $ref: '#/components/schemas/InboxEventSource'
+        inbox_id:
+          type: string
+          format: uuid
+          description: The ID of the inbox.
+          example: b3e2b2b6-3f0e-4c8e-9ad3-2f43a1e2c7f1
+    InboxThreadEmailEventData:
+      type: object
+      description: The data of an `inbox.thread.created`, `inbox.email.received` or `inbox.email.sent` event.
+      required:
+        - source
+        - inbox_id
+        - thread_id
+        - email_id
+      properties:
+        source:
+          $ref: '#/components/schemas/InboxEventSource'
+        inbox_id:
+          type: string
+          format: uuid
+          description: The ID of the inbox.
+          example: b3e2b2b6-3f0e-4c8e-9ad3-2f43a1e2c7f1
+        thread_id:
+          type: string
+          format: uuid
+          description: The ID of the thread.
+          example: 7c1f0a2e-5d3b-4e8a-9f61-2b8d4c6e1a90
+        email_id:
+          type: string
+          format: uuid
+          description: The ID of the email.
+          example: 4ef9a417-02e9-4d39-ad75-9611e0fcc33c
+        thread:
+          $ref: '#/components/schemas/InboxThreadSummary'
+          description: The thread as it is when the webhook is sent. Absent when the thread no longer exists.
+        email:
+          $ref: '#/components/schemas/InboxEventEmail'
+          description: The email as it is when the webhook is sent, without `html` or `text`. Fetch the body with Retrieve Thread Email. Absent when the email no longer exists.
+    InboxThreadFolderUpdatedEventData:
+      type: object
+      description: The data of an `inbox.thread.folder.updated` event.
+      required:
+        - from
+        - to
+        - source
+        - inbox_id
+        - thread_id
+      properties:
+        from:
+          type: string
+          enum:
+            - inbox
+            - archive
+            - spam
+            - trash
+          description: The folder the thread was in.
+          example: inbox
+        to:
+          type: string
+          enum:
+            - inbox
+            - archive
+            - spam
+            - trash
+          description: The folder the thread moved to.
+          example: archive
+        source:
+          $ref: '#/components/schemas/InboxEventSource'
+        inbox_id:
+          type: string
+          format: uuid
+          description: The ID of the inbox.
+          example: b3e2b2b6-3f0e-4c8e-9ad3-2f43a1e2c7f1
+        thread_id:
+          type: string
+          format: uuid
+          description: The ID of the thread.
+          example: 7c1f0a2e-5d3b-4e8a-9f61-2b8d4c6e1a90
+        thread:
+          $ref: '#/components/schemas/InboxThreadSummary'
+          description: The thread as it is when the webhook is sent. Absent when the thread no longer exists.
+    InboxThreadAssignedEventData:
+      type: object
+      description: The data of an `inbox.thread.assigned` event.
+      required:
+        - assignee_email
+        - assigned_by_email
+        - previous_assignee_email
+        - source
+        - inbox_id
+        - thread_id
+      properties:
+        assignee_email:
+          type: [string, "null"]
+          description: The email of the member the thread is now assigned to.
+          example: ada@acme.com
+        assigned_by_email:
+          type: [string, "null"]
+          description: The email of the member who made the assignment. Null when no member made it.
+          example: grace@acme.com
+        previous_assignee_email:
+          type: [string, "null"]
+          description: The email of the member the thread was assigned to before. Null when it was unassigned.
+          example: null
+        source:
+          $ref: '#/components/schemas/InboxEventSource'
+        inbox_id:
+          type: string
+          format: uuid
+          description: The ID of the inbox.
+          example: b3e2b2b6-3f0e-4c8e-9ad3-2f43a1e2c7f1
+        thread_id:
+          type: string
+          format: uuid
+          description: The ID of the thread.
+          example: 7c1f0a2e-5d3b-4e8a-9f61-2b8d4c6e1a90
+        thread:
+          $ref: '#/components/schemas/InboxThreadSummary'
+          description: The thread as it is when the webhook is sent. Absent when the thread no longer exists.
+    InboxThreadUnassignedEventData:
+      type: object
+      description: The data of an `inbox.thread.unassigned` event.
+      required:
+        - previous_assignee_email
+        - source
+        - inbox_id
+        - thread_id
+      properties:
+        previous_assignee_email:
+          type: [string, "null"]
+          description: The email of the member the thread was assigned to.
+          example: ada@acme.com
+        source:
+          $ref: '#/components/schemas/InboxEventSource'
+        inbox_id:
+          type: string
+          format: uuid
+          description: The ID of the inbox.
+          example: b3e2b2b6-3f0e-4c8e-9ad3-2f43a1e2c7f1
+        thread_id:
+          type: string
+          format: uuid
+          description: The ID of the thread.
+          example: 7c1f0a2e-5d3b-4e8a-9f61-2b8d4c6e1a90
+        thread:
+          $ref: '#/components/schemas/InboxThreadSummary'
+          description: The thread as it is when the webhook is sent. Absent when the thread no longer exists.
+    InboxThreadLabelsUpdatedEventData:
+      type: object
+      description: The data of an `inbox.thread.labels.updated` event. One event carries one label, in either `added` or `removed`.
+      required:
+        - added
+        - removed
+        - source
+        - inbox_id
+        - thread_id
+      properties:
+        added:
+          type: array
+          items:
+            $ref: '#/components/schemas/InboxThreadLabel'
+          description: The labels applied to the thread.
+        removed:
+          type: array
+          items:
+            $ref: '#/components/schemas/InboxThreadLabel'
+          description: The labels removed from the thread.
+        source:
+          $ref: '#/components/schemas/InboxEventSource'
+        inbox_id:
+          type: string
+          format: uuid
+          description: The ID of the inbox.
+          example: b3e2b2b6-3f0e-4c8e-9ad3-2f43a1e2c7f1
+        thread_id:
+          type: string
+          format: uuid
+          description: The ID of the thread.
+          example: 7c1f0a2e-5d3b-4e8a-9f61-2b8d4c6e1a90
+        thread:
+          $ref: '#/components/schemas/InboxThreadSummary'
+          description: The thread as it is when the webhook is sent. Absent when the thread no longer exists.
+    InboxDraftEventData:
+      type: object
+      description: The data of an `inbox.draft.created`, `inbox.draft.updated` or `inbox.draft.deleted` event.
+      required:
+        - source
+        - inbox_id
+        - draft_id
+      properties:
+        source:
+          $ref: '#/components/schemas/InboxEventSource'
+        inbox_id:
+          type: string
+          format: uuid
+          description: The ID of the inbox.
+          example: b3e2b2b6-3f0e-4c8e-9ad3-2f43a1e2c7f1
+        thread_id:
+          type: string
+          format: uuid
+          description: The ID of the thread. Only on reply drafts.
+          example: 7c1f0a2e-5d3b-4e8a-9f61-2b8d4c6e1a90
+        draft_id:
+          type: string
+          format: uuid
+          description: The ID of the draft.
+          example: 9a2b7c4d-1e3f-4a5b-8c6d-0e1f2a3b4c5d
+        thread:
+          $ref: '#/components/schemas/InboxThreadSummary'
+          description: The thread as it is when the webhook is sent. Absent when the thread no longer exists. Only on reply drafts.
+        draft:
+          $ref: '#/components/schemas/InboxEventDraft'
+          description: The draft as it is when the webhook is sent, without `html` or `text`. Fetch the body with Retrieve Draft. Absent when the draft no longer exists.
+    InboxDraftSentEventData:
+      type: object
+      description: The data of an `inbox.draft.sent` event.
+      required:
+        - source
+        - inbox_id
+        - thread_id
+        - email_id
+        - draft_id
+      properties:
+        source:
+          $ref: '#/components/schemas/InboxEventSource'
+        inbox_id:
+          type: string
+          format: uuid
+          description: The ID of the inbox.
+          example: b3e2b2b6-3f0e-4c8e-9ad3-2f43a1e2c7f1
+        thread_id:
+          type: string
+          format: uuid
+          description: The ID of the thread.
+          example: 7c1f0a2e-5d3b-4e8a-9f61-2b8d4c6e1a90
+        email_id:
+          type: string
+          format: uuid
+          description: The ID of the email.
+          example: 4ef9a417-02e9-4d39-ad75-9611e0fcc33c
+        draft_id:
+          type: string
+          format: uuid
+          description: The ID of the draft.
+          example: 9a2b7c4d-1e3f-4a5b-8c6d-0e1f2a3b4c5d
+        thread:
+          $ref: '#/components/schemas/InboxThreadSummary'
+          description: The thread as it is when the webhook is sent. Absent when the thread no longer exists.
+        email:
+          $ref: '#/components/schemas/InboxEventEmail'
+          description: The email as it is when the webhook is sent, without `html` or `text`. Fetch the body with Retrieve Thread Email. Only when the email is already on the thread when the webhook is sent.
+        draft:
+          $ref: '#/components/schemas/InboxEventDraft'
+          description: The draft as it is when the webhook is sent, without `html` or `text`. Fetch the body with Retrieve Draft. Absent when the draft no longer exists.
+    InboxCreatedEvent:
+      type: object
+      required:
+        - type
+        - created_at
+        - data
+      properties:
+        type:
+          type: string
+          const: inbox.created
+          description: The event type.
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp when the event was emitted.
+          example: '2026-09-29T12:00:00.000Z'
+        data:
+          $ref: '#/components/schemas/InboxEventData'
+    InboxUpdatedEvent:
+      type: object
+      required:
+        - type
+        - created_at
+        - data
+      properties:
+        type:
+          type: string
+          const: inbox.updated
+          description: The event type.
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp when the event was emitted.
+          example: '2026-09-29T12:00:00.000Z'
+        data:
+          $ref: '#/components/schemas/InboxEventData'
+    InboxDeletedEvent:
+      type: object
+      required:
+        - type
+        - created_at
+        - data
+      properties:
+        type:
+          type: string
+          const: inbox.deleted
+          description: The event type.
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp when the event was emitted.
+          example: '2026-09-29T12:00:00.000Z'
+        data:
+          $ref: '#/components/schemas/InboxDeletedEventData'
+    InboxThreadCreatedEvent:
+      type: object
+      required:
+        - type
+        - created_at
+        - data
+      properties:
+        type:
+          type: string
+          const: inbox.thread.created
+          description: The event type.
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp when the event was emitted.
+          example: '2026-09-29T12:00:00.000Z'
+        data:
+          $ref: '#/components/schemas/InboxThreadEmailEventData'
+    InboxEmailReceivedEvent:
+      type: object
+      required:
+        - type
+        - created_at
+        - data
+      properties:
+        type:
+          type: string
+          const: inbox.email.received
+          description: The event type.
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp when the event was emitted.
+          example: '2026-09-29T12:00:00.000Z'
+        data:
+          $ref: '#/components/schemas/InboxThreadEmailEventData'
+    InboxEmailSentEvent:
+      type: object
+      required:
+        - type
+        - created_at
+        - data
+      properties:
+        type:
+          type: string
+          const: inbox.email.sent
+          description: The event type.
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp when the event was emitted.
+          example: '2026-09-29T12:00:00.000Z'
+        data:
+          $ref: '#/components/schemas/InboxThreadEmailEventData'
+    InboxThreadFolderUpdatedEvent:
+      type: object
+      required:
+        - type
+        - created_at
+        - data
+      properties:
+        type:
+          type: string
+          const: inbox.thread.folder.updated
+          description: The event type.
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp when the event was emitted.
+          example: '2026-09-29T12:00:00.000Z'
+        data:
+          $ref: '#/components/schemas/InboxThreadFolderUpdatedEventData'
+    InboxThreadAssignedEvent:
+      type: object
+      required:
+        - type
+        - created_at
+        - data
+      properties:
+        type:
+          type: string
+          const: inbox.thread.assigned
+          description: The event type.
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp when the event was emitted.
+          example: '2026-09-29T12:00:00.000Z'
+        data:
+          $ref: '#/components/schemas/InboxThreadAssignedEventData'
+    InboxThreadUnassignedEvent:
+      type: object
+      required:
+        - type
+        - created_at
+        - data
+      properties:
+        type:
+          type: string
+          const: inbox.thread.unassigned
+          description: The event type.
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp when the event was emitted.
+          example: '2026-09-29T12:00:00.000Z'
+        data:
+          $ref: '#/components/schemas/InboxThreadUnassignedEventData'
+    InboxThreadLabelsUpdatedEvent:
+      type: object
+      required:
+        - type
+        - created_at
+        - data
+      properties:
+        type:
+          type: string
+          const: inbox.thread.labels.updated
+          description: The event type.
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp when the event was emitted.
+          example: '2026-09-29T12:00:00.000Z'
+        data:
+          $ref: '#/components/schemas/InboxThreadLabelsUpdatedEventData'
+    InboxDraftCreatedEvent:
+      type: object
+      required:
+        - type
+        - created_at
+        - data
+      properties:
+        type:
+          type: string
+          const: inbox.draft.created
+          description: The event type.
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp when the event was emitted.
+          example: '2026-09-29T12:00:00.000Z'
+        data:
+          $ref: '#/components/schemas/InboxDraftEventData'
+    InboxDraftUpdatedEvent:
+      type: object
+      required:
+        - type
+        - created_at
+        - data
+      properties:
+        type:
+          type: string
+          const: inbox.draft.updated
+          description: The event type.
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp when the event was emitted.
+          example: '2026-09-29T12:00:00.000Z'
+        data:
+          $ref: '#/components/schemas/InboxDraftEventData'
+    InboxDraftSentEvent:
+      type: object
+      required:
+        - type
+        - created_at
+        - data
+      properties:
+        type:
+          type: string
+          const: inbox.draft.sent
+          description: The event type.
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp when the event was emitted.
+          example: '2026-09-29T12:00:00.000Z'
+        data:
+          $ref: '#/components/schemas/InboxDraftSentEventData'
+    InboxDraftDeletedEvent:
+      type: object
+      required:
+        - type
+        - created_at
+        - data
+      properties:
+        type:
+          type: string
+          const: inbox.draft.deleted
+          description: The event type.
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp when the event was emitted.
+          example: '2026-09-29T12:00:00.000Z'
+        data:
+          $ref: '#/components/schemas/InboxDraftEventData'
