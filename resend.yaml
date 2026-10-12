@@ -9892,7 +9892,7 @@ components:
       properties:
         id:
           type: string
-          description: The ID of the attachment. Not always a UUID. On a sent message, it is the position of the attachment in the sent email, starting at `0`.
+          description: The ID of the attachment.
           example: 9d4f2b81-6c3a-4e7d-8b12-0a5c6d7e8f90
         filename:
           type: [string, "null"]
