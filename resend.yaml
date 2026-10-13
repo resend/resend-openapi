@@ -3245,10 +3245,11 @@ paths:
       summary: Update an existing inbox thread
       description: >-
         Marks a thread read or unread, moves it to a folder, or adds and
-        removes labels. At least one of `read`, `folder`, `label_id`,
-        `add_label_ids`, or `remove_label_ids` is required. A label ID cannot
-        be both added and removed in the same request. Moving a thread out of
-        `trash` restores it and clears its deletion deadline.
+        removes labels. At least one of `read`, `folder`, `add_label_ids`, or
+        `remove_label_ids` is required. A label ID cannot be both added and
+        removed in the same request. Removing a label from a thread keeps the
+        label itself. Moving a thread out of `trash` restores it and clears its
+        deletion deadline.
       parameters:
         - name: inbox_id
           in: path
@@ -9814,7 +9815,7 @@ components:
     UpdateInboxThreadOptions:
       type: object
       description: >-
-        At least one of `read`, `folder`, `label_id`, `add_label_ids`, or `remove_label_ids` is required. A label ID cannot be both added and removed in the same request.
+        At least one of `read`, `folder`, `add_label_ids`, or `remove_label_ids` is required. A label ID cannot be both added and removed in the same request.
       minProperties: 1
       properties:
         read:
@@ -9831,13 +9832,6 @@ components:
           description: >-
             Moves the thread to this folder. `sent` is assigned automatically and cannot be set.
           example: archive
-        label_id:
-          type: string
-          format: uuid
-          deprecated: true
-          description: >-
-            Deprecated. Use `add_label_ids` instead. Applies this label to the thread, the same as one entry in `add_label_ids`. A label ID that does not exist in the inbox returns a 404.
-          example: 7f9c1d2e-4a6b-4c3d-8e15-9b0a7c6d5e34
         add_label_ids:
           type: array
           minItems: 1
@@ -9857,7 +9851,7 @@ components:
             type: string
             format: uuid
           description: >-
-            Label IDs to remove from the thread. Between 1 and 10 IDs. A label ID that does not exist in the inbox returns a 404.
+            Label IDs to remove from the thread. Between 1 and 10 IDs. The labels themselves are kept. A label ID that does not exist in the inbox returns a 404.
           example:
             - 2b6d0f4e-8a1c-4e3b-9d57-1c0e8a6f4b21
     UpdateInboxThreadResponseSuccess:
