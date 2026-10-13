@@ -3517,9 +3517,11 @@ paths:
         without `to` is addressed to the sender of the email it replies to, or
         to its Reply-To when set. For an email the inbox sent, it defaults to that
         email's `to` recipients. Send `to: []` to leave it empty.
-        At least one of `to`, `cc`, `bcc`, `subject`, `text` or `html` must be
-        non-empty. The combined recipients of `to`, `cc` and
-        `bcc` cannot exceed 50. Returns 201 for a new draft. Only one unsent
+        At least one of `to`, `cc`, `bcc`, `subject`, `text`, `html` or
+        `attachments` must be non-empty. The combined recipients of `to`, `cc`
+        and `bcc` cannot exceed 50. Attachments are stored on the draft, so each
+        one needs `content`, `filename` and `content_type`. Returns 201 for a
+        new draft. Only one unsent
         reply draft can target an email, so a reply draft request for an
         email that already has one returns 200 with the ID of the existing draft.
       parameters:
@@ -3584,8 +3586,9 @@ paths:
       summary: Update an existing draft
       description: >-
         Updates the content of an unsent draft. Omitted fields are left
-        unchanged. Send at least one of `to`, `cc`, `bcc`, `subject`, `text` or
-        `html`. A request that sets `text` or `html` replaces the whole body.
+        unchanged. Send at least one of `to`, `cc`, `bcc`, `subject`, `text`,
+        `html` or `attachments`. Sending `attachments` replaces every
+        attachment on the draft. A request that sets `text` or `html` replaces the whole body.
         The body part you omit from that request becomes `null`. The merged draft must still
         contain at least one non-empty field, and its combined recipients
         cannot exceed 50. A draft that was already sent, or that changed
@@ -10128,6 +10131,32 @@ components:
           format: uuid
           description: The ID of the sent email. Use it with the emails endpoints.
           example: 6a0c8e58-3d9e-4f7a-8b14-2e3f4a5b6c71
+    InboxDraftAttachment:
+      type: object
+      description: A file stored on a draft.
+      required:
+        - id
+        - filename
+        - content_type
+        - size
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: The ID of the attachment.
+          example: 5c1e9d2a-7b3f-4e8a-9c6d-2f0a1b3c4d5e
+        filename:
+          type: string
+          description: The filename of the attachment.
+          example: receipt.pdf
+        content_type:
+          type: string
+          description: The MIME type of the attachment.
+          example: application/pdf
+        size:
+          type: integer
+          description: The size of the attachment in bytes.
+          example: 20841
     InboxDraft:
       type: object
       required:
@@ -10145,6 +10174,7 @@ components:
         - email_id
         - created_at
         - updated_at
+        - attachments
       properties:
         object:
           type: string
@@ -10218,6 +10248,11 @@ components:
           format: date-time
           description: Timestamp when the draft was last saved.
           example: '2026-08-05T14:12:04.110Z'
+        attachments:
+          type: array
+          description: The files stored on the draft.
+          items:
+            $ref: '#/components/schemas/InboxDraftAttachment'
     InboxDraftListItem:
       type: object
       required:
@@ -10231,6 +10266,7 @@ components:
         - thread_id
         - reply_to_email_id
         - updated_at
+        - attachments
       properties:
         id:
           type: string
@@ -10286,6 +10322,11 @@ components:
           format: date-time
           description: Timestamp when the draft was last saved.
           example: '2026-08-05T14:12:04.110Z'
+        attachments:
+          type: array
+          description: The files stored on the draft.
+          items:
+            $ref: '#/components/schemas/InboxDraftAttachment'
     ListInboxDraftsResponseSuccess:
       type: object
       required:
@@ -10309,7 +10350,7 @@ components:
     CreateInboxDraftOptions:
       type: object
       description: >-
-        At least one of `to`, `cc`, `bcc`, `subject`, `text` or `html` must be non-empty. The combined recipients of `to`, `cc` and `bcc` cannot exceed 50. `thread_id` and `reply_to_email_id` must be sent together or not at all.
+        At least one of `to`, `cc`, `bcc`, `subject`, `text`, `html` or `attachments` must be non-empty. The combined recipients of `to`, `cc` and `bcc` cannot exceed 50. `thread_id` and `reply_to_email_id` must be sent together or not at all.
       properties:
         to:
           description: >-
@@ -10355,6 +10396,12 @@ components:
           type: [string, "null"]
           description: The plain text body.
           example: Refund issued for order 1041.
+        attachments:
+          type: array
+          description: >-
+            Files to store on the draft. Each one needs `content`, `filename` and `content_type`. A `path` or `content_id` returns a 422. A draft can carry up to 10 files and 25 MB in total.
+          items:
+            $ref: '#/components/schemas/Attachment'
         thread_id:
           type: string
           format: uuid
@@ -10386,7 +10433,7 @@ components:
     UpdateInboxDraftOptions:
       type: object
       description: >-
-        Send at least one of `to`, `cc`, `bcc`, `subject`, `text` or `html`. Omitted fields are left unchanged. Setting `text` or `html` replaces the whole body, so the body part you omit becomes `null`. The merged draft must contain at least one non-empty field, and its combined recipients cannot exceed 50.
+        Send at least one of `to`, `cc`, `bcc`, `subject`, `text`, `html` or `attachments`. Omitted fields are left unchanged. Setting `text` or `html` replaces the whole body, so the body part you omit becomes `null`. The merged draft must contain at least one non-empty field, and its combined recipients cannot exceed 50.
       minProperties: 1
       properties:
         to:
@@ -10431,6 +10478,12 @@ components:
         text:
           type: [string, "null"]
           description: The plain text body. Pass `null` to clear.
+        attachments:
+          type: array
+          description: >-
+            Files to store on the draft. Each one needs `content`, `filename` and `content_type`. A `path` or `content_id` returns a 422. A draft can carry up to 10 files and 25 MB in total. Sending the field replaces every attachment on the draft. Send `[]` to remove them all.
+          items:
+            $ref: '#/components/schemas/Attachment'
     UpdateInboxDraftResponseSuccess:
       $ref: '#/components/schemas/InboxDraft'
     RemoveInboxDraftResponseSuccess:
@@ -10587,6 +10640,7 @@ components:
         - email_id
         - created_at
         - updated_at
+        - attachments
       properties:
         object:
           type: string
@@ -10650,6 +10704,11 @@ components:
           format: date-time
           description: Timestamp when the draft was last saved.
           example: '2026-09-29T12:00:00.000Z'
+        attachments:
+          type: array
+          description: The files stored on the draft.
+          items:
+            $ref: '#/components/schemas/InboxDraftAttachment'
     InboxEventData:
       type: object
       description: The data of an `inbox.created` or `inbox.updated` event.
