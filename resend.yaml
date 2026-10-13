@@ -3401,6 +3401,15 @@ paths:
         copy the other recipients of the message. The reply threads under the
         message through the `In-Reply-To` and `References` headers.
       parameters:
+        - in: header
+          name: Idempotency-Key
+          required: false
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 256
+          description: >-
+            A unique key for the request, so the reply is sent only once. A retry with the same key within 24 hours returns the first response, with the `idempotent-replayed: true` header. Reusing the key with a different body, or while the first request is still running, returns a 409. [Learn more](https://resend.com/docs/dashboard/emails/idempotency-keys)
         - name: inbox_id
           in: path
           required: true
@@ -3450,6 +3459,15 @@ paths:
         in total. An original attachment that was sent from a URL (`path`)
         cannot be forwarded, and the request returns a 422.
       parameters:
+        - in: header
+          name: Idempotency-Key
+          required: false
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 256
+          description: >-
+            A unique key for the request, so the forward is sent only once. A retry with the same key within 24 hours returns the first response, with the `idempotent-replayed: true` header. Reusing the key with a different body, or while the first request is still running, returns a 409. [Learn more](https://resend.com/docs/dashboard/emails/idempotency-keys)
         - name: inbox_id
           in: path
           required: true
@@ -3536,6 +3554,15 @@ paths:
         created without `subject` stores an empty subject and gets no `Re:`
         prefix, so set one before you send it.
       parameters:
+        - in: header
+          name: Idempotency-Key
+          required: false
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 256
+          description: >-
+            A unique key for the request, so the draft is created only once. A retry with the same key within 24 hours returns the first response, with the `idempotent-replayed: true` header. Reusing the key with a different body, or while the first request is still running, returns a 409. [Learn more](https://resend.com/docs/dashboard/emails/idempotency-keys)
         - name: inbox_id
           in: path
           required: true
@@ -3675,6 +3702,15 @@ paths:
         `text`, or the request returns a 422. A draft that was already sent
         returns a 409. The request takes no body.
       parameters:
+        - in: header
+          name: Idempotency-Key
+          required: false
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 256
+          description: >-
+            A unique key for the request, so the draft is sent only once. A retry with the same key within 24 hours returns the first response, with the `idempotent-replayed: true` header. Reusing the key with a different body, or while the first request is still running, returns a 409. [Learn more](https://resend.com/docs/dashboard/emails/idempotency-keys)
         - name: inbox_id
           in: path
           required: true
