@@ -46,6 +46,8 @@ tags:
     description: List and manage OAuth grants through the Resend API.
   - name: Usage
     description: Retrieve your account usage and plan limits through the Resend API.
+  - name: Inboxes
+    description: Create and manage Inboxes through the Resend API. Every Inboxes endpoint needs a full access API key. A sending access key returns a 401 `restricted_api_key`.
 paths:
   /emails:
     post:
@@ -2644,6 +2646,1105 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GetUsageResponseSuccess'
+  /inboxes:
+    post:
+      operationId: inboxes/create
+      tags:
+        - Inboxes
+      summary: Create an inbox
+      description: >-
+        Creates an inbox that sends and receives email at an address on one of
+        your domains. The domain must belong to the team. Without `forwarding`,
+        the domain must have receiving enabled, with DKIM and SPF verified and
+        the inbound MX record verified or pending. With `forwarding` set to
+        `true`, the domain only needs DKIM and SPF verified for sending, and
+        Resend generates a `receiving_address` on the team inbound domain, and a
+        team without an inbound domain gets a 422. A
+        domain that does not meet these rules returns a 422 validation_error.
+        An address or receiving address that is already in use returns a 409.
+        A team that has reached the inbox limit of its plan returns a 403
+        validation_error. A blocked account returns a 451.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateInboxOptions'
+      responses:
+        '201':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateInboxResponseSuccess'
+    get:
+      operationId: inboxes/list
+      tags:
+        - Inboxes
+      summary: Retrieve a list of inboxes
+      description: >-
+        Returns the inboxes of the team, newest first. The list items carry
+        fewer fields than a single inbox. Retrieve an inbox to get all its
+        fields. The `after` and `before` cursors take an inbox ID, and only one
+        of them can be passed, or the request returns a 422. A value that is not
+        a UUID returns a 422, and an unknown ID returns a 404.
+      parameters:
+        - $ref: '#/components/parameters/PaginationLimit'
+        - $ref: '#/components/parameters/PaginationAfter'
+        - $ref: '#/components/parameters/PaginationBefore'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListInboxesResponseSuccess'
+  /inboxes/{inbox_id}:
+    get:
+      operationId: inboxes/get
+      tags:
+        - Inboxes
+      summary: Retrieve a single inbox by ID or email address
+      parameters:
+        - name: inbox_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: >-
+            The Inbox ID or the inbox email address, such as
+            `support@acme.com`. A value that contains `@` must be a valid email
+            address, and the match is case-insensitive. Any other value must be
+            a UUID.
+          example: b3e2b2b6-3f0e-4c8e-9ad3-2f43a1e2c7f1
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetInboxResponseSuccess'
+    patch:
+      operationId: inboxes/update
+      tags:
+        - Inboxes
+      summary: Update an existing inbox
+      description: >-
+        Updates the internal name of the inbox or the name recipients see when
+        mail is sent from it. At least one of `name` or `from_name` is
+        required.
+      parameters:
+        - name: inbox_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The Inbox ID. An email address is not accepted.
+          example: b3e2b2b6-3f0e-4c8e-9ad3-2f43a1e2c7f1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateInboxOptions'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateInboxResponseSuccess'
+    delete:
+      operationId: inboxes/remove
+      tags:
+        - Inboxes
+      summary: Remove an existing inbox
+      description: >-
+        Removes the inbox. An inbox that does not exist or was already removed
+        returns a 404 not_found.
+      parameters:
+        - name: inbox_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The Inbox ID. An email address is not accepted.
+          example: b3e2b2b6-3f0e-4c8e-9ad3-2f43a1e2c7f1
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RemoveInboxResponseSuccess'
+  /inboxes/{inbox_id}/agent:
+    get:
+      operationId: inboxes/get-agent
+      tags:
+        - Inboxes
+      summary: Retrieve the agent settings for an inbox
+      description: >-
+        Returns the agent settings of the inbox. An inbox without a configured
+        agent returns empty settings: `instructions` and `tone` are null and
+        `enabled_actions` is an empty array.
+      parameters:
+        - name: inbox_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The Inbox ID. An email address is not accepted.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetInboxAgentResponseSuccess'
+    patch:
+      operationId: inboxes/update-agent
+      tags:
+        - Inboxes
+      summary: Update the agent settings for an inbox
+      description: >-
+        Updates the agent settings of the inbox. The agent is created when the
+        inbox has none. Omitted fields keep their current value.
+      parameters:
+        - name: inbox_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The Inbox ID. An email address is not accepted.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateInboxAgentOptions'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateInboxAgentResponseSuccess'
+  /inboxes/{inbox_id}/labels:
+    get:
+      operationId: inboxes/list-labels
+      tags:
+        - Inboxes
+      summary: Retrieve a list of inbox labels
+      description: Returns every label on the inbox, oldest first. The list is not paginated.
+      parameters:
+        - name: inbox_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The Inbox ID. An email address is not accepted.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListInboxLabelsResponseSuccess'
+    post:
+      operationId: inboxes/create-label
+      tags:
+        - Inboxes
+      summary: Create a label on an inbox
+      description: >-
+        A label is a named, colored tag that belongs to one inbox. An inbox can
+        have at most 100 labels. Label names are unique per inbox, compared
+        without case. A duplicate name or a full inbox returns a 422
+        validation_error.
+      parameters:
+        - name: inbox_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The Inbox ID. An email address is not accepted.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateInboxLabelOptions'
+      responses:
+        '201':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateInboxLabelResponseSuccess'
+  /inboxes/{inbox_id}/labels/{label_id}:
+    patch:
+      operationId: inboxes/update-label
+      tags:
+        - Inboxes
+      summary: Update an existing inbox label
+      description: >-
+        Renames or recolors a label. Omitted fields keep their current value. A
+        new name must not match another label on the inbox, compared without
+        case, or the request returns a 422 validation_error.
+      parameters:
+        - name: inbox_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The Inbox ID. An email address is not accepted.
+        - name: label_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The Label ID.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateInboxLabelOptions'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateInboxLabelResponseSuccess'
+    delete:
+      operationId: inboxes/remove-label
+      tags:
+        - Inboxes
+      summary: Remove an existing inbox label
+      description: Deletes the label and removes it from every thread that carries it.
+      parameters:
+        - name: inbox_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The Inbox ID. An email address is not accepted.
+        - name: label_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The Label ID.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RemoveInboxLabelResponseSuccess'
+  /inboxes/{inbox_id}/threads:
+    get:
+      operationId: inboxes/list-threads
+      tags:
+        - Inboxes
+      summary: Retrieve a list of inbox threads
+      description: >-
+        Returns the threads in an inbox, most recently active first. A thread is
+        a conversation made up of one or more emails. The `after` and `before`
+        cursors take a thread ID, and only one of them can be passed. A cursor
+        that is not a UUID, such as a date, returns a 422 validation_error. A cursor thread that is not in
+        the selected folders returns a 404. To find threads by text, sender,
+        recipient, attachment, or date, use the search threads endpoint.
+      parameters:
+        - name: inbox_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The Inbox ID. An email address is not accepted.
+        - name: folders
+          in: query
+          required: false
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+              enum:
+                - inbox
+                - archive
+                - spam
+                - sent
+                - trash
+          description: >-
+            Comma-separated folders to list, for example `inbox,sent`. Repeating
+            the parameter returns a 422 validation_error. A thread is returned
+            when any of its emails is in one of the folders, so a thread in
+            `inbox` with an email you sent matches both `inbox` and `sent`.
+            Defaults to `inbox`, or to `inbox,archive,sent` when `labels` is set.
+            `spam` and `trash` are only included when you name them.
+          example:
+            - inbox
+            - sent
+        - name: labels
+          in: query
+          required: false
+          style: form
+          explode: false
+          schema:
+            type: array
+            maxItems: 50
+            items:
+              type: string
+              format: uuid
+          description: >-
+            Comma-separated label IDs. Returns threads with any of these labels.
+            Up to 50 IDs. An ID that does not exist in the inbox returns a 404.
+            Repeating the parameter returns a 422 validation_error.
+          example:
+            - 7f9c1d2e-4a6b-4c3d-8e15-9b0a7c6d5e34
+        - name: read
+          in: query
+          required: false
+          schema:
+            type: boolean
+          description: >-
+            `true` returns threads where every email is read. `false` returns
+            threads with at least one unread email. Only the literal values
+            `true` and `false` are accepted.
+        - $ref: '#/components/parameters/PaginationLimit'
+        - $ref: '#/components/parameters/PaginationAfter'
+        - $ref: '#/components/parameters/PaginationBefore'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListInboxThreadsResponseSuccess'
+  /inboxes/{inbox_id}/threads/search:
+    get:
+      operationId: inboxes/search-threads
+      tags:
+        - Inboxes
+      summary: Search the threads of an inbox
+      description: >-
+        Finds threads by the text of their emails, who sent or received them,
+        whether they have attachments, and their dates. Results are ordered by
+        latest activity, newest first, and paginate like the list threads
+        endpoint, so a cursor that is not a thread ID returns a 422. Search can be up to about a minute behind new emails.
+        Different parameters combine, so a thread must match all of them.
+        `folders`, `labels`, and `read` apply to the thread. `query`, `from`,
+        `to`, `cc`, `bcc`, `has_attachment`, `start_date`, and `end_date` must
+        all match the same email in the thread. When any of these email filters
+        is set, the matching email must itself be in one of `folders`. For
+        `sent`, that means an email the inbox sent.
+        When more than 10,000 threads match, search covers the 10,000 with the newest matching email.
+      parameters:
+        - name: inbox_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The Inbox ID. An email address is not accepted.
+        - name: query
+          in: query
+          required: false
+          schema:
+            type: string
+            maxLength: 256
+          description: >-
+            Free text to search for in the subject, body, sender, recipients, and
+            attachment names. Every word must match. Wrap words in double quotes
+            to match an exact phrase. Start a word or quoted phrase with `-` to
+            exclude it. Max 256 characters and 32 words.
+          example: invoice -draft
+        - name: from
+          in: query
+          required: false
+          style: form
+          explode: false
+          schema:
+            type: array
+            maxItems: 20
+            items:
+              type: string
+          description: >-
+            Comma-separated senders. Each value matches part of the sender's
+            address or name, without case. Returns threads that match any of
+            them. Up to 20 values.
+            Repeating the parameter returns a 422 validation_error.
+          example:
+            - isabella@example.com
+            - carolina@example.com
+        - name: to
+          in: query
+          required: false
+          style: form
+          explode: false
+          schema:
+            type: array
+            maxItems: 20
+            items:
+              type: string
+          description: Comma-separated recipients, matched the same way as `from`. Up to 20 values. Repeating the parameter returns a 422 validation_error.
+        - name: cc
+          in: query
+          required: false
+          style: form
+          explode: false
+          schema:
+            type: array
+            maxItems: 20
+            items:
+              type: string
+          description: Comma-separated CC recipients, matched the same way as `from`. Up to 20 values. Repeating the parameter returns a 422 validation_error.
+        - name: bcc
+          in: query
+          required: false
+          style: form
+          explode: false
+          schema:
+            type: array
+            maxItems: 20
+            items:
+              type: string
+          description: Comma-separated BCC recipients, matched the same way as `from`. Up to 20 values. Repeating the parameter returns a 422 validation_error.
+        - name: has_attachment
+          in: query
+          required: false
+          schema:
+            type: boolean
+          description: >-
+            `true` matches emails with an attachment. `false` matches emails
+            without one. Only the literal values `true` and `false` are accepted.
+        - name: start_date
+          in: query
+          required: false
+          schema:
+            type: string
+          description: >-
+            Matches emails sent on or after this date. Accepts a date like
+            `2026-09-01` or an ISO 8601 timestamp, in UTC unless the timestamp
+            has an offset. An empty value returns a 422.
+          example: '2026-09-01'
+        - name: end_date
+          in: query
+          required: false
+          schema:
+            type: string
+          description: >-
+            Matches emails sent on or before this date. Same formats as
+            `start_date`. A date covers that whole day, so
+            `start_date=2026-09-01&end_date=2026-09-30` covers all of September.
+            A timestamp is used as given. An `end_date` before `start_date`
+            returns a 422 validation_error. An empty value returns a 422.
+          example: '2026-09-30'
+        - name: folders
+          in: query
+          required: false
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+              enum:
+                - inbox
+                - archive
+                - spam
+                - sent
+                - trash
+          description: >-
+            Comma-separated folders to search, for example `inbox,sent`.
+            Repeating the parameter returns a 422 validation_error. A thread is
+            returned when any of its emails is in one of the folders. Defaults to
+            `inbox`, or to `inbox,archive,sent` when `labels` is set. `spam` and
+            `trash` are only included when you name them.
+          example:
+            - inbox
+            - sent
+        - name: labels
+          in: query
+          required: false
+          style: form
+          explode: false
+          schema:
+            type: array
+            maxItems: 50
+            items:
+              type: string
+              format: uuid
+          description: >-
+            Comma-separated label IDs. Returns threads with any of these labels.
+            Up to 50 IDs. An ID that does not exist in the inbox returns a 404.
+            Repeating the parameter returns a 422 validation_error.
+          example:
+            - 7f9c1d2e-4a6b-4c3d-8e15-9b0a7c6d5e34
+        - name: read
+          in: query
+          required: false
+          schema:
+            type: boolean
+          description: >-
+            `true` returns threads where every email is read. `false` returns
+            threads with at least one unread email. Only the literal values
+            `true` and `false` are accepted.
+        - $ref: '#/components/parameters/PaginationLimit'
+        - $ref: '#/components/parameters/PaginationAfter'
+        - $ref: '#/components/parameters/PaginationBefore'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchInboxThreadsResponseSuccess'
+  /inboxes/{inbox_id}/threads/{thread_id}:
+    get:
+      operationId: inboxes/get-thread
+      tags:
+        - Inboxes
+      summary: Retrieve a single inbox thread
+      description: >-
+        Returns the thread summary. The emails in the thread are listed with
+        the list thread emails endpoint.
+      parameters:
+        - name: inbox_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The Inbox ID. An email address is not accepted.
+        - name: thread_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The Thread ID.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetInboxThreadResponseSuccess'
+    patch:
+      operationId: inboxes/update-thread
+      tags:
+        - Inboxes
+      summary: Update an existing inbox thread
+      description: >-
+        Marks a thread read or unread, moves it to a folder, or adds and
+        removes labels. At least one of `read`, `folder`, `add_label_ids`, or
+        `remove_label_ids` is required. A label ID cannot be both added and
+        removed in the same request. Removing a label from a thread keeps the
+        label itself. Moving a thread out of `trash` restores it and clears its
+        deletion deadline. The changes apply in this order: `read`, `folder`,
+        added labels, removed labels. They are not atomic, so a 404 for a label
+        leaves the earlier changes applied.
+      parameters:
+        - name: inbox_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The Inbox ID. An email address is not accepted.
+        - name: thread_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The Thread ID.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateInboxThreadOptions'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateInboxThreadResponseSuccess'
+    delete:
+      operationId: inboxes/remove-thread
+      tags:
+        - Inboxes
+      summary: Remove an existing inbox thread
+      description: >-
+        Moves the thread to `trash` and schedules it for deletion in 30 days.
+        This is reversible. To restore the thread, update its `folder` to
+        `inbox`, `archive`, or `spam`, which also clears the deletion deadline.
+      parameters:
+        - name: inbox_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The Inbox ID. An email address is not accepted.
+        - name: thread_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The Thread ID.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RemoveInboxThreadResponseSuccess'
+  /inboxes/{inbox_id}/threads/{thread_id}/emails:
+    get:
+      operationId: inboxes/list-thread-emails
+      tags:
+        - Inboxes
+      summary: Retrieve a list of thread emails
+      description: >-
+        Returns the messages of a thread, oldest first. Pass the `id` of the
+        last message as `after` to get the next, newer page. Pass the `id` of
+        the first message as `before` to get the previous, older page. Passing
+        both `after` and `before`, or a cursor that is not a UUID, returns a 422.
+        A cursor that is not a message of the thread returns a 404.
+      parameters:
+        - name: inbox_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The Inbox ID. An email address is not accepted.
+        - name: thread_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The Thread ID.
+        - $ref: '#/components/parameters/PaginationLimit'
+        - $ref: '#/components/parameters/PaginationAfter'
+        - $ref: '#/components/parameters/PaginationBefore'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListInboxThreadEmailsResponseSuccess'
+  /inboxes/{inbox_id}/threads/{thread_id}/emails/{email_id}:
+    get:
+      operationId: inboxes/get-thread-email
+      tags:
+        - Inboxes
+      summary: Retrieve a single thread email
+      parameters:
+        - name: inbox_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The Inbox ID. An email address is not accepted.
+        - name: thread_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The Thread ID.
+        - name: email_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The Email ID, as returned in `data[].id` by the list thread emails endpoint.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetInboxThreadEmailResponseSuccess'
+  /inboxes/{inbox_id}/threads/{thread_id}/emails/{email_id}/reply:
+    post:
+      operationId: inboxes/reply-thread-email
+      tags:
+        - Inboxes
+      summary: Reply to a thread email
+      description: >-
+        Sends a reply from the inbox address right away, with no stored draft.
+        The `to` recipients come from the message you reply to. For a message
+        the inbox received, the reply goes to its `Reply-To` addresses, or to
+        its sender when it has no `Reply-To`. For a message the inbox sent, the
+        reply goes to that message's `to` recipients. Set `reply_all` to also
+        copy the other recipients of the message. The reply threads under the
+        message through the `In-Reply-To` and `References` headers. When no
+        recipient can be found for the reply, the request returns a 422. The whole email, encoded, can be at most 40 MB, or the request returns a 422.
+      parameters:
+        - in: header
+          name: Idempotency-Key
+          required: false
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 256
+          description: >-
+            A unique key for the request, so the reply is sent only once. A retry with the same key within 24 hours returns the first successful (2xx) response, with the `idempotent-replayed: true` header. A failed request is not stored, so it can be retried with the same key. Reusing the key with a different body, or while the first request is still running, returns a 409. An empty key, or one longer than 256 characters, returns a 400 `invalid_idempotency_key`. [Learn more](https://resend.com/docs/dashboard/emails/idempotency-keys)
+        - name: inbox_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The Inbox ID. An email address is not accepted.
+        - name: thread_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The Thread ID.
+        - name: email_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The Email ID of the message to reply to, as returned in `data[].id` by the list thread emails endpoint.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReplyInboxThreadEmailOptions'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReplyInboxThreadEmailResponseSuccess'
+  /inboxes/{inbox_id}/threads/{thread_id}/emails/{email_id}/forward:
+    post:
+      operationId: inboxes/forward-thread-email
+      tags:
+        - Inboxes
+      summary: Forward a thread email
+      description: >-
+        Forwards a message from the inbox address right away, with no stored
+        draft. The original message is quoted under a forwarded-message banner,
+        below the optional `html` or `text` note. The attachments of the original
+        message are sent with the forward, together with any `attachments` you
+        add. The request fails when they exceed 10 files or 25 MB of `content`
+        in total. An original attachment that was sent from a URL (`path`)
+        cannot be forwarded, and the request returns a 422. The whole email, encoded, can be at most 40 MB, or the request returns a 422.
+      parameters:
+        - in: header
+          name: Idempotency-Key
+          required: false
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 256
+          description: >-
+            A unique key for the request, so the forward is sent only once. A retry with the same key within 24 hours returns the first successful (2xx) response, with the `idempotent-replayed: true` header. A failed request is not stored, so it can be retried with the same key. Reusing the key with a different body, or while the first request is still running, returns a 409. An empty key, or one longer than 256 characters, returns a 400 `invalid_idempotency_key`. [Learn more](https://resend.com/docs/dashboard/emails/idempotency-keys)
+        - name: inbox_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The Inbox ID. An email address is not accepted.
+        - name: thread_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The Thread ID.
+        - name: email_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The Email ID of the message to forward, as returned in `data[].id` by the list thread emails endpoint.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ForwardInboxThreadEmailOptions'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForwardInboxThreadEmailResponseSuccess'
+  /inboxes/{inbox_id}/drafts:
+    get:
+      operationId: inboxes/list-drafts
+      tags:
+        - Inboxes
+      summary: Retrieve a list of drafts
+      description: >-
+        Returns the unsent drafts on the inbox, most recently updated first.
+        The `after` and `before` cursors take a Draft ID from the current page,
+        and only one of them can be passed. A cursor that is not a UUID, or both
+        cursors together, return a 422. A cursor that is not an unsent draft on
+        this inbox returns a 404.
+      parameters:
+        - name: inbox_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The Inbox ID. An email address is not accepted.
+        - $ref: '#/components/parameters/PaginationLimit'
+        - $ref: '#/components/parameters/PaginationAfter'
+        - $ref: '#/components/parameters/PaginationBefore'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListInboxDraftsResponseSuccess'
+    post:
+      operationId: inboxes/create-draft
+      tags:
+        - Inboxes
+      summary: Create a draft
+      description: >-
+        Creates an unsent draft on the inbox. Omit `thread_id` and
+        `reply_to_email_id` for a draft that starts a new thread. Pass both
+        together for a reply draft in an existing thread. A reply draft
+        without `to` is addressed to the sender of the email it replies to, or
+        to its Reply-To when set. For an email the inbox sent, it defaults to that
+        email's `to` recipients. Send `to: []` to leave it empty.
+        At least one of `to`, `cc`, `bcc`, `subject`, `text`, `html` or
+        `attachments` must be non-empty. The combined recipients of `to`, `cc`
+        and `bcc` cannot exceed 50. Attachments are stored on the draft, so each
+        one needs `content`, `filename` and `content_type`. Returns 201 for a
+        new draft. Only one unsent
+        reply draft can target an email, so a reply draft request for an
+        email that already has one returns 200 with the ID of the existing draft.
+        An unknown `thread_id`, or a `reply_to_email_id` that is not in that
+        thread, returns a 404.
+        That request ignores every other field, except `attachments`, which
+        replaces the attachments of the existing draft when sent. A reply draft
+        created without `subject` stores an empty subject and gets no `Re:`
+        prefix, so set one before you send it.
+      parameters:
+        - in: header
+          name: Idempotency-Key
+          required: false
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 256
+          description: >-
+            A unique key for the request, so the draft is created only once. A retry with the same key within 24 hours returns the first successful (2xx) response, with the `idempotent-replayed: true` header. A failed request is not stored, so it can be retried with the same key. Reusing the key with a different body, or while the first request is still running, returns a 409. An empty key, or one longer than 256 characters, returns a 400 `invalid_idempotency_key`. [Learn more](https://resend.com/docs/dashboard/emails/idempotency-keys)
+        - name: inbox_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The Inbox ID. An email address is not accepted.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateInboxDraftOptions'
+      responses:
+        '201':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateInboxDraftResponseSuccess'
+        '200':
+          description: The reply draft for this email already exists. The response holds the ID of the existing draft, and the request fields other than `attachments` are not applied.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateInboxDraftResponseSuccess'
+  /inboxes/{inbox_id}/drafts/{draft_id}:
+    get:
+      operationId: inboxes/get-draft
+      tags:
+        - Inboxes
+      summary: Retrieve a single draft
+      parameters:
+        - name: inbox_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The Inbox ID. An email address is not accepted.
+        - name: draft_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The Draft ID.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetInboxDraftResponseSuccess'
+    patch:
+      operationId: inboxes/update-draft
+      tags:
+        - Inboxes
+      summary: Update an existing draft
+      description: >-
+        Updates the content of an unsent draft. Omitted fields are left
+        unchanged. Send at least one of `to`, `cc`, `bcc`, `subject`, `text`,
+        `html` or `attachments`. Sending `attachments` replaces every
+        attachment on the draft. A request that sets `text` or `html` replaces the whole body.
+        The body part you omit from that request becomes `null`. The merged draft must still
+        contain at least one non-empty field, and its combined recipients
+        cannot exceed 50. A draft that was already sent, or that changed
+        during the request, returns a 409.
+      parameters:
+        - name: inbox_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The Inbox ID. An email address is not accepted.
+        - name: draft_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The Draft ID.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateInboxDraftOptions'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateInboxDraftResponseSuccess'
+    delete:
+      operationId: inboxes/remove-draft
+      tags:
+        - Inboxes
+      summary: Remove an existing draft
+      description: >-
+        Discards an unsent draft. A draft that was already sent, or that
+        changed during the request, returns a 409.
+      parameters:
+        - name: inbox_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The Inbox ID. An email address is not accepted.
+        - name: draft_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The Draft ID.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RemoveInboxDraftResponseSuccess'
+  /inboxes/{inbox_id}/drafts/{draft_id}/send:
+    post:
+      operationId: inboxes/send-draft
+      tags:
+        - Inboxes
+      summary: Send a draft
+      description: >-
+        Sends the draft from the inbox address. A reply draft is sent in its
+        thread. A draft without a thread starts a new thread. The draft must
+        have at least one `to` recipient, a non-empty `subject`, and `html` or
+        `text`, or the request returns a 422. A draft that was already sent
+        returns a 409. The request body is optional and takes only `headers`. The whole email, encoded, can be at most 40 MB, or the request returns a 422.
+      parameters:
+        - in: header
+          name: Idempotency-Key
+          required: false
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 256
+          description: >-
+            A unique key for the request, so the draft is sent only once. A retry with the same key within 24 hours returns the first successful (2xx) response, with the `idempotent-replayed: true` header. A failed request is not stored, so it can be retried with the same key. Reusing the key with a different body, or while the first request is still running, returns a 409. An empty key, or one longer than 256 characters, returns a 400 `invalid_idempotency_key`. [Learn more](https://resend.com/docs/dashboard/emails/idempotency-keys)
+        - name: inbox_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The Inbox ID. An email address is not accepted.
+        - name: draft_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The Draft ID.
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SendInboxDraftOptions'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SendInboxDraftResponseSuccess'
 webhooks:
   email.sent:
     post:
@@ -2987,6 +4088,216 @@ webhooks:
           application/json:
             schema:
               $ref: '#/components/schemas/TopicDeletedEvent'
+      responses:
+        '2XX':
+          description: Return any 2xx status code to acknowledge receipt of the event.
+  inbox.created:
+    post:
+      summary: Inbox created
+      description: Occurs whenever an inbox was created.
+      tags:
+        - Webhook Events
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InboxCreatedEvent'
+      responses:
+        '2XX':
+          description: Return any 2xx status code to acknowledge receipt of the event.
+  inbox.updated:
+    post:
+      summary: Inbox updated
+      description: Occurs whenever the settings of an inbox changed.
+      tags:
+        - Webhook Events
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InboxUpdatedEvent'
+      responses:
+        '2XX':
+          description: Return any 2xx status code to acknowledge receipt of the event.
+  inbox.deleted:
+    post:
+      summary: Inbox deleted
+      description: Occurs whenever an inbox was deleted. The payload carries only the inbox ID.
+      tags:
+        - Webhook Events
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InboxDeletedEvent'
+      responses:
+        '2XX':
+          description: Return any 2xx status code to acknowledge receipt of the event.
+  inbox.thread.created:
+    post:
+      summary: Inbox thread created
+      description: Occurs whenever the first email of a thread landed in an inbox, inbound or outbound. The `source` is always `system`, because the email pipeline sends this event, even when the API or an agent sent the email.
+      tags:
+        - Webhook Events
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InboxThreadCreatedEvent'
+      responses:
+        '2XX':
+          description: Return any 2xx status code to acknowledge receipt of the event.
+  inbox.email.received:
+    post:
+      summary: Inbox email received
+      description: Occurs whenever an inbound email was added to a thread. The `source` is always `system`.
+      tags:
+        - Webhook Events
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InboxEmailReceivedEvent'
+      responses:
+        '2XX':
+          description: Return any 2xx status code to acknowledge receipt of the event.
+  inbox.email.sent:
+    post:
+      summary: Inbox email sent
+      description: Occurs whenever an outbound email was accepted for delivery and added to a thread. The `source` is always `system`. When the email comes from a draft, `inbox.draft.sent` is also sent, from the send call. The two events come from separate paths, so their delivery order is not fixed.
+      tags:
+        - Webhook Events
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InboxEmailSentEvent'
+      responses:
+        '2XX':
+          description: Return any 2xx status code to acknowledge receipt of the event.
+  inbox.thread.folder.updated:
+    post:
+      summary: Inbox thread folder updated
+      description: Occurs whenever a thread moved between folders. Moving a thread to a label can send both this event and `inbox.thread.labels.updated` for the same thread.
+      tags:
+        - Webhook Events
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InboxThreadFolderUpdatedEvent'
+      responses:
+        '2XX':
+          description: Return any 2xx status code to acknowledge receipt of the event.
+  inbox.thread.assigned:
+    post:
+      summary: Inbox thread assigned
+      description: Occurs whenever a thread was assigned or reassigned.
+      tags:
+        - Webhook Events
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InboxThreadAssignedEvent'
+      responses:
+        '2XX':
+          description: Return any 2xx status code to acknowledge receipt of the event.
+  inbox.thread.unassigned:
+    post:
+      summary: Inbox thread unassigned
+      description: Occurs whenever a thread was unassigned.
+      tags:
+        - Webhook Events
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InboxThreadUnassignedEvent'
+      responses:
+        '2XX':
+          description: Return any 2xx status code to acknowledge receipt of the event.
+  inbox.thread.labels.updated:
+    post:
+      summary: Inbox thread labels updated
+      description: Occurs whenever a label was applied to or removed from a thread. One event carries one label. Deleting a label does not send this event for the threads that had it.
+      tags:
+        - Webhook Events
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InboxThreadLabelsUpdatedEvent'
+      responses:
+        '2XX':
+          description: Return any 2xx status code to acknowledge receipt of the event.
+  inbox.draft.created:
+    post:
+      summary: Inbox draft created
+      description: Occurs whenever a draft was created, standalone or reply.
+      tags:
+        - Webhook Events
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InboxDraftCreatedEvent'
+      responses:
+        '2XX':
+          description: Return any 2xx status code to acknowledge receipt of the event.
+  inbox.draft.updated:
+    post:
+      summary: Inbox draft updated
+      description: Occurs whenever a draft was edited.
+      tags:
+        - Webhook Events
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InboxDraftUpdatedEvent'
+      responses:
+        '2XX':
+          description: Return any 2xx status code to acknowledge receipt of the event.
+  inbox.draft.sent:
+    post:
+      summary: Inbox draft sent
+      description: Occurs whenever a draft was sent. This event fires from the send call. `inbox.email.sent` follows once the email is accepted for delivery.
+      tags:
+        - Webhook Events
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InboxDraftSentEvent'
+      responses:
+        '2XX':
+          description: Return any 2xx status code to acknowledge receipt of the event.
+  inbox.draft.deleted:
+    post:
+      summary: Inbox draft deleted
+      description: Occurs whenever a draft was discarded. The draft is already gone, so the payload has no `draft` object.
+      tags:
+        - Webhook Events
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InboxDraftDeletedEvent'
       responses:
         '2XX':
           description: Return any 2xx status code to acknowledge receipt of the event.
@@ -7889,3 +9200,2192 @@ components:
                 type: string
                 description: Timestamp indicating when the suppression was created.
                 example: "2023-10-06 23:47:56.678+00"
+    Inbox:
+      type: object
+      required:
+        - object
+        - id
+        - name
+        - email_address
+        - domain_id
+        - receiving_address
+        - from_name
+        - unread
+        - drafts
+        - last_received
+        - created_at
+      properties:
+        object:
+          type: string
+          description: The object type. Always `inbox`.
+          example: inbox
+        id:
+          type: string
+          format: uuid
+          description: The ID of the inbox.
+          example: b3e2b2b6-3f0e-4c8e-9ad3-2f43a1e2c7f1
+        name:
+          type: string
+          description: Internal name for the inbox. Recipients do not see it. Falls back to the inbox email address.
+          example: Customer Support
+        email_address:
+          type: string
+          description: The address of the inbox.
+          example: support@acme.com
+        domain_id:
+          type: string
+          format: uuid
+          description: The ID of the domain that owns the address.
+          example: d91cd9bd-1176-453e-8fc1-35364d380206
+        receiving_address:
+          type: [string, "null"]
+          description: The address to forward mail to when forwarding is enabled. `null` otherwise.
+          example: null
+        from_name:
+          type: [string, "null"]
+          description: The name recipients see when mail is sent from this inbox. `null` when not set.
+          example: Ada from Support
+        unread:
+          type: integer
+          description: The number of unread threads in the Inbox folder.
+          example: 3
+        drafts:
+          type: integer
+          description: The number of unsent drafts.
+          example: 2
+        last_received:
+          type: [string, "null"]
+          format: date-time
+          description: ISO 8601 timestamp of the newest received email in the Inbox folder. `null` when the folder has no received email.
+          example: '2026-08-05T14:03:11.229Z'
+        created_at:
+          type: string
+          format: date-time
+          description: ISO 8601 timestamp when the inbox was created.
+          example: '2026-08-01T09:12:44.512Z'
+    CreateInboxOptions:
+      type: object
+      required:
+        - email_address
+      properties:
+        email_address:
+          type: string
+          description: >-
+            The inbox email address on one of your domains. The API trims and lowercases it. The part before the `@` is at most 64 characters and contains only letters, numbers, and `. _ % + -`. It cannot start or end with a dot or contain two dots in a row.
+          example: support@acme.com
+        name:
+          type: string
+          maxLength: 64
+          description: Internal name for the inbox. Recipients do not see it. Max 64 characters. Defaults to `email_address`.
+          example: Customer Support
+        from_name:
+          type: string
+          maxLength: 78
+          description: >-
+            The name recipients see when mail is sent from this inbox. A plain name, not a `Name <email>` address. Max 78 characters. It cannot contain a colon, `<`, `>`, line breaks, or other control characters. An email address inside the name must be on a domain the team has verified for sending. An empty string leaves it unset.
+          example: Ada from Support
+        forwarding:
+          type: boolean
+          default: false
+          description: >-
+            When `true`, Resend provisions a receiving address so you can receive mail without adding an MX record. The address is returned in `receiving_address`.
+    CreateInboxResponseSuccess:
+      type: object
+      required:
+        - object
+        - id
+      properties:
+        object:
+          type: string
+          description: Type of the response object.
+          example: inbox
+        id:
+          type: string
+          format: uuid
+          description: The ID of the inbox.
+          example: b3e2b2b6-3f0e-4c8e-9ad3-2f43a1e2c7f1
+    GetInboxResponseSuccess:
+      $ref: '#/components/schemas/Inbox'
+    ListInboxesResponseSuccess:
+      type: object
+      required:
+        - object
+        - has_more
+        - data
+      properties:
+        object:
+          type: string
+          description: Type of the response object.
+          example: list
+        has_more:
+          type: boolean
+          description: Indicates if there are more results available.
+          example: false
+        data:
+          type: array
+          description: Array containing inbox information.
+          items:
+            type: object
+            required:
+              - id
+              - name
+              - email_address
+              - from_name
+              - unread
+              - last_received
+            properties:
+              id:
+                type: string
+                format: uuid
+                description: The ID of the inbox.
+                example: b3e2b2b6-3f0e-4c8e-9ad3-2f43a1e2c7f1
+              name:
+                type: [string, "null"]
+                description: Internal name for the inbox. Recipients do not see it.
+                example: Customer Support
+              email_address:
+                type: string
+                description: The address of the inbox.
+                example: support@acme.com
+              from_name:
+                type: [string, "null"]
+                description: The name recipients see when mail is sent from this inbox. `null` when not set.
+                example: Ada from Support
+              unread:
+                type: integer
+                description: The number of unread threads in the Inbox folder.
+                example: 3
+              last_received:
+                type: [string, "null"]
+                format: date-time
+                description: ISO 8601 timestamp of the newest received email in the Inbox folder. `null` when the folder has no received email.
+                example: '2026-08-05T14:03:11.229Z'
+    UpdateInboxOptions:
+      type: object
+      description: Provide at least one of `name` or `from_name`.
+      anyOf:
+        - required:
+            - name
+        - required:
+            - from_name
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 64
+          description: New internal name for the inbox. Recipients do not see it. Between 1 and 64 characters after trimming.
+          example: Customer Support
+        from_name:
+          type: string
+          maxLength: 78
+          description: >-
+            The name recipients see when mail is sent from this inbox. A plain name, not a `Name <email>` address. Max 78 characters. It cannot contain a colon, `<`, `>`, line breaks, or other control characters. An email address inside the name must be on a domain the team has verified for sending. An empty string removes it.
+          example: Ada from Support
+    UpdateInboxResponseSuccess:
+      type: object
+      required:
+        - object
+        - id
+      properties:
+        object:
+          type: string
+          description: The object type.
+          example: inbox
+        id:
+          type: string
+          format: uuid
+          description: The ID of the inbox.
+          example: b3e2b2b6-3f0e-4c8e-9ad3-2f43a1e2c7f1
+    RemoveInboxResponseSuccess:
+      type: object
+      required:
+        - object
+        - id
+        - deleted
+      properties:
+        object:
+          type: string
+          description: The object type.
+          example: inbox
+        id:
+          type: string
+          format: uuid
+          description: The ID of the inbox.
+          example: b3e2b2b6-3f0e-4c8e-9ad3-2f43a1e2c7f1
+        deleted:
+          type: boolean
+          description: Indicates whether the inbox was successfully deleted.
+          example: true
+    InboxAgent:
+      type: object
+      required:
+        - object
+        - instructions
+        - tone
+        - enabled_actions
+      properties:
+        object:
+          type: string
+          description: The object type. Always `inbox_agent`.
+          example: inbox_agent
+        instructions:
+          type: [string, "null"]
+          description: Instructions the agent follows when it handles the threads of the inbox. Null when no instructions are set.
+          example: Answer refund questions yourself. Escalate legal threats.
+        tone:
+          type: [string, "null"]
+          description: The tone the agent writes in, such as `friendly and concise`. Null when no tone is set.
+          example: friendly and concise
+        enabled_actions:
+          type: array
+          description: The actions the agent can take. Empty when no actions are enabled.
+          items:
+            type: string
+            enum:
+              - draft_reply
+              - forward_thread
+              - add_labels
+              - assign_thread
+              - mark_as_spam
+              - archive_thread
+              - delete_thread
+          example:
+            - draft_reply
+            - add_labels
+    GetInboxAgentResponseSuccess:
+      $ref: '#/components/schemas/InboxAgent'
+    UpdateInboxAgentOptions:
+      type: object
+      anyOf:
+        - required:
+            - instructions
+        - required:
+            - tone
+        - required:
+            - enabled_actions
+      description: >-
+        At least one of `instructions`, `tone`, or `enabled_actions` must be provided. Omitted fields keep their current value.
+      properties:
+        instructions:
+          type: [string, "null"]
+          minLength: 1
+          maxLength: 4000
+          description: >-
+            Instructions the agent follows when it handles the threads of the inbox. Max 4000 characters. Leading and trailing whitespace is trimmed, and the trimmed value must not be empty. Send null to clear the instructions.
+          example: Answer refund questions yourself. Escalate legal threats.
+        tone:
+          type: [string, "null"]
+          minLength: 1
+          maxLength: 64
+          description: >-
+            The tone the agent writes in, such as `friendly and concise`. Max 64 characters. Leading and trailing whitespace is trimmed, and the trimmed value must not be empty. Send null to clear the tone.
+          example: friendly and concise
+        enabled_actions:
+          type: array
+          description: >-
+            The actions the agent can take. Replaces the whole set. Duplicates are removed. Send an empty array to disable all actions.
+          items:
+            type: string
+            enum:
+              - draft_reply
+              - forward_thread
+              - add_labels
+              - assign_thread
+              - mark_as_spam
+              - archive_thread
+              - delete_thread
+          example:
+            - draft_reply
+            - add_labels
+    UpdateInboxAgentResponseSuccess:
+      type: object
+      required:
+        - object
+        - id
+      properties:
+        object:
+          type: string
+          description: The object type. Always `inbox_agent`.
+          example: inbox_agent
+        id:
+          type: string
+          format: uuid
+          description: The ID of the inbox agent.
+          example: a1f84a4e-6f2b-4f0a-9c1d-8a2e5b3c7d90
+    InboxLabel:
+      type: object
+      required:
+        - id
+        - name
+        - color
+        - created_at
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: The ID of the label.
+          example: 7f9c1d2e-4a6b-4c3d-8e15-9b0a7c6d5e34
+        name:
+          type: string
+          description: The name of the label.
+          example: Urgent
+        color:
+          type: string
+          pattern: ^#[0-9A-Fa-f]{6}$
+          description: The color of the label, as a `#RRGGBB` hex color in uppercase.
+          example: '#E93D82'
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp when the label was created.
+          example: '2026-08-05T14:07:42.881Z'
+    ListInboxLabelsResponseSuccess:
+      type: object
+      required:
+        - object
+        - data
+      properties:
+        object:
+          type: string
+          description: Type of the response object.
+          example: list
+        data:
+          type: array
+          description: The labels on the inbox, oldest first.
+          items:
+            $ref: '#/components/schemas/InboxLabel'
+    CreateInboxLabelOptions:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 64
+          description: >-
+            The name of the label. Max 64 characters. Leading and trailing whitespace is trimmed. Must not match another label on the inbox, compared without case.
+          example: Urgent
+        color:
+          type: string
+          pattern: ^#[0-9A-Fa-f]{6}$
+          description: The color of the label, as a `#RRGGBB` hex color. It is stored in uppercase. When omitted, a random color from the dashboard palette is used.
+          example: '#E93D82'
+    CreateInboxLabelResponseSuccess:
+      type: object
+      required:
+        - object
+        - id
+      properties:
+        object:
+          type: string
+          description: Type of the response object.
+          example: inbox_label
+        id:
+          type: string
+          format: uuid
+          description: The ID of the label.
+          example: 7f9c1d2e-4a6b-4c3d-8e15-9b0a7c6d5e34
+    UpdateInboxLabelOptions:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 64
+          description: >-
+            A new name for the label. Max 64 characters. Leading and trailing whitespace is trimmed. Must not match another label on the inbox, compared without case.
+          example: Billing
+        color:
+          type: string
+          pattern: ^#[0-9A-Fa-f]{6}$
+          description: A new color for the label, as a `#RRGGBB` hex color. It is stored in uppercase.
+          example: '#F76B15'
+    UpdateInboxLabelResponseSuccess:
+      type: object
+      required:
+        - object
+        - id
+      properties:
+        object:
+          type: string
+          description: Type of the response object.
+          example: inbox_label
+        id:
+          type: string
+          format: uuid
+          description: The ID of the updated label.
+          example: 7f9c1d2e-4a6b-4c3d-8e15-9b0a7c6d5e34
+    RemoveInboxLabelResponseSuccess:
+      type: object
+      required:
+        - object
+        - id
+        - deleted
+      properties:
+        object:
+          type: string
+          description: Type of the response object.
+          example: inbox_label
+        id:
+          type: string
+          format: uuid
+          description: The ID of the removed label.
+          example: 7f9c1d2e-4a6b-4c3d-8e15-9b0a7c6d5e34
+        deleted:
+          type: boolean
+          description: Indicates whether the label was deleted.
+          example: true
+    InboxThreadLabel:
+      type: object
+      required:
+        - id
+        - name
+        - color
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: The ID of the label.
+          example: 7f9c1d2e-4a6b-4c3d-8e15-9b0a7c6d5e34
+        name:
+          type: string
+          description: The name of the label.
+          example: Urgent
+        color:
+          type: string
+          pattern: ^#[0-9A-Fa-f]{6}$
+          description: The color of the label, as a `#RRGGBB` hex color in uppercase.
+          example: '#E93D82'
+    InboxThread:
+      type: object
+      description: A thread as it appears in the list of an inbox's threads.
+      required:
+        - id
+        - subject
+        - from
+        - to
+        - cc
+        - bcc
+        - labels
+        - message_count
+        - has_attachment
+        - has_draft
+        - read
+        - received_at
+        - folder
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: The ID of the thread.
+          example: 4d8e2a1c-9b3f-4c6d-8a21-3e5f7c9c0d12
+        subject:
+          type: [string, "null"]
+          description: The subject of the thread.
+          example: Refund for order 1041
+        from:
+          type: [string, "null"]
+          description: The sender email address. Can include the display name.
+          example: ada@example.org
+        to:
+          type: array
+          description: The recipients of the most recent email. For a received email, these are the addresses it was delivered to, not the full `To` header.
+          items:
+            type: string
+          example:
+            - support@example.com
+        cc:
+          type: array
+          description: The CC recipients of the most recent email.
+          items:
+            type: string
+          example: []
+        bcc:
+          type: array
+          description: The BCC recipients of the most recent email. Always empty for a received email.
+          items:
+            type: string
+          example: []
+        labels:
+          type: array
+          description: The labels attached to the thread.
+          items:
+            $ref: '#/components/schemas/InboxThreadLabel'
+        message_count:
+          type: integer
+          description: The number of emails in the thread.
+          example: 2
+        has_attachment:
+          type: boolean
+          description: Whether the most recent email in the thread has an attachment.
+          example: true
+        has_draft:
+          type: boolean
+          description: Whether the thread has an unsent draft.
+          example: false
+        read:
+          type: boolean
+          description: True only when every email in the thread is read.
+          example: false
+        received_at:
+          type: string
+          format: date-time
+          description: Timestamp when the thread was last active.
+          example: '2026-08-05T14:03:11.229Z'
+        folder:
+          type: string
+          enum:
+            - inbox
+            - archive
+            - spam
+            - sent
+            - trash
+          description: >-
+            The folder the thread is in. Every thread is in exactly one folder. `inbox` holds threads with at least one received email. `archive` and `spam` hold threads moved there. `trash` holds threads scheduled for deletion in 30 days. `sent` holds threads whose emails are all outbound, and is assigned automatically.
+          example: inbox
+    InboxThreadSearchResult:
+      allOf:
+        - $ref: '#/components/schemas/InboxThread'
+        - type: object
+          required:
+            - matched_email_id
+            - highlights
+          properties:
+            matched_email_id:
+              type: [string, "null"]
+              format: uuid
+              description: >-
+                Identifies the email in the thread that matched the search. When `query` has words or phrases, it is the most relevant match. Otherwise, it is the newest. The get, reply and forward thread email endpoints accept it as `email_id`, but it is not equal to the `id` those endpoints return. Null when the search index returns no matched email for the thread.
+              example: e8a3f1c6-2b9d-4e5a-a7c4-9d1b6f3e2a80
+            highlights:
+              type: object
+              description: >-
+                Where `query` matched the email in `matched_email_id`, as text fragments with each match wrapped in `**`. Only keys with a match are present. An empty object when there is no `query`.
+              properties:
+                subject:
+                  type: array
+                  items:
+                    type: string
+                body:
+                  type: array
+                  items:
+                    type: string
+                from:
+                  type: array
+                  items:
+                    type: string
+                to:
+                  type: array
+                  items:
+                    type: string
+                cc:
+                  type: array
+                  items:
+                    type: string
+                bcc:
+                  type: array
+                  items:
+                    type: string
+                attachments:
+                  type: array
+                  items:
+                    type: string
+              additionalProperties: false
+              example:
+                subject:
+                  - September **invoice**
+                attachments:
+                  - '**invoice**-2026-09.pdf'
+    InboxThreadSummary:
+      type: object
+      description: The summary of a single thread.
+      required:
+        - object
+        - id
+        - subject
+        - folder
+        - labels
+        - read
+      properties:
+        object:
+          type: string
+          description: The object type.
+          example: inbox_thread
+        id:
+          type: string
+          format: uuid
+          description: The ID of the thread.
+          example: 4d8e2a1c-9b3f-4c6d-8a21-3e5f7c9c0d12
+        subject:
+          type: [string, "null"]
+          description: The subject of the thread.
+          example: Refund for order 1041
+        folder:
+          type: string
+          enum:
+            - inbox
+            - archive
+            - spam
+            - sent
+            - trash
+          description: The folder the thread is in.
+          example: inbox
+        labels:
+          type: array
+          description: The labels attached to the thread.
+          items:
+            $ref: '#/components/schemas/InboxThreadLabel'
+        read:
+          type: boolean
+          description: True only when every email in the thread is read.
+          example: false
+    ListInboxThreadsResponseSuccess:
+      type: object
+      required:
+        - object
+        - has_more
+        - data
+      properties:
+        object:
+          type: string
+          description: Type of the response object.
+          example: list
+        has_more:
+          type: boolean
+          description: Indicates if there are more results available.
+          example: true
+        data:
+          type: array
+          description: The matching threads, most recently active first.
+          items:
+            $ref: '#/components/schemas/InboxThread'
+    SearchInboxThreadsResponseSuccess:
+      type: object
+      required:
+        - object
+        - has_more
+        - data
+      properties:
+        object:
+          type: string
+          description: Type of the response object.
+          example: list
+        has_more:
+          type: boolean
+          description: Indicates if there are more results available.
+          example: true
+        data:
+          type: array
+          description: The matching threads, most recently active first.
+          items:
+            $ref: '#/components/schemas/InboxThreadSearchResult'
+    GetInboxThreadResponseSuccess:
+      $ref: '#/components/schemas/InboxThreadSummary'
+    UpdateInboxThreadOptions:
+      type: object
+      description: >-
+        At least one of `read`, `folder`, `add_label_ids`, or `remove_label_ids` is required. A label ID cannot be both added and removed in the same request.
+      anyOf:
+        - required:
+            - read
+        - required:
+            - folder
+        - required:
+            - add_label_ids
+        - required:
+            - remove_label_ids
+      properties:
+        read:
+          type: boolean
+          description: Marks every email in the thread read or unread.
+          example: true
+        folder:
+          type: string
+          enum:
+            - inbox
+            - archive
+            - spam
+            - trash
+          description: >-
+            Moves the thread to this folder. `sent` is assigned automatically and cannot be set.
+          example: archive
+        add_label_ids:
+          type: array
+          minItems: 1
+          maxItems: 10
+          items:
+            type: string
+            format: uuid
+          description: >-
+            Label IDs to apply to the thread. Between 1 and 10 IDs. A label ID that does not exist in the inbox returns a 404.
+          example:
+            - 7f9c1d2e-4a6b-4c3d-8e15-9b0a7c6d5e34
+        remove_label_ids:
+          type: array
+          minItems: 1
+          maxItems: 10
+          items:
+            type: string
+            format: uuid
+          description: >-
+            Label IDs to remove from the thread. Between 1 and 10 IDs. The labels themselves are kept. A label ID that does not exist in the inbox returns a 404.
+          example:
+            - 2b6d0f4e-8a1c-4e3b-9d57-1c0e8a6f4b21
+    UpdateInboxThreadResponseSuccess:
+      $ref: '#/components/schemas/InboxThreadSummary'
+    RemoveInboxThreadResponseSuccess:
+      type: object
+      required:
+        - object
+        - id
+        - deleted
+      properties:
+        object:
+          type: string
+          description: The object type.
+          example: inbox_thread
+        id:
+          type: string
+          format: uuid
+          description: The ID of the thread.
+          example: 4d8e2a1c-9b3f-4c6d-8a21-3e5f7c9c0d12
+        deleted:
+          type: boolean
+          description: >-
+            True when this call moved the thread to `trash`. False when the thread was already there.
+          example: true
+    InboxThreadEmailAttachment:
+      type: object
+      required:
+        - id
+        - filename
+        - size
+      properties:
+        id:
+          type: string
+          description: The ID of the attachment.
+          example: 9d4f2b81-6c3a-4e7d-8b12-0a5c6d7e8f90
+        filename:
+          type: [string, "null"]
+          description: The filename of the attachment.
+          example: receipt.pdf
+        size:
+          type: [integer, "null"]
+          description: The size of the attachment in bytes.
+          example: 20841
+    InboxThreadEmail:
+      type: object
+      required:
+        - id
+        - direction
+        - from
+        - to
+        - cc
+        - bcc
+        - reply_to
+        - subject
+        - message_id
+        - html
+        - text
+        - attachments
+        - read
+        - received_at
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: The ID of the message.
+          example: 5b1a9f47-2c8d-4e6f-9a03-1d2e3f4a5b60
+        direction:
+          type: string
+          enum:
+            - inbound
+            - outbound
+          description: Whether the inbox received the message (`inbound`) or sent it (`outbound`). A message the inbox sent to itself is `inbound`, so a reply to it goes to its sender.
+          example: inbound
+        from:
+          type: string
+          description: Sender email address. Includes the display name when the sender has one, in the format "Name <sender@domain.com>".
+          example: Ada Lovelace <ada@example.org>
+        to:
+          type: array
+          items:
+            type: string
+          description: The recipients of the message. For a received message, these are the addresses it was delivered to, not the full `To` header.
+          example: ['support@acme.com']
+        cc:
+          type: array
+          items:
+            type: string
+          description: The CC recipients of the message.
+          example: []
+        bcc:
+          type: array
+          items:
+            type: string
+          description: The BCC recipients of the message. Always empty for a received message.
+          example: []
+        reply_to:
+          type: array
+          items:
+            type: string
+          description: The Reply-To addresses of the message.
+          example: ['replies@example.org']
+        subject:
+          type: [string, "null"]
+          description: The subject of the message.
+          example: Refund for order 1041
+        message_id:
+          type: [string, "null"]
+          description: The Message-ID header of the message.
+          example: '<1041@example.org>'
+        html:
+          type: [string, "null"]
+          description: The HTML body.
+          example: '<p>Could I get a refund for order 1041?</p>'
+        text:
+          type: [string, "null"]
+          description: The plain-text body.
+          example: Could I get a refund for order 1041?
+        attachments:
+          type: array
+          description: The attachments of the message.
+          items:
+            $ref: '#/components/schemas/InboxThreadEmailAttachment'
+        read:
+          type: boolean
+          description: Whether the message has been read.
+          example: false
+        received_at:
+          type: string
+          format: date-time
+          description: Timestamp when the inbox received the message, or when the inbox sent it.
+          example: '2026-08-05T14:03:11.229Z'
+    ListInboxThreadEmailsResponseSuccess:
+      type: object
+      required:
+        - object
+        - has_more
+        - data
+      properties:
+        object:
+          type: string
+          description: Type of the response object.
+          example: list
+        has_more:
+          type: boolean
+          description: Indicates if there are more results available.
+          example: false
+        data:
+          type: array
+          description: The messages of the thread on this page, oldest first.
+          items:
+            $ref: '#/components/schemas/InboxThreadEmail'
+    GetInboxThreadEmailResponseSuccess:
+      $ref: '#/components/schemas/InboxThreadEmail'
+    ReplyInboxThreadEmailOptions:
+      type: object
+      description: At least one of `html` or `text` must contain more than whitespace.
+      properties:
+        cc:
+          description: >-
+            CC recipient email address. For multiple addresses, send as an array of strings. Without `reply_all`, the reply copies only these addresses. With `reply_all`, these addresses are merged with the copied recipients, without duplicates. `cc` and `bcc` combined must be fewer than 50 addresses. After the `to` recipients are added, the reply cannot exceed 50 recipients. Each address is `email@example.com` or `Name <email@example.com>`. An address that is not valid returns a 422.
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+              maxItems: 49
+            - type: 'null'
+          example: ['billing@acme.com']
+        bcc:
+          description: >-
+            BCC recipient email address. For multiple addresses, send as an array of strings. BCC recipients of the original message are never copied. Each address is `email@example.com` or `Name <email@example.com>`. An address that is not valid returns a 422.
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+              maxItems: 49
+            - type: 'null'
+          example: ['records@acme.com']
+        html:
+          type: string
+          description: The HTML body of the reply.
+          example: '<p>Refund issued for order 1041.</p>'
+        text:
+          type: string
+          description: The plain-text body of the reply.
+          example: Refund issued for order 1041.
+        subject:
+          type: string
+          minLength: 1
+          maxLength: 2000
+          description: The subject of the reply. Cannot be only whitespace or contain a line break. When omitted, the thread subject is used, prefixed with `Re:` if it does not already start with it.
+          example: 'Re: Refund for order 1041'
+        reply_all:
+          type: boolean
+          default: false
+          description: >-
+            Reply to everyone on the original message. For a message the inbox received, the reply goes to its `Reply-To` addresses, or to its sender when it has none, and copies the other addresses of its `To` header and its `cc` recipients in `cc`. For a message the inbox sent, the reply goes to that message's `Reply-To` addresses when they are not the inbox address, otherwise to its `to` recipients, and copies its `cc` recipients. The inbox address is always excluded, and duplicates are removed.
+          example: false
+        attachments:
+          type: [array, "null"]
+          description: Files to attach, as on `POST /emails`. Each one needs `content` or `path`. Up to 10 files. The `content` of all files can total at most 25 MB. A `path` file counts toward the 10 files only, because it is fetched when the email is sent. An empty file, a blocked file type, a `path` that is not an `http` or `https` URL or that points to `localhost`, `127.0.0.1` or `0.0.0.0`, or a `content_type` that is not a valid MIME type returns a 422.
+          items:
+            $ref: '#/components/schemas/Attachment'
+        headers:
+          type: [object, "null"]
+          additionalProperties:
+            type: string
+          description: >-
+            Custom headers to add to the email. The `In-Reply-To`, `References` and `Reply-To` headers are set by Resend and cannot be set here. Sending one of them, in any letter case, returns a 422. Header names cannot be empty, and names and values cannot contain line breaks or null characters, or the request returns a 422. `null` means no custom headers.
+          example:
+            X-Ticket-Id: '4821'
+    ReplyInboxThreadEmailResponseSuccess:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: The ID of the sent email. Use it with the emails endpoints.
+          example: 6a0c8e58-3d9e-4f7a-8b14-2e3f4a5b6c71
+    ForwardInboxThreadEmailOptions:
+      type: object
+      required:
+        - to
+      properties:
+        to:
+          description: >-
+            Recipient email address. For multiple addresses, send as an array of strings. Must name at least one address. `to`, `cc` and `bcc` combined cannot exceed 50 recipients. Each address is `email@example.com` or `Name <email@example.com>`. An address that is not valid returns a 422.
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+              minItems: 1
+              maxItems: 50
+          example: ['colleague@example.org']
+        cc:
+          description: >-
+            CC recipient email address. For multiple addresses, send as an array of strings. Counts toward the 50-recipient limit. Each address is `email@example.com` or `Name <email@example.com>`. An address that is not valid returns a 422.
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+              maxItems: 50
+            - type: 'null'
+          example: ['billing@acme.com']
+        bcc:
+          description: >-
+            BCC recipient email address. For multiple addresses, send as an array of strings. Counts toward the 50-recipient limit. Each address is `email@example.com` or `Name <email@example.com>`. An address that is not valid returns a 422.
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+              maxItems: 50
+            - type: 'null'
+          example: ['records@acme.com']
+        html:
+          type: string
+          description: An HTML note sent above the quoted original.
+          example: '<p>Flagging this refund request for you.</p>'
+        text:
+          type: string
+          description: A plain-text note sent above the quoted original.
+          example: Flagging this refund request for you.
+        subject:
+          type: string
+          minLength: 1
+          maxLength: 2000
+          description: The subject of the forward. Cannot be only whitespace or contain a line break. When omitted, the thread subject is used, prefixed with `Fwd:` if it does not already start with it.
+          example: 'Fwd: Refund for order 1041'
+        attachments:
+          type: [array, "null"]
+          description: 'Files to attach, as on `POST /emails`. Each one needs `content` or `path`. They share one limit with the attachments of the original message, which the forward also sends. Together they can have up to 10 files and at most 25 MB of `content`. A `path` file counts toward the 10 files only, because it is fetched when the email is sent. An empty file, a blocked file type, a `path` that is not an `http` or `https` URL or that points to `localhost`, `127.0.0.1` or `0.0.0.0`, or a `content_type` that is not a valid MIME type returns a 422.'
+          items:
+            $ref: '#/components/schemas/Attachment'
+        headers:
+          type: [object, "null"]
+          additionalProperties:
+            type: string
+          description: >-
+            Custom headers to add to the email. The `In-Reply-To`, `References` and `Reply-To` headers are set by Resend and cannot be set here. Sending one of them, in any letter case, returns a 422. Header names cannot be empty, and names and values cannot contain line breaks or null characters, or the request returns a 422. `null` means no custom headers.
+          example:
+            X-Ticket-Id: '4821'
+    ForwardInboxThreadEmailResponseSuccess:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: The ID of the sent email. Use it with the emails endpoints.
+          example: 6a0c8e58-3d9e-4f7a-8b14-2e3f4a5b6c71
+    InboxDraftAttachmentInput:
+      type: object
+      description: A file to store on a draft. Unlike `POST /emails` attachments, a draft attachment cannot use `path` or `content_id`. A `path` without `content` returns a 422, and when both are sent, `path` is ignored.
+      required:
+        - content
+        - filename
+        - content_type
+      properties:
+        content:
+          type: string
+          description: The content of the file, encoded in base64. It cannot be empty.
+          example: aGVsbG8gZTJl
+        filename:
+          type: string
+          minLength: 1
+          description: The filename of the attachment. A blocked file type returns a 422.
+          example: receipt.pdf
+        content_type:
+          type: string
+          minLength: 1
+          description: >-
+            The MIME type of the attachment. It must be a valid MIME type, such as `application/pdf`, or the request returns a 422.
+          example: application/pdf
+    InboxDraftAttachment:
+      type: object
+      description: A file stored on a draft.
+      required:
+        - id
+        - filename
+        - content_type
+        - size
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: The ID of the attachment.
+          example: 5c1e9d2a-7b3f-4e8a-9c6d-2f0a1b3c4d5e
+        filename:
+          type: string
+          description: The filename of the attachment.
+          example: receipt.pdf
+        content_type:
+          type: string
+          description: The MIME type of the attachment.
+          example: application/pdf
+        size:
+          type: integer
+          description: The size of the attachment in bytes.
+          example: 20841
+    InboxDraft:
+      type: object
+      required:
+        - object
+        - id
+        - type
+        - to
+        - cc
+        - bcc
+        - subject
+        - html
+        - text
+        - thread_id
+        - reply_to_email_id
+        - email_id
+        - created_at
+        - updated_at
+        - attachments
+      properties:
+        object:
+          type: string
+          description: The object type.
+          example: inbox_draft
+        id:
+          type: string
+          format: uuid
+          description: The ID of the draft.
+          example: c3a1e8b4-2d5f-4a7c-9e10-6b8d7f5a4c32
+        type:
+          type: string
+          enum:
+            - standalone
+            - reply
+          description: '`reply` when the draft replies to an email in an existing thread. `standalone` when the draft starts a new thread.'
+          example: standalone
+        to:
+          type: [array, "null"]
+          items:
+            type: string
+          description: The recipients. `null` or empty when no recipients are set.
+          example:
+            - ada@example.org
+        cc:
+          type: array
+          items:
+            type: string
+          description: The CC recipients.
+          example: []
+        bcc:
+          type: array
+          items:
+            type: string
+          description: The BCC recipients.
+          example: []
+        subject:
+          type: [string, "null"]
+          description: The subject.
+          example: Refund for order 1041
+        html:
+          type: [string, "null"]
+          description: The HTML body.
+          example: <p>Refund issued for order 1041.</p>
+        text:
+          type: [string, "null"]
+          description: The plain text body. A reply draft created without a body has an empty string.
+          example: Refund issued for order 1041.
+        thread_id:
+          type: [string, "null"]
+          format: uuid
+          description: The Thread ID when the draft is a reply. `null` otherwise.
+          example: null
+        reply_to_email_id:
+          type: [string, "null"]
+          format: uuid
+          description: The Email ID the draft replies to. `null` otherwise.
+          example: null
+        email_id:
+          type: [string, "null"]
+          format: uuid
+          description: The ID of the outbound email queued when the draft was sent. `null` until the draft is sent.
+          example: null
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp when the draft was created.
+          example: '2026-08-05T14:12:04.110Z'
+        updated_at:
+          type: string
+          format: date-time
+          description: Timestamp when the draft was last saved.
+          example: '2026-08-05T14:12:04.110Z'
+        attachments:
+          type: array
+          description: The files stored on the draft.
+          items:
+            $ref: '#/components/schemas/InboxDraftAttachment'
+    InboxDraftListItem:
+      type: object
+      required:
+        - id
+        - type
+        - to
+        - cc
+        - bcc
+        - subject
+        - snippet
+        - thread_id
+        - reply_to_email_id
+        - updated_at
+        - attachments
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: The ID of the draft.
+          example: c3a1e8b4-2d5f-4a7c-9e10-6b8d7f5a4c32
+        type:
+          type: string
+          enum:
+            - standalone
+            - reply
+          description: '`reply` when the draft replies to an email in an existing thread. `standalone` when the draft starts a new thread.'
+          example: standalone
+        to:
+          type: [array, "null"]
+          items:
+            type: string
+          description: The recipients. `null` or empty when no recipients are set.
+          example:
+            - ada@example.org
+        cc:
+          type: array
+          items:
+            type: string
+          description: The CC recipients.
+          example: []
+        bcc:
+          type: array
+          items:
+            type: string
+          description: The BCC recipients.
+          example: []
+        subject:
+          type: [string, "null"]
+          description: The subject.
+          example: Refund for order 1041
+        snippet:
+          type: [string, "null"]
+          description: A short preview of the body.
+          example: Refund issued for order 1041.
+        thread_id:
+          type: [string, "null"]
+          format: uuid
+          description: The Thread ID when the draft is a reply. `null` otherwise.
+          example: null
+        reply_to_email_id:
+          type: [string, "null"]
+          format: uuid
+          description: The Email ID the draft replies to. `null` otherwise.
+          example: null
+        updated_at:
+          type: string
+          format: date-time
+          description: Timestamp when the draft was last saved.
+          example: '2026-08-05T14:12:04.110Z'
+        attachments:
+          type: array
+          description: The files stored on the draft.
+          items:
+            $ref: '#/components/schemas/InboxDraftAttachment'
+    ListInboxDraftsResponseSuccess:
+      type: object
+      required:
+        - object
+        - has_more
+        - data
+      properties:
+        object:
+          type: string
+          description: Type of the response object.
+          example: list
+        has_more:
+          type: boolean
+          description: Indicates if there are more results available.
+          example: false
+        data:
+          type: array
+          description: The unsent drafts on this page, most recently updated first.
+          items:
+            $ref: '#/components/schemas/InboxDraftListItem'
+    CreateInboxDraftOptions:
+      type: object
+      description: >-
+        At least one of `to`, `cc`, `bcc`, `subject`, `text`, `html` or `attachments` must be non-empty. The combined recipients of `to`, `cc` and `bcc` cannot exceed 50. `thread_id` and `reply_to_email_id` must be sent together or not at all.
+      properties:
+        to:
+          description: >-
+            The recipients. For multiple addresses, send an array of strings. Each value can include a friendly name, for example `Ada Lovelace <ada@example.org>`. Each address is `email@example.com` or `Name <email@example.com>`. An address that is not valid returns a 422.
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+              maxItems: 50
+            - type: 'null'
+          example:
+            - ada@example.org
+        cc:
+          description: >-
+            The CC recipients. For multiple addresses, send an array of strings. Each address is `email@example.com` or `Name <email@example.com>`. An address that is not valid returns a 422.
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+              maxItems: 50
+            - type: 'null'
+        bcc:
+          description: >-
+            The BCC recipients. For multiple addresses, send an array of strings. Each address is `email@example.com` or `Name <email@example.com>`. An address that is not valid returns a 422.
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+              maxItems: 50
+            - type: 'null'
+        subject:
+          type: [string, "null"]
+          minLength: 1
+          maxLength: 2000
+          description: The subject. Max 2000 characters. A string that is only whitespace, or that contains a line break, is rejected.
+          example: Refund for order 1041
+        html:
+          type: [string, "null"]
+          description: The HTML body.
+          example: <p>Refund issued for order 1041.</p>
+        text:
+          type: [string, "null"]
+          description: The plain text body.
+          example: Refund issued for order 1041.
+        attachments:
+          type: [array, "null"]
+          description: >-
+            Files to store on the draft. Each one needs `content`, `filename` and `content_type`. A `path` without `content` returns a 422, and when both are sent, `path` is ignored. A `content_id` returns a 422. The files on a draft can total at most 25 MB. An empty file or a blocked file type returns a 422.
+          items:
+            $ref: '#/components/schemas/InboxDraftAttachmentInput'
+        thread_id:
+          type: string
+          format: uuid
+          description: The Thread ID to reply in. Must be sent with `reply_to_email_id`.
+          example: 4d8e2a1c-9b3f-4c6d-8a21-3e5f7c9c0d12
+        reply_to_email_id:
+          type: string
+          format: uuid
+          description: >-
+            The Email ID to reply to, as returned in `data[].id` by the list thread emails endpoint. Must be sent with `thread_id`.
+          example: 5b1a9f47-2c8d-4e6f-9a03-1d2e3f4a5b60
+    CreateInboxDraftResponseSuccess:
+      type: object
+      required:
+        - object
+        - id
+      properties:
+        object:
+          type: string
+          description: Type of the response object.
+          example: inbox_draft
+        id:
+          type: string
+          format: uuid
+          description: The ID of the draft.
+          example: c3a1e8b4-2d5f-4a7c-9e10-6b8d7f5a4c32
+    GetInboxDraftResponseSuccess:
+      $ref: '#/components/schemas/InboxDraft'
+    UpdateInboxDraftOptions:
+      type: object
+      description: >-
+        Send at least one of `to`, `cc`, `bcc`, `subject`, `text`, `html` or `attachments`. Omitted fields are left unchanged. Setting `text` or `html` replaces the whole body, so the body part you omit becomes `null`. The merged draft must contain at least one non-empty field, and its combined recipients cannot exceed 50.
+      anyOf:
+        - required:
+            - to
+        - required:
+            - cc
+        - required:
+            - bcc
+        - required:
+            - subject
+        - required:
+            - text
+        - required:
+            - html
+        - required:
+            - attachments
+      properties:
+        to:
+          description: >-
+            The recipients. For multiple addresses, send an array of strings. Each value can include a friendly name. Pass `null` to clear. Each address is `email@example.com` or `Name <email@example.com>`. An address that is not valid returns a 422.
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+              maxItems: 50
+            - type: 'null'
+          example:
+            - ada@example.org
+        cc:
+          description: >-
+            The CC recipients. Pass `null` or `[]` to clear. Each address is `email@example.com` or `Name <email@example.com>`. An address that is not valid returns a 422.
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+              maxItems: 50
+            - type: 'null'
+        bcc:
+          description: >-
+            The BCC recipients. Pass `null` or `[]` to clear. Each address is `email@example.com` or `Name <email@example.com>`. An address that is not valid returns a 422.
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+              maxItems: 50
+            - type: 'null'
+        subject:
+          type: [string, "null"]
+          minLength: 1
+          maxLength: 2000
+          description: The subject. Max 2000 characters. Cannot be only whitespace or contain a line break. Pass `null` to clear.
+          example: Refund issued for order 1041
+        html:
+          type: [string, "null"]
+          description: The HTML body. Pass `null` to clear.
+        text:
+          type: [string, "null"]
+          description: The plain text body. Pass `null` to clear.
+        attachments:
+          type: [array, "null"]
+          description: >-
+            Files to store on the draft. Each one needs `content`, `filename` and `content_type`. A `path` without `content` returns a 422, and when both are sent, `path` is ignored. A `content_id` returns a 422. The files on a draft can total at most 25 MB. An empty file or a blocked file type returns a 422. Sending the field replaces every attachment on the draft. Send `[]` to remove them all. `null` also removes them all.
+          items:
+            $ref: '#/components/schemas/InboxDraftAttachmentInput'
+    UpdateInboxDraftResponseSuccess:
+      $ref: '#/components/schemas/InboxDraft'
+    RemoveInboxDraftResponseSuccess:
+      type: object
+      required:
+        - object
+        - id
+        - deleted
+      properties:
+        object:
+          type: string
+          description: The object type.
+          example: inbox_draft
+        id:
+          type: string
+          format: uuid
+          description: The ID of the draft.
+          example: c3a1e8b4-2d5f-4a7c-9e10-6b8d7f5a4c32
+        deleted:
+          type: boolean
+          enum:
+            - true
+          description: Indicates whether the draft was successfully deleted.
+          example: true
+    SendInboxDraftOptions:
+      type: object
+      properties:
+        headers:
+          type: [object, "null"]
+          additionalProperties:
+            type: string
+          description: >-
+            Custom headers to add to the email. The `In-Reply-To`, `References` and `Reply-To` headers are set by Resend and cannot be set here. Sending one of them, in any letter case, returns a 422. Header names cannot be empty, and names and values cannot contain line breaks or null characters, or the request returns a 422. `null` means no custom headers.
+          example:
+            X-Ticket-Id: '4821'
+    SendInboxDraftResponseSuccess:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: The ID of the sent email. Use it with the emails endpoints.
+          example: 6a0c8e58-3d9e-4f7a-8b14-2e3f4a5b6c71
+    InboxEventSource:
+      type: string
+      enum:
+        - api
+        - dashboard
+        - agent
+        - system
+      description: What made the change.
+      example: dashboard
+    InboxEventEmailAttachment:
+      type: object
+      description: An attachment on an email in an inbox webhook event.
+      required:
+        - id
+        - filename
+        - size
+      properties:
+        id:
+          type: string
+          description: The ID of the attachment.
+          example: 2a0c9ce0-3112-4728-976e-47ddcd16a318
+        filename:
+          type: [string, "null"]
+          description: The filename of the attachment.
+          example: invoice.pdf
+        size:
+          type: [integer, "null"]
+          description: The size of the attachment in bytes.
+          example: 48213
+    InboxEventEmail:
+      type: object
+      description: The email carried by an inbox webhook event. It has no `html` or `text`.
+      required:
+        - id
+        - direction
+        - from
+        - to
+        - cc
+        - bcc
+        - reply_to
+        - subject
+        - message_id
+        - attachments
+        - read
+        - received_at
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: The ID of the email.
+          example: 4ef9a417-02e9-4d39-ad75-9611e0fcc33c
+        direction:
+          type: string
+          enum:
+            - inbound
+            - outbound
+          description: Whether the email was received by the inbox or sent from it.
+          example: inbound
+        from:
+          type: string
+          description: The sender, as an address or as `Name <address>`.
+          example: Steve Wozniak <steve@acme.com>
+        to:
+          type: array
+          items:
+            type: string
+          description: The recipients of the email.
+          example:
+            - support@acme.com
+        cc:
+          type: array
+          items:
+            type: string
+          description: The CC recipients of the email.
+        bcc:
+          type: array
+          items:
+            type: string
+          description: The BCC recipients of the email.
+        reply_to:
+          type: array
+          items:
+            type: string
+          description: The Reply-To addresses.
+        subject:
+          type: [string, "null"]
+          description: The subject of the email.
+          example: Question about my invoice
+        message_id:
+          type: [string, "null"]
+          description: The Message-ID header of the email.
+          example: <CAF7c1f0a2e5d3b@mail.acme.com>
+        attachments:
+          type: array
+          items:
+            $ref: '#/components/schemas/InboxEventEmailAttachment'
+          description: The attachments on the email.
+        read:
+          type: boolean
+          description: Whether the email has been read.
+          example: false
+        received_at:
+          type: string
+          format: date-time
+          description: Timestamp when the email arrived or was sent.
+          example: '2026-09-29T12:00:00.000Z'
+    InboxEventDraft:
+      type: object
+      description: The draft carried by an inbox webhook event. It has no `html` or `text`.
+      required:
+        - object
+        - id
+        - type
+        - to
+        - cc
+        - bcc
+        - subject
+        - thread_id
+        - reply_to_email_id
+        - email_id
+        - created_at
+        - updated_at
+        - attachments
+      properties:
+        object:
+          type: string
+          description: The object type. Always `inbox_draft`.
+          example: inbox_draft
+        id:
+          type: string
+          format: uuid
+          description: The ID of the draft.
+          example: 9a2b7c4d-1e3f-4a5b-8c6d-0e1f2a3b4c5d
+        type:
+          type: string
+          enum:
+            - standalone
+            - reply
+          description: '`standalone` for a new conversation, or `reply`.'
+          example: reply
+        to:
+          type: [array, "null"]
+          items:
+            type: string
+          description: The recipients.
+          example:
+            - steve@acme.com
+        cc:
+          type: array
+          items:
+            type: string
+          description: The CC recipients.
+        bcc:
+          type: array
+          items:
+            type: string
+          description: The BCC recipients.
+        subject:
+          type: [string, "null"]
+          description: The subject.
+          example: 'Re: Question about my invoice'
+        thread_id:
+          type: [string, "null"]
+          format: uuid
+          description: The ID of the thread when this draft is a reply. Null otherwise.
+          example: 7c1f0a2e-5d3b-4e8a-9f61-2b8d4c6e1a90
+        reply_to_email_id:
+          type: [string, "null"]
+          format: uuid
+          description: The ID of the email this draft replies to. Null otherwise.
+          example: 4ef9a417-02e9-4d39-ad75-9611e0fcc33c
+        email_id:
+          type: [string, "null"]
+          format: uuid
+          description: The ID of the queued outbound email after send. Null until then.
+          example: null
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp when the draft was created.
+          example: '2026-09-29T11:58:00.000Z'
+        updated_at:
+          type: string
+          format: date-time
+          description: Timestamp when the draft was last saved.
+          example: '2026-09-29T12:00:00.000Z'
+        attachments:
+          type: array
+          description: The files stored on the draft.
+          items:
+            $ref: '#/components/schemas/InboxDraftAttachment'
+    InboxEventData:
+      type: object
+      description: The data of an `inbox.created` or `inbox.updated` event.
+      required:
+        - source
+        - inbox_id
+      properties:
+        source:
+          $ref: '#/components/schemas/InboxEventSource'
+        inbox_id:
+          type: string
+          format: uuid
+          description: The ID of the inbox.
+          example: b3e2b2b6-3f0e-4c8e-9ad3-2f43a1e2c7f1
+        inbox:
+          $ref: '#/components/schemas/Inbox'
+          description: The inbox as it is when the webhook is sent. Absent when the inbox no longer exists.
+    InboxDeletedEventData:
+      type: object
+      description: The data of an `inbox.deleted` event.
+      required:
+        - source
+        - inbox_id
+      properties:
+        source:
+          $ref: '#/components/schemas/InboxEventSource'
+        inbox_id:
+          type: string
+          format: uuid
+          description: The ID of the inbox.
+          example: b3e2b2b6-3f0e-4c8e-9ad3-2f43a1e2c7f1
+    InboxThreadEmailEventData:
+      type: object
+      description: The data of an `inbox.thread.created`, `inbox.email.received` or `inbox.email.sent` event.
+      required:
+        - source
+        - inbox_id
+        - thread_id
+        - email_id
+      properties:
+        source:
+          $ref: '#/components/schemas/InboxEventSource'
+        inbox_id:
+          type: string
+          format: uuid
+          description: The ID of the inbox.
+          example: b3e2b2b6-3f0e-4c8e-9ad3-2f43a1e2c7f1
+        thread_id:
+          type: string
+          format: uuid
+          description: The ID of the thread.
+          example: 7c1f0a2e-5d3b-4e8a-9f61-2b8d4c6e1a90
+        email_id:
+          type: string
+          format: uuid
+          description: The ID of the email.
+          example: 4ef9a417-02e9-4d39-ad75-9611e0fcc33c
+        thread:
+          $ref: '#/components/schemas/InboxThreadSummary'
+          description: The thread as it is when the webhook is sent. Absent when the thread no longer exists.
+        email:
+          $ref: '#/components/schemas/InboxEventEmail'
+          description: The email as it is when the webhook is sent, without `html` or `text`. Fetch the body with Retrieve Thread Email. Absent when the email no longer exists.
+    InboxThreadFolderUpdatedEventData:
+      type: object
+      description: The data of an `inbox.thread.folder.updated` event.
+      required:
+        - from
+        - to
+        - source
+        - inbox_id
+        - thread_id
+      properties:
+        from:
+          type: string
+          enum:
+            - inbox
+            - archive
+            - spam
+            - trash
+          description: The folder the thread was in.
+          example: inbox
+        to:
+          type: string
+          enum:
+            - inbox
+            - archive
+            - spam
+            - trash
+          description: The folder the thread moved to.
+          example: archive
+        source:
+          $ref: '#/components/schemas/InboxEventSource'
+        inbox_id:
+          type: string
+          format: uuid
+          description: The ID of the inbox.
+          example: b3e2b2b6-3f0e-4c8e-9ad3-2f43a1e2c7f1
+        thread_id:
+          type: string
+          format: uuid
+          description: The ID of the thread.
+          example: 7c1f0a2e-5d3b-4e8a-9f61-2b8d4c6e1a90
+        thread:
+          $ref: '#/components/schemas/InboxThreadSummary'
+          description: The thread as it is when the webhook is sent. Absent when the thread no longer exists.
+    InboxThreadAssignedEventData:
+      type: object
+      description: The data of an `inbox.thread.assigned` event.
+      required:
+        - assignee_email
+        - assigned_by_email
+        - previous_assignee_email
+        - source
+        - inbox_id
+        - thread_id
+      properties:
+        assignee_email:
+          type: [string, "null"]
+          description: The email of the member the thread is now assigned to.
+          example: ada@acme.com
+        assigned_by_email:
+          type: [string, "null"]
+          description: The email of the member who made the assignment. Null when no member made it.
+          example: grace@acme.com
+        previous_assignee_email:
+          type: [string, "null"]
+          description: The email of the member the thread was assigned to before. Null when it was unassigned.
+          example: null
+        source:
+          $ref: '#/components/schemas/InboxEventSource'
+        inbox_id:
+          type: string
+          format: uuid
+          description: The ID of the inbox.
+          example: b3e2b2b6-3f0e-4c8e-9ad3-2f43a1e2c7f1
+        thread_id:
+          type: string
+          format: uuid
+          description: The ID of the thread.
+          example: 7c1f0a2e-5d3b-4e8a-9f61-2b8d4c6e1a90
+        thread:
+          $ref: '#/components/schemas/InboxThreadSummary'
+          description: The thread as it is when the webhook is sent. Absent when the thread no longer exists.
+    InboxThreadUnassignedEventData:
+      type: object
+      description: The data of an `inbox.thread.unassigned` event.
+      required:
+        - previous_assignee_email
+        - source
+        - inbox_id
+        - thread_id
+      properties:
+        previous_assignee_email:
+          type: [string, "null"]
+          description: The email of the member the thread was assigned to.
+          example: ada@acme.com
+        source:
+          $ref: '#/components/schemas/InboxEventSource'
+        inbox_id:
+          type: string
+          format: uuid
+          description: The ID of the inbox.
+          example: b3e2b2b6-3f0e-4c8e-9ad3-2f43a1e2c7f1
+        thread_id:
+          type: string
+          format: uuid
+          description: The ID of the thread.
+          example: 7c1f0a2e-5d3b-4e8a-9f61-2b8d4c6e1a90
+        thread:
+          $ref: '#/components/schemas/InboxThreadSummary'
+          description: The thread as it is when the webhook is sent. Absent when the thread no longer exists.
+    InboxThreadLabelsUpdatedEventData:
+      type: object
+      description: The data of an `inbox.thread.labels.updated` event. One event carries one label, in either `added` or `removed`.
+      required:
+        - added
+        - removed
+        - source
+        - inbox_id
+        - thread_id
+      properties:
+        added:
+          type: array
+          items:
+            $ref: '#/components/schemas/InboxThreadLabel'
+          description: The labels applied to the thread.
+        removed:
+          type: array
+          items:
+            $ref: '#/components/schemas/InboxThreadLabel'
+          description: The labels removed from the thread.
+        source:
+          $ref: '#/components/schemas/InboxEventSource'
+        inbox_id:
+          type: string
+          format: uuid
+          description: The ID of the inbox.
+          example: b3e2b2b6-3f0e-4c8e-9ad3-2f43a1e2c7f1
+        thread_id:
+          type: string
+          format: uuid
+          description: The ID of the thread.
+          example: 7c1f0a2e-5d3b-4e8a-9f61-2b8d4c6e1a90
+        thread:
+          $ref: '#/components/schemas/InboxThreadSummary'
+          description: The thread as it is when the webhook is sent. Absent when the thread no longer exists.
+    InboxDraftEventData:
+      type: object
+      description: The data of an `inbox.draft.created`, `inbox.draft.updated` or `inbox.draft.deleted` event.
+      required:
+        - source
+        - inbox_id
+        - draft_id
+      properties:
+        source:
+          $ref: '#/components/schemas/InboxEventSource'
+        inbox_id:
+          type: string
+          format: uuid
+          description: The ID of the inbox.
+          example: b3e2b2b6-3f0e-4c8e-9ad3-2f43a1e2c7f1
+        thread_id:
+          type: string
+          format: uuid
+          description: The ID of the thread. Only on reply drafts.
+          example: 7c1f0a2e-5d3b-4e8a-9f61-2b8d4c6e1a90
+        draft_id:
+          type: string
+          format: uuid
+          description: The ID of the draft.
+          example: 9a2b7c4d-1e3f-4a5b-8c6d-0e1f2a3b4c5d
+        thread:
+          $ref: '#/components/schemas/InboxThreadSummary'
+          description: The thread as it is when the webhook is sent. Absent when the thread no longer exists. Only on reply drafts.
+        draft:
+          $ref: '#/components/schemas/InboxEventDraft'
+          description: The draft as it is when the webhook is sent, without `html` or `text`. Fetch the body with Retrieve Draft. Absent when the draft no longer exists.
+    InboxDraftSentEventData:
+      type: object
+      description: The data of an `inbox.draft.sent` event.
+      required:
+        - source
+        - inbox_id
+        - thread_id
+        - email_id
+        - draft_id
+      properties:
+        source:
+          $ref: '#/components/schemas/InboxEventSource'
+        inbox_id:
+          type: string
+          format: uuid
+          description: The ID of the inbox.
+          example: b3e2b2b6-3f0e-4c8e-9ad3-2f43a1e2c7f1
+        thread_id:
+          type: string
+          format: uuid
+          description: The ID of the thread.
+          example: 7c1f0a2e-5d3b-4e8a-9f61-2b8d4c6e1a90
+        email_id:
+          type: string
+          format: uuid
+          description: The ID of the email.
+          example: 4ef9a417-02e9-4d39-ad75-9611e0fcc33c
+        draft_id:
+          type: string
+          format: uuid
+          description: The ID of the draft.
+          example: 9a2b7c4d-1e3f-4a5b-8c6d-0e1f2a3b4c5d
+        thread:
+          $ref: '#/components/schemas/InboxThreadSummary'
+          description: The thread as it is when the webhook is sent. Absent when the thread no longer exists.
+        email:
+          $ref: '#/components/schemas/InboxEventEmail'
+          description: The email as it is when the webhook is sent, without `html` or `text`. Fetch the body with Retrieve Thread Email. Only when the email is already on the thread when the webhook is sent.
+        draft:
+          $ref: '#/components/schemas/InboxEventDraft'
+          description: The draft as it is when the webhook is sent, without `html` or `text`. Fetch the body with Retrieve Draft. Absent when the draft no longer exists.
+    InboxCreatedEvent:
+      type: object
+      required:
+        - type
+        - created_at
+        - data
+      properties:
+        type:
+          type: string
+          const: inbox.created
+          description: The event type.
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp when the event was emitted.
+          example: '2026-09-29T12:00:00.000Z'
+        data:
+          $ref: '#/components/schemas/InboxEventData'
+    InboxUpdatedEvent:
+      type: object
+      required:
+        - type
+        - created_at
+        - data
+      properties:
+        type:
+          type: string
+          const: inbox.updated
+          description: The event type.
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp when the event was emitted.
+          example: '2026-09-29T12:00:00.000Z'
+        data:
+          $ref: '#/components/schemas/InboxEventData'
+    InboxDeletedEvent:
+      type: object
+      required:
+        - type
+        - created_at
+        - data
+      properties:
+        type:
+          type: string
+          const: inbox.deleted
+          description: The event type.
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp when the event was emitted.
+          example: '2026-09-29T12:00:00.000Z'
+        data:
+          $ref: '#/components/schemas/InboxDeletedEventData'
+    InboxThreadCreatedEvent:
+      type: object
+      required:
+        - type
+        - created_at
+        - data
+      properties:
+        type:
+          type: string
+          const: inbox.thread.created
+          description: The event type.
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp when the event was emitted.
+          example: '2026-09-29T12:00:00.000Z'
+        data:
+          $ref: '#/components/schemas/InboxThreadEmailEventData'
+    InboxEmailReceivedEvent:
+      type: object
+      required:
+        - type
+        - created_at
+        - data
+      properties:
+        type:
+          type: string
+          const: inbox.email.received
+          description: The event type.
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp when the event was emitted.
+          example: '2026-09-29T12:00:00.000Z'
+        data:
+          $ref: '#/components/schemas/InboxThreadEmailEventData'
+    InboxEmailSentEvent:
+      type: object
+      required:
+        - type
+        - created_at
+        - data
+      properties:
+        type:
+          type: string
+          const: inbox.email.sent
+          description: The event type.
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp when the event was emitted.
+          example: '2026-09-29T12:00:00.000Z'
+        data:
+          $ref: '#/components/schemas/InboxThreadEmailEventData'
+    InboxThreadFolderUpdatedEvent:
+      type: object
+      required:
+        - type
+        - created_at
+        - data
+      properties:
+        type:
+          type: string
+          const: inbox.thread.folder.updated
+          description: The event type.
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp when the event was emitted.
+          example: '2026-09-29T12:00:00.000Z'
+        data:
+          $ref: '#/components/schemas/InboxThreadFolderUpdatedEventData'
+    InboxThreadAssignedEvent:
+      type: object
+      required:
+        - type
+        - created_at
+        - data
+      properties:
+        type:
+          type: string
+          const: inbox.thread.assigned
+          description: The event type.
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp when the event was emitted.
+          example: '2026-09-29T12:00:00.000Z'
+        data:
+          $ref: '#/components/schemas/InboxThreadAssignedEventData'
+    InboxThreadUnassignedEvent:
+      type: object
+      required:
+        - type
+        - created_at
+        - data
+      properties:
+        type:
+          type: string
+          const: inbox.thread.unassigned
+          description: The event type.
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp when the event was emitted.
+          example: '2026-09-29T12:00:00.000Z'
+        data:
+          $ref: '#/components/schemas/InboxThreadUnassignedEventData'
+    InboxThreadLabelsUpdatedEvent:
+      type: object
+      required:
+        - type
+        - created_at
+        - data
+      properties:
+        type:
+          type: string
+          const: inbox.thread.labels.updated
+          description: The event type.
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp when the event was emitted.
+          example: '2026-09-29T12:00:00.000Z'
+        data:
+          $ref: '#/components/schemas/InboxThreadLabelsUpdatedEventData'
+    InboxDraftCreatedEvent:
+      type: object
+      required:
+        - type
+        - created_at
+        - data
+      properties:
+        type:
+          type: string
+          const: inbox.draft.created
+          description: The event type.
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp when the event was emitted.
+          example: '2026-09-29T12:00:00.000Z'
+        data:
+          $ref: '#/components/schemas/InboxDraftEventData'
+    InboxDraftUpdatedEvent:
+      type: object
+      required:
+        - type
+        - created_at
+        - data
+      properties:
+        type:
+          type: string
+          const: inbox.draft.updated
+          description: The event type.
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp when the event was emitted.
+          example: '2026-09-29T12:00:00.000Z'
+        data:
+          $ref: '#/components/schemas/InboxDraftEventData'
+    InboxDraftSentEvent:
+      type: object
+      required:
+        - type
+        - created_at
+        - data
+      properties:
+        type:
+          type: string
+          const: inbox.draft.sent
+          description: The event type.
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp when the event was emitted.
+          example: '2026-09-29T12:00:00.000Z'
+        data:
+          $ref: '#/components/schemas/InboxDraftSentEventData'
+    InboxDraftDeletedEvent:
+      type: object
+      required:
+        - type
+        - created_at
+        - data
+      properties:
+        type:
+          type: string
+          const: inbox.draft.deleted
+          description: The event type.
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp when the event was emitted.
+          example: '2026-09-29T12:00:00.000Z'
+        data:
+          $ref: '#/components/schemas/InboxDraftEventData'
