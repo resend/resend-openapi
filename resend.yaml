@@ -47,7 +47,7 @@ tags:
   - name: Usage
     description: Retrieve your account usage and plan limits through the Resend API.
   - name: Inboxes
-    description: Create and manage Inboxes through the Resend API.
+    description: Create and manage Inboxes through the Resend API. Every Inboxes endpoint needs a full access API key. A sending access key returns a 401 `restricted_api_key`.
 paths:
   /emails:
     post:
@@ -2658,7 +2658,8 @@ paths:
         the domain must have receiving enabled, with DKIM and SPF verified and
         the inbound MX record verified or pending. With `forwarding` set to
         `true`, the domain only needs DKIM and SPF verified for sending, and
-        Resend generates a `receiving_address` on the team inbound domain. A
+        Resend generates a `receiving_address` on the team inbound domain, and a
+        team without an inbound domain gets a 422. A
         domain that does not meet these rules returns a 422 validation_error.
         An address or receiving address that is already in use returns a 409.
         A team that has reached the inbox limit of its plan returns a 403
@@ -2684,8 +2685,9 @@ paths:
       description: >-
         Returns the inboxes of the team, newest first. The list items carry
         fewer fields than a single inbox. Retrieve an inbox to get all its
-        fields. The `after` and `before` cursors take an inbox ID. A value that
-        is not a UUID returns a 422, and an unknown ID returns a 404.
+        fields. The `after` and `before` cursors take an inbox ID, and only one
+        of them can be passed, or the request returns a 422. A value that is not
+        a UUID returns a 422, and an unknown ID returns a 404.
       parameters:
         - $ref: '#/components/parameters/PaginationLimit'
         - $ref: '#/components/parameters/PaginationAfter'
@@ -3041,7 +3043,7 @@ paths:
         Finds threads by the text of their emails, who sent or received them,
         whether they have attachments, and their dates. Results are ordered by
         latest activity, newest first, and paginate like the list threads
-        endpoint. Search can be up to about a minute behind new emails.
+        endpoint, so a cursor that is not a thread ID returns a 422. Search can be up to about a minute behind new emails.
         Different parameters combine, so a thread must match all of them.
         `folders`, `labels`, and `read` apply to the thread. `query`, `from`,
         `to`, `cc`, `bcc`, `has_attachment`, `start_date`, and `end_date` must
@@ -3323,9 +3325,9 @@ paths:
       description: >-
         Returns the messages of a thread, oldest first. Pass the `id` of the
         last message as `after` to get the next, newer page. Pass the `id` of
-        the first message as `before` to get the previous, older page. You
-        cannot combine `after` and `before`. A cursor that is not a message of
-        the thread returns a 404.
+        the first message as `before` to get the previous, older page. Passing
+        both `after` and `before`, or a cursor that is not a UUID, returns a 422.
+        A cursor that is not a message of the thread returns a 404.
       parameters:
         - name: inbox_id
           in: path
@@ -3399,7 +3401,8 @@ paths:
         its sender when it has no `Reply-To`. For a message the inbox sent, the
         reply goes to that message's `to` recipients. Set `reply_all` to also
         copy the other recipients of the message. The reply threads under the
-        message through the `In-Reply-To` and `References` headers.
+        message through the `In-Reply-To` and `References` headers. When no
+        recipient can be found for the reply, the request returns a 422. The whole email, encoded, can be at most 40 MB, or the request returns a 422.
       parameters:
         - in: header
           name: Idempotency-Key
@@ -3409,7 +3412,7 @@ paths:
             minLength: 1
             maxLength: 256
           description: >-
-            A unique key for the request, so the reply is sent only once. A retry with the same key within 24 hours returns the first successful (2xx) response, with the `idempotent-replayed: true` header. A failed request is not stored, so it can be retried with the same key. Reusing the key with a different body, or while the first request is still running, returns a 409. [Learn more](https://resend.com/docs/dashboard/emails/idempotency-keys)
+            A unique key for the request, so the reply is sent only once. A retry with the same key within 24 hours returns the first successful (2xx) response, with the `idempotent-replayed: true` header. A failed request is not stored, so it can be retried with the same key. Reusing the key with a different body, or while the first request is still running, returns a 409. An empty key, or one longer than 256 characters, returns a 400 `invalid_idempotency_key`. [Learn more](https://resend.com/docs/dashboard/emails/idempotency-keys)
         - name: inbox_id
           in: path
           required: true
@@ -3457,7 +3460,7 @@ paths:
         message are sent with the forward, together with any `attachments` you
         add. The request fails when they exceed 10 files or 25 MB of `content`
         in total. An original attachment that was sent from a URL (`path`)
-        cannot be forwarded, and the request returns a 422.
+        cannot be forwarded, and the request returns a 422. The whole email, encoded, can be at most 40 MB, or the request returns a 422.
       parameters:
         - in: header
           name: Idempotency-Key
@@ -3467,7 +3470,7 @@ paths:
             minLength: 1
             maxLength: 256
           description: >-
-            A unique key for the request, so the forward is sent only once. A retry with the same key within 24 hours returns the first successful (2xx) response, with the `idempotent-replayed: true` header. A failed request is not stored, so it can be retried with the same key. Reusing the key with a different body, or while the first request is still running, returns a 409. [Learn more](https://resend.com/docs/dashboard/emails/idempotency-keys)
+            A unique key for the request, so the forward is sent only once. A retry with the same key within 24 hours returns the first successful (2xx) response, with the `idempotent-replayed: true` header. A failed request is not stored, so it can be retried with the same key. Reusing the key with a different body, or while the first request is still running, returns a 409. An empty key, or one longer than 256 characters, returns a 400 `invalid_idempotency_key`. [Learn more](https://resend.com/docs/dashboard/emails/idempotency-keys)
         - name: inbox_id
           in: path
           required: true
@@ -3510,8 +3513,10 @@ paths:
       summary: Retrieve a list of drafts
       description: >-
         Returns the unsent drafts on the inbox, most recently updated first.
-        The `after` and `before` cursors take a Draft ID from the current page.
-        A cursor that is not an unsent draft on this inbox returns a 404.
+        The `after` and `before` cursors take a Draft ID from the current page,
+        and only one of them can be passed. A cursor that is not a UUID, or both
+        cursors together, return a 422. A cursor that is not an unsent draft on
+        this inbox returns a 404.
       parameters:
         - name: inbox_id
           in: path
@@ -3549,6 +3554,8 @@ paths:
         new draft. Only one unsent
         reply draft can target an email, so a reply draft request for an
         email that already has one returns 200 with the ID of the existing draft.
+        An unknown `thread_id`, or a `reply_to_email_id` that is not in that
+        thread, returns a 404.
         That request ignores every other field, except `attachments`, which
         replaces the attachments of the existing draft when sent. A reply draft
         created without `subject` stores an empty subject and gets no `Re:`
@@ -3562,7 +3569,7 @@ paths:
             minLength: 1
             maxLength: 256
           description: >-
-            A unique key for the request, so the draft is created only once. A retry with the same key within 24 hours returns the first successful (2xx) response, with the `idempotent-replayed: true` header. A failed request is not stored, so it can be retried with the same key. Reusing the key with a different body, or while the first request is still running, returns a 409. [Learn more](https://resend.com/docs/dashboard/emails/idempotency-keys)
+            A unique key for the request, so the draft is created only once. A retry with the same key within 24 hours returns the first successful (2xx) response, with the `idempotent-replayed: true` header. A failed request is not stored, so it can be retried with the same key. Reusing the key with a different body, or while the first request is still running, returns a 409. An empty key, or one longer than 256 characters, returns a 400 `invalid_idempotency_key`. [Learn more](https://resend.com/docs/dashboard/emails/idempotency-keys)
         - name: inbox_id
           in: path
           required: true
@@ -3700,7 +3707,7 @@ paths:
         thread. A draft without a thread starts a new thread. The draft must
         have at least one `to` recipient, a non-empty `subject`, and `html` or
         `text`, or the request returns a 422. A draft that was already sent
-        returns a 409. The request body is optional and takes only `headers`.
+        returns a 409. The request body is optional and takes only `headers`. The whole email, encoded, can be at most 40 MB, or the request returns a 422.
       parameters:
         - in: header
           name: Idempotency-Key
@@ -3710,7 +3717,7 @@ paths:
             minLength: 1
             maxLength: 256
           description: >-
-            A unique key for the request, so the draft is sent only once. A retry with the same key within 24 hours returns the first successful (2xx) response, with the `idempotent-replayed: true` header. A failed request is not stored, so it can be retried with the same key. Reusing the key with a different body, or while the first request is still running, returns a 409. [Learn more](https://resend.com/docs/dashboard/emails/idempotency-keys)
+            A unique key for the request, so the draft is sent only once. A retry with the same key within 24 hours returns the first successful (2xx) response, with the `idempotent-replayed: true` header. A failed request is not stored, so it can be retried with the same key. Reusing the key with a different body, or while the first request is still running, returns a 409. An empty key, or one longer than 256 characters, returns a 400 `invalid_idempotency_key`. [Learn more](https://resend.com/docs/dashboard/emails/idempotency-keys)
         - name: inbox_id
           in: path
           required: true
@@ -10083,24 +10090,24 @@ components:
       properties:
         cc:
           description: >-
-            CC recipient email address. For multiple addresses, send as an array of strings. Without `reply_all`, the reply copies only these addresses. With `reply_all`, these addresses are merged with the copied recipients, without duplicates. `cc` and `bcc` combined must be fewer than 50 addresses. After the `to` recipients are added, the reply cannot exceed 50 recipients.
+            CC recipient email address. For multiple addresses, send as an array of strings. Without `reply_all`, the reply copies only these addresses. With `reply_all`, these addresses are merged with the copied recipients, without duplicates. `cc` and `bcc` combined must be fewer than 50 addresses. After the `to` recipients are added, the reply cannot exceed 50 recipients. Each address is `email@example.com` or `Name <email@example.com>`. An address that is not valid returns a 422.
           oneOf:
             - type: string
             - type: array
               items:
                 type: string
-              maxItems: 50
+              maxItems: 49
             - type: 'null'
           example: ['billing@acme.com']
         bcc:
           description: >-
-            BCC recipient email address. For multiple addresses, send as an array of strings. BCC recipients of the original message are never copied.
+            BCC recipient email address. For multiple addresses, send as an array of strings. BCC recipients of the original message are never copied. Each address is `email@example.com` or `Name <email@example.com>`. An address that is not valid returns a 422.
           oneOf:
             - type: string
             - type: array
               items:
                 type: string
-              maxItems: 50
+              maxItems: 49
             - type: 'null'
           example: ['records@acme.com']
         html:
@@ -10115,7 +10122,7 @@ components:
           type: string
           minLength: 1
           maxLength: 2000
-          description: The subject of the reply. Cannot contain a line break. When omitted, the thread subject is used, prefixed with `Re:` if it does not already start with it.
+          description: The subject of the reply. Cannot be only whitespace or contain a line break. When omitted, the thread subject is used, prefixed with `Re:` if it does not already start with it.
           example: 'Re: Refund for order 1041'
         reply_all:
           type: boolean
@@ -10125,15 +10132,15 @@ components:
           example: false
         attachments:
           type: [array, "null"]
-          description: Files to attach, as on `POST /emails`. Each one needs `content` or `path`. Up to 10 files. The `content` of all files can total at most 25 MB. A `path` file counts toward the 10 files only, because it is fetched when the email is sent. An empty file, a blocked file type, or a `path` that is not an `http` or `https` URL or that points to `localhost` returns a 422.
+          description: Files to attach, as on `POST /emails`. Each one needs `content` or `path`. Up to 10 files. The `content` of all files can total at most 25 MB. A `path` file counts toward the 10 files only, because it is fetched when the email is sent. An empty file, a blocked file type, a `path` that is not an `http` or `https` URL or that points to `localhost`, `127.0.0.1` or `0.0.0.0`, or a `content_type` that is not a valid MIME type returns a 422.
           items:
             $ref: '#/components/schemas/Attachment'
         headers:
-          type: object
+          type: [object, "null"]
           additionalProperties:
             type: string
           description: >-
-            Custom headers to add to the email. The `In-Reply-To`, `References` and `Reply-To` headers are set by Resend and cannot be set here. Sending one of them, in any letter case, returns a 422. Header names cannot be empty, and names and values cannot contain line breaks or null characters, or the request returns a 422.
+            Custom headers to add to the email. The `In-Reply-To`, `References` and `Reply-To` headers are set by Resend and cannot be set here. Sending one of them, in any letter case, returns a 422. Header names cannot be empty, and names and values cannot contain line breaks or null characters, or the request returns a 422. `null` means no custom headers.
           example:
             X-Ticket-Id: '4821'
     ReplyInboxThreadEmailResponseSuccess:
@@ -10153,7 +10160,7 @@ components:
       properties:
         to:
           description: >-
-            Recipient email address. For multiple addresses, send as an array of strings. Must name at least one address. `to`, `cc` and `bcc` combined cannot exceed 50 recipients.
+            Recipient email address. For multiple addresses, send as an array of strings. Must name at least one address. `to`, `cc` and `bcc` combined cannot exceed 50 recipients. Each address is `email@example.com` or `Name <email@example.com>`. An address that is not valid returns a 422.
           oneOf:
             - type: string
             - type: array
@@ -10163,7 +10170,8 @@ components:
               maxItems: 50
           example: ['colleague@example.org']
         cc:
-          description: CC recipient email address. For multiple addresses, send as an array of strings. Counts toward the 50-recipient limit.
+          description: >-
+            CC recipient email address. For multiple addresses, send as an array of strings. Counts toward the 50-recipient limit. Each address is `email@example.com` or `Name <email@example.com>`. An address that is not valid returns a 422.
           oneOf:
             - type: string
             - type: array
@@ -10173,7 +10181,8 @@ components:
             - type: 'null'
           example: ['billing@acme.com']
         bcc:
-          description: BCC recipient email address. For multiple addresses, send as an array of strings. Counts toward the 50-recipient limit.
+          description: >-
+            BCC recipient email address. For multiple addresses, send as an array of strings. Counts toward the 50-recipient limit. Each address is `email@example.com` or `Name <email@example.com>`. An address that is not valid returns a 422.
           oneOf:
             - type: string
             - type: array
@@ -10194,19 +10203,19 @@ components:
           type: string
           minLength: 1
           maxLength: 2000
-          description: The subject of the forward. Cannot contain a line break. When omitted, the thread subject is used, prefixed with `Fwd:` if it does not already start with it.
+          description: The subject of the forward. Cannot be only whitespace or contain a line break. When omitted, the thread subject is used, prefixed with `Fwd:` if it does not already start with it.
           example: 'Fwd: Refund for order 1041'
         attachments:
           type: [array, "null"]
-          description: 'Files to attach, as on `POST /emails`. Each one needs `content` or `path`. They share one limit with the attachments of the original message, which the forward also sends. Together they can have up to 10 files and at most 25 MB of `content`. A `path` file counts toward the 10 files only, because it is fetched when the email is sent. An empty file, a blocked file type, or a `path` that is not an `http` or `https` URL or that points to `localhost` returns a 422.'
+          description: 'Files to attach, as on `POST /emails`. Each one needs `content` or `path`. They share one limit with the attachments of the original message, which the forward also sends. Together they can have up to 10 files and at most 25 MB of `content`. A `path` file counts toward the 10 files only, because it is fetched when the email is sent. An empty file, a blocked file type, a `path` that is not an `http` or `https` URL or that points to `localhost`, `127.0.0.1` or `0.0.0.0`, or a `content_type` that is not a valid MIME type returns a 422.'
           items:
             $ref: '#/components/schemas/Attachment'
         headers:
-          type: object
+          type: [object, "null"]
           additionalProperties:
             type: string
           description: >-
-            Custom headers to add to the email. The `In-Reply-To`, `References` and `Reply-To` headers are set by Resend and cannot be set here. Sending one of them, in any letter case, returns a 422. Header names cannot be empty, and names and values cannot contain line breaks or null characters, or the request returns a 422.
+            Custom headers to add to the email. The `In-Reply-To`, `References` and `Reply-To` headers are set by Resend and cannot be set here. Sending one of them, in any letter case, returns a 422. Header names cannot be empty, and names and values cannot contain line breaks or null characters, or the request returns a 422. `null` means no custom headers.
           example:
             X-Ticket-Id: '4821'
     ForwardInboxThreadEmailResponseSuccess:
@@ -10221,7 +10230,7 @@ components:
           example: 6a0c8e58-3d9e-4f7a-8b14-2e3f4a5b6c71
     InboxDraftAttachmentInput:
       type: object
-      description: A file to store on a draft. Unlike `POST /emails` attachments, a draft attachment cannot use `path` or `content_id`.
+      description: A file to store on a draft. Unlike `POST /emails` attachments, a draft attachment cannot use `path` or `content_id`. A `path` without `content` returns a 422, and when both are sent, `path` is ignored.
       required:
         - content
         - filename
@@ -10233,11 +10242,14 @@ components:
           example: aGVsbG8gZTJl
         filename:
           type: string
+          minLength: 1
           description: The filename of the attachment. A blocked file type returns a 422.
           example: receipt.pdf
         content_type:
           type: string
-          description: The MIME type of the attachment.
+          minLength: 1
+          description: >-
+            The MIME type of the attachment. It must be a valid MIME type, such as `application/pdf`, or the request returns a 422.
           example: application/pdf
     InboxDraftAttachment:
       type: object
@@ -10462,7 +10474,7 @@ components:
       properties:
         to:
           description: >-
-            The recipients. For multiple addresses, send an array of strings. Each value can include a friendly name, for example `Ada Lovelace <ada@example.org>`.
+            The recipients. For multiple addresses, send an array of strings. Each value can include a friendly name, for example `Ada Lovelace <ada@example.org>`. Each address is `email@example.com` or `Name <email@example.com>`. An address that is not valid returns a 422.
           oneOf:
             - type: string
             - type: array
@@ -10473,7 +10485,8 @@ components:
           example:
             - ada@example.org
         cc:
-          description: The CC recipients. For multiple addresses, send an array of strings.
+          description: >-
+            The CC recipients. For multiple addresses, send an array of strings. Each address is `email@example.com` or `Name <email@example.com>`. An address that is not valid returns a 422.
           oneOf:
             - type: string
             - type: array
@@ -10482,7 +10495,8 @@ components:
               maxItems: 50
             - type: 'null'
         bcc:
-          description: The BCC recipients. For multiple addresses, send an array of strings.
+          description: >-
+            The BCC recipients. For multiple addresses, send an array of strings. Each address is `email@example.com` or `Name <email@example.com>`. An address that is not valid returns a 422.
           oneOf:
             - type: string
             - type: array
@@ -10507,7 +10521,7 @@ components:
         attachments:
           type: [array, "null"]
           description: >-
-            Files to store on the draft. Each one needs `content`, `filename` and `content_type`. A `path` or `content_id` returns a 422. The files on a draft can total at most 25 MB. An empty file or a blocked file type returns a 422.
+            Files to store on the draft. Each one needs `content`, `filename` and `content_type`. A `path` without `content` returns a 422, and when both are sent, `path` is ignored. A `content_id` returns a 422. The files on a draft can total at most 25 MB. An empty file or a blocked file type returns a 422.
           items:
             $ref: '#/components/schemas/InboxDraftAttachmentInput'
         thread_id:
@@ -10560,7 +10574,7 @@ components:
       properties:
         to:
           description: >-
-            The recipients. For multiple addresses, send an array of strings. Each value can include a friendly name. Pass `null` to clear.
+            The recipients. For multiple addresses, send an array of strings. Each value can include a friendly name. Pass `null` to clear. Each address is `email@example.com` or `Name <email@example.com>`. An address that is not valid returns a 422.
           oneOf:
             - type: string
             - type: array
@@ -10571,7 +10585,8 @@ components:
           example:
             - ada@example.org
         cc:
-          description: The CC recipients. Pass `null` or `[]` to clear.
+          description: >-
+            The CC recipients. Pass `null` or `[]` to clear. Each address is `email@example.com` or `Name <email@example.com>`. An address that is not valid returns a 422.
           oneOf:
             - type: string
             - type: array
@@ -10580,7 +10595,8 @@ components:
               maxItems: 50
             - type: 'null'
         bcc:
-          description: The BCC recipients. Pass `null` or `[]` to clear.
+          description: >-
+            The BCC recipients. Pass `null` or `[]` to clear. Each address is `email@example.com` or `Name <email@example.com>`. An address that is not valid returns a 422.
           oneOf:
             - type: string
             - type: array
@@ -10592,7 +10608,7 @@ components:
           type: [string, "null"]
           minLength: 1
           maxLength: 2000
-          description: The subject. Max 2000 characters. Must not contain a line break. Pass `null` to clear.
+          description: The subject. Max 2000 characters. Cannot be only whitespace or contain a line break. Pass `null` to clear.
           example: Refund issued for order 1041
         html:
           type: [string, "null"]
@@ -10603,7 +10619,7 @@ components:
         attachments:
           type: [array, "null"]
           description: >-
-            Files to store on the draft. Each one needs `content`, `filename` and `content_type`. A `path` or `content_id` returns a 422. The files on a draft can total at most 25 MB. An empty file or a blocked file type returns a 422. Sending the field replaces every attachment on the draft. Send `[]` to remove them all. `null` also removes them all.
+            Files to store on the draft. Each one needs `content`, `filename` and `content_type`. A `path` without `content` returns a 422, and when both are sent, `path` is ignored. A `content_id` returns a 422. The files on a draft can total at most 25 MB. An empty file or a blocked file type returns a 422. Sending the field replaces every attachment on the draft. Send `[]` to remove them all. `null` also removes them all.
           items:
             $ref: '#/components/schemas/InboxDraftAttachmentInput'
     UpdateInboxDraftResponseSuccess:
@@ -10634,11 +10650,11 @@ components:
       type: object
       properties:
         headers:
-          type: object
+          type: [object, "null"]
           additionalProperties:
             type: string
           description: >-
-            Custom headers to add to the email. The `In-Reply-To`, `References` and `Reply-To` headers are set by Resend and cannot be set here. Sending one of them, in any letter case, returns a 422. Header names cannot be empty, and names and values cannot contain line breaks or null characters, or the request returns a 422.
+            Custom headers to add to the email. The `In-Reply-To`, `References` and `Reply-To` headers are set by Resend and cannot be set here. Sending one of them, in any letter case, returns a 422. Header names cannot be empty, and names and values cannot contain line breaks or null characters, or the request returns a 422. `null` means no custom headers.
           example:
             X-Ticket-Id: '4821'
     SendInboxDraftResponseSuccess:
