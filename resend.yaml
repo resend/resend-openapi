@@ -2960,8 +2960,8 @@ paths:
       description: >-
         Returns the threads in an inbox, most recently active first. A thread is
         a conversation made up of one or more emails. The `after` and `before`
-        cursors take a thread ID, and only one of them can be passed. A date
-        cursor returns a 422 validation_error. A cursor thread that is not in
+        cursors take a thread ID, and only one of them can be passed. A cursor
+        that is not a UUID, such as a date, returns a 422 validation_error. A cursor thread that is not in
         the selected folders returns a 404. To find threads by text, sender,
         recipient, attachment, or date, use the search threads endpoint.
       parameters:
@@ -3138,7 +3138,7 @@ paths:
           description: >-
             Matches emails sent on or after this date. Accepts a date like
             `2026-09-01` or an ISO 8601 timestamp, in UTC unless the timestamp
-            has an offset.
+            has an offset. An empty value returns a 422.
           example: '2026-09-01'
         - name: end_date
           in: query
@@ -3150,7 +3150,7 @@ paths:
             `start_date`. A date covers that whole day, so
             `start_date=2026-09-01&end_date=2026-09-30` covers all of September.
             A timestamp is used as given. An `end_date` before `start_date`
-            returns a 422 validation_error.
+            returns a 422 validation_error. An empty value returns a 422.
           example: '2026-09-30'
         - name: folders
           in: query
