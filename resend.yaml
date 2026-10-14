@@ -9428,8 +9428,14 @@ components:
           example: Answer refund questions yourself. Escalate legal threats.
         tone:
           type: [string, "null"]
-          description: The tone the agent writes in, such as `friendly and concise`. Null when no tone is set.
-          example: friendly and concise
+          enum:
+            - concise_professional
+            - concise_casual
+            - expanded_professional
+            - expanded_casual
+            - null
+          description: The tone the agent writes in. Null when no tone is set.
+          example: concise_professional
         enabled_actions:
           type: array
           description: The actions the agent can take. Empty when no actions are enabled.
@@ -9469,11 +9475,14 @@ components:
           example: Answer refund questions yourself. Escalate legal threats.
         tone:
           type: [string, "null"]
-          minLength: 1
-          maxLength: 64
-          description: >-
-            The tone the agent writes in, such as `friendly and concise`. Max 64 characters. Leading and trailing whitespace is trimmed, and the trimmed value must not be empty. Send null to clear the tone.
-          example: friendly and concise
+          enum:
+            - concise_professional
+            - concise_casual
+            - expanded_professional
+            - expanded_casual
+            - null
+          description: The tone the agent writes in. Send null to clear the tone.
+          example: concise_professional
         enabled_actions:
           type: array
           description: >-
