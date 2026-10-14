@@ -9668,7 +9668,7 @@ components:
         - cc
         - bcc
         - labels
-        - message_count
+        - email_count
         - has_attachment
         - has_draft
         - read
@@ -9712,7 +9712,7 @@ components:
           description: The labels attached to the thread.
           items:
             $ref: '#/components/schemas/InboxThreadLabel'
-        message_count:
+        email_count:
           type: integer
           description: The number of emails in the thread.
           example: 2
