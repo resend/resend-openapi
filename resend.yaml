@@ -9428,8 +9428,13 @@ components:
           example: Answer refund questions yourself. Escalate legal threats.
         tone:
           type: [string, "null"]
-          description: >-
-            The tone the agent writes in. One of the presets `concise_professional`, `concise_casual`, `expanded_professional`, or `expanded_casual`, or custom text in the owner's own words, such as `friendly and concise`. Older dashboard values such as `Concise · Casual` are custom text. Null when no tone is set.
+          enum:
+            - concise_professional
+            - concise_casual
+            - expanded_professional
+            - expanded_casual
+            - null
+          description: The tone the agent writes in. Null when no tone is set.
           example: concise_professional
         enabled_actions:
           type: array
@@ -9470,10 +9475,13 @@ components:
           example: Answer refund questions yourself. Escalate legal threats.
         tone:
           type: [string, "null"]
-          minLength: 1
-          maxLength: 64
-          description: >-
-            The tone the agent writes in. Use one of the presets `concise_professional`, `concise_casual`, `expanded_professional`, or `expanded_casual`, or describe the tone in your own words, such as `friendly and concise`. Custom text is max 64 characters. Leading and trailing whitespace is trimmed, and the trimmed value must not be empty. Send null to clear the tone.
+          enum:
+            - concise_professional
+            - concise_casual
+            - expanded_professional
+            - expanded_casual
+            - null
+          description: The tone the agent writes in. Send null to clear the tone.
           example: concise_professional
         enabled_actions:
           type: array
