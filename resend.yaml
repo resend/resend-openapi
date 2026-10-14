@@ -6107,8 +6107,7 @@ components:
           description: The ID of the attachment.
           example: '660e8400-e29b-41d4-a716-446655440000'
         filename:
-          type: string
-          nullable: true
+          type: [string, "null"]
           description: The filename of the attachment.
           example: 'document.pdf'
         content_type:
@@ -6120,11 +6119,11 @@ components:
           description: The content ID for inline attachments.
           example: 'img001'
         content_disposition:
-          type: string
-          nullable: true
+          type: [string, "null"]
           enum:
             - inline
             - attachment
+            - null
           description: How the attachment should be displayed.
           example: 'attachment'
         download_url:
@@ -6163,8 +6162,7 @@ components:
                 description: The ID of the attachment.
                 example: '660e8400-e29b-41d4-a716-446655440000'
               filename:
-                type: string
-                nullable: true
+                type: [string, "null"]
                 description: The filename of the attachment.
                 example: 'document.pdf'
               content_type:
@@ -6176,11 +6174,11 @@ components:
                 description: The content ID for inline attachments.
                 example: 'img001'
               content_disposition:
-                type: string
-                nullable: true
+                type: [string, "null"]
                 enum:
                   - inline
                   - attachment
+                  - null
                 description: How the attachment should be displayed.
                 example: 'attachment'
               download_url:
@@ -6278,8 +6276,7 @@ components:
                 format: uuid
                 description: The ID of the attachment.
               filename:
-                type: string
-                nullable: true
+                type: [string, "null"]
                 description: The filename of the attachment.
               content_type:
                 type: string
@@ -6288,11 +6285,11 @@ components:
                 type: string
                 description: The content ID for inline attachments.
               content_disposition:
-                type: string
-                nullable: true
+                type: [string, "null"]
                 enum:
                   - inline
                   - attachment
+                  - null
                 description: How the attachment should be displayed.
               size:
                 type: integer
@@ -6368,8 +6365,7 @@ components:
                       format: uuid
                       description: The ID of the attachment.
                     filename:
-                      type: string
-                      nullable: true
+                      type: [string, "null"]
                       description: The filename of the attachment.
                     content_type:
                       type: string
@@ -6378,11 +6374,11 @@ components:
                       type: string
                       description: The content ID for inline attachments.
                     content_disposition:
-                      type: string
-                      nullable: true
+                      type: [string, "null"]
                       enum:
                         - inline
                         - attachment
+                        - null
                       description: How the attachment should be displayed.
                     size:
                       type: integer
@@ -9151,8 +9147,7 @@ components:
           description: Origin of the suppression.
           example: manual
         source_id:
-          type: string
-          nullable: true
+          type: [string, "null"]
           description: Identifier of the event that caused the suppression, such as the email that bounced or complained.
           example: 479e3145-dd38-476b-932c-529ceb705947
         created_at:
@@ -9192,8 +9187,7 @@ components:
                 description: Origin of the suppression.
                 example: manual
               source_id:
-                type: string
-                nullable: true
+                type: [string, "null"]
                 description: Identifier of the event that caused the suppression, such as the email that bounced or complained.
                 example: 479e3145-dd38-476b-932c-529ceb705947
               created_at:
