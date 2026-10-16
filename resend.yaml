@@ -9750,7 +9750,7 @@ components:
               type: [string, "null"]
               format: uuid
               description: >-
-                The ID of the email in the thread that matched the search. When `query` has words or phrases, it is the most relevant match. Otherwise, it is the newest. It is the same `id` that the list emails endpoints return, so use it as `email_id` with the get, reply and forward endpoints. Null when the search index returns no matched email for the thread.
+                The ID of the email in the thread that matched the search. When `query` has words or phrases, it is the most relevant match. Otherwise, it is the newest. It is the same `id` that the list thread emails endpoint returns, so use it as `email_id` with the get, reply and forward endpoints. Null when the search index returns no matched email for the thread.
               example: e8a3f1c6-2b9d-4e5a-a7c4-9d1b6f3e2a80
     InboxThreadSummary:
       type: object
@@ -10068,6 +10068,11 @@ components:
     ReplyInboxThreadEmailOptions:
       type: object
       description: At least one of `html` or `text` must contain more than whitespace.
+      anyOf:
+        - required:
+            - html
+        - required:
+            - text
       properties:
         cc:
           description: >-
