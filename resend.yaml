@@ -3183,14 +3183,14 @@ paths:
         - Inboxes
       summary: Update an existing inbox thread
       description: >-
-        Marks a thread read or unread, moves it to a folder, or adds and
-        removes labels. At least one of `read`, `folder`, `add_label_ids`, or
-        `remove_label_ids` is required. A label ID cannot be both added and
-        removed in the same request. Removing a label from a thread keeps the
-        label itself. Moving a thread out of `trash` restores it and clears its
-        deletion deadline. The changes apply in this order: `read`, `folder`,
-        added labels, removed labels. They are not atomic, so a 404 for a label
-        leaves the earlier changes applied.
+        Marks a thread read or unread, or moves it to a folder. At least one of
+        `read` or `folder` is required. To change the labels of a thread, use
+        the add, set, and remove thread labels endpoints. This endpoint ignores
+        the removed `add_label_ids` and `remove_label_ids` fields, so a body
+        with only those fields returns a 422 validation_error. Moving a thread
+        out of `trash` restores it and clears its deletion deadline. The
+        changes apply in this order: `read`, then `folder`. They are not
+        atomic.
       parameters:
         - $ref: '#/components/parameters/InboxIdOrEmailAddress'
         - name: thread_id
@@ -3238,6 +3238,113 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RemoveInboxThreadResponseSuccess'
+  /inboxes/{inbox_id}/threads/{thread_id}/labels:
+    post:
+      operationId: inboxes/add-thread-labels
+      tags:
+        - Inboxes
+      summary: Add labels to an inbox thread
+      description: >-
+        Applies one or more labels to the thread. Labels already on the thread
+        stay on it. The response lists every label on the thread after the
+        change. A label ID that is not a label of the inbox returns a 404
+        `Label not found.`, and nothing changes. A thread that does not exist
+        in the inbox returns a 404 `Thread not found.`. To replace the labels
+        of the thread, use the set thread labels endpoint.
+      parameters:
+        - $ref: '#/components/parameters/InboxIdOrEmailAddress'
+        - name: thread_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The Thread ID.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddInboxThreadLabelsOptions'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AddInboxThreadLabelsResponseSuccess'
+    put:
+      operationId: inboxes/set-thread-labels
+      tags:
+        - Inboxes
+      summary: Set the labels of an inbox thread
+      description: >-
+        Replaces every label on the thread with the given labels, in one atomic
+        change. Labels on the thread that are not in the list are taken off it.
+        The labels themselves are kept. An empty array takes every label off
+        the thread. The response lists every label on the thread after the
+        change. A label ID that is not a label of the inbox returns a 404
+        `Label not found.`, and nothing changes. A thread that does not exist
+        in the inbox returns a 404 `Thread not found.`.
+      parameters:
+        - $ref: '#/components/parameters/InboxIdOrEmailAddress'
+        - name: thread_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The Thread ID.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetInboxThreadLabelsOptions'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SetInboxThreadLabelsResponseSuccess'
+  /inboxes/{inbox_id}/threads/{thread_id}/labels/{label_id}:
+    delete:
+      operationId: inboxes/remove-thread-label
+      tags:
+        - Inboxes
+      summary: Remove a label from an inbox thread
+      description: >-
+        Takes one label off the thread. The label itself is kept, and stays on
+        every other thread that carries it. To delete the label, use the remove
+        inbox label endpoint. The response lists every label on the thread
+        after the change. A label that is not on the thread returns a 200 with
+        the current labels. A label ID that is not a label of the inbox returns
+        a 404 `Label not found.`. A thread that does not exist in the inbox
+        returns a 404 `Thread not found.`.
+      parameters:
+        - $ref: '#/components/parameters/InboxIdOrEmailAddress'
+        - name: thread_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The Thread ID.
+        - name: label_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The Label ID.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RemoveInboxThreadLabelResponseSuccess'
   /inboxes/{inbox_id}/emails:
     get:
       operationId: inboxes/list-emails
@@ -4285,7 +4392,7 @@ webhooks:
   inbox.thread.labels.updated:
     post:
       summary: Inbox thread labels updated
-      description: Occurs whenever a label was applied to or removed from a thread. One event carries one label. Deleting a label does not send this event for the threads that had it.
+      description: Occurs whenever labels were applied to or removed from a thread. One event lists every label that one request added to or removed from the thread. A request that changes no label sends no event. Deleting a label does not send this event for the threads that had it.
       tags:
         - Webhook Events
       requestBody:
@@ -9945,16 +10052,12 @@ components:
     UpdateInboxThreadOptions:
       type: object
       description: >-
-        At least one of `read`, `folder`, `add_label_ids`, or `remove_label_ids` is required. A label ID cannot be both added and removed in the same request.
+        At least one of `read` or `folder` is required. Use the thread labels endpoints to change labels.
       anyOf:
         - required:
             - read
         - required:
             - folder
-        - required:
-            - add_label_ids
-        - required:
-            - remove_label_ids
       properties:
         read:
           type: boolean
@@ -9970,30 +10073,60 @@ components:
           description: >-
             Moves the thread to this folder. `sent` is assigned automatically and cannot be set.
           example: archive
-        add_label_ids:
-          type: array
-          minItems: 1
-          maxItems: 10
-          items:
-            type: string
-            format: uuid
-          description: >-
-            Label IDs to apply to the thread. Between 1 and 10 IDs. A label ID that does not exist in the inbox returns a 404.
-          example:
-            - 7f9c1d2e-4a6b-4c3d-8e15-9b0a7c6d5e34
-        remove_label_ids:
-          type: array
-          minItems: 1
-          maxItems: 10
-          items:
-            type: string
-            format: uuid
-          description: >-
-            Label IDs to remove from the thread. Between 1 and 10 IDs. The labels themselves are kept. A label ID that does not exist in the inbox returns a 404.
-          example:
-            - 2b6d0f4e-8a1c-4e3b-9d57-1c0e8a6f4b21
     UpdateInboxThreadResponseSuccess:
       $ref: '#/components/schemas/InboxThreadSummary'
+    AddInboxThreadLabelsOptions:
+      type: object
+      required:
+        - labels
+      properties:
+        labels:
+          type: array
+          minItems: 1
+          maxItems: 10
+          items:
+            type: string
+            format: uuid
+          description: >-
+            The IDs of the labels to apply to the thread. Between 1 and 10 IDs, each a label of the inbox.
+          example:
+            - 7f9c1d2e-4a6b-4c3d-8e15-9b0a7c6d5e34
+    SetInboxThreadLabelsOptions:
+      type: object
+      required:
+        - labels
+      properties:
+        labels:
+          type: array
+          maxItems: 100
+          items:
+            type: string
+            format: uuid
+          description: >-
+            The IDs of the labels the thread carries after the change. Up to 100 IDs, each a label of the inbox. Pass an empty array to take every label off the thread.
+          example:
+            - 7f9c1d2e-4a6b-4c3d-8e15-9b0a7c6d5e34
+    InboxThreadLabelList:
+      type: object
+      required:
+        - object
+        - data
+      properties:
+        object:
+          type: string
+          description: Type of the response object.
+          example: list
+        data:
+          type: array
+          description: Every label on the thread after the change.
+          items:
+            $ref: '#/components/schemas/InboxThreadLabel'
+    AddInboxThreadLabelsResponseSuccess:
+      $ref: '#/components/schemas/InboxThreadLabelList'
+    SetInboxThreadLabelsResponseSuccess:
+      $ref: '#/components/schemas/InboxThreadLabelList'
+    RemoveInboxThreadLabelResponseSuccess:
+      $ref: '#/components/schemas/InboxThreadLabelList'
     RemoveInboxThreadResponseSuccess:
       type: object
       required:
@@ -11120,7 +11253,7 @@ components:
           description: The thread as it is when the webhook is sent. Absent when the thread no longer exists.
     InboxThreadLabelsUpdatedEventData:
       type: object
-      description: The data of an `inbox.thread.labels.updated` event. One event carries one label, in either `added` or `removed`.
+      description: The data of an `inbox.thread.labels.updated` event. Adding labels fills only `added`. Removing one label fills only `removed`. Setting the labels of a thread can fill both.
       required:
         - added
         - removed
