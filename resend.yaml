@@ -3238,6 +3238,136 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RemoveInboxThreadResponseSuccess'
+  /inboxes/{inbox_id}/emails:
+    get:
+      operationId: inboxes/list-emails
+      tags:
+        - Inboxes
+      summary: Retrieve a list of inbox emails
+      description: >-
+        Returns the emails of one thread of the inbox, oldest first. Pass the
+        thread in the `thread_id` query parameter. The response is the same as
+        the list thread emails endpoint. Pass the `id` of the last email as
+        `after` to get the next, newer page. Pass the `id` of the first email
+        as `before` to get the previous, older page. Passing both `after` and
+        `before`, or a cursor that is not a UUID, returns a 422. A cursor that
+        is not an email of the thread returns a 404. An unknown thread returns
+        a 404.
+      parameters:
+        - name: inbox_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The Inbox ID. An email address is not accepted.
+        - name: thread_id
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: >-
+            The Thread ID. A missing `thread_id` returns a 422
+            `missing_required_field`.
+          example: 4d8e2a1c-9b3f-4c6d-8a21-3e5f7c9c0d12
+        - $ref: '#/components/parameters/PaginationLimit'
+        - $ref: '#/components/parameters/PaginationAfter'
+        - $ref: '#/components/parameters/PaginationBefore'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListInboxThreadEmailsResponseSuccess'
+  /inboxes/{inbox_id}/emails/{email_id}:
+    get:
+      operationId: inboxes/get-email
+      tags:
+        - Inboxes
+      summary: Retrieve a single inbox email
+      description: >-
+        Returns one email of the inbox. No Thread ID is needed. An email that
+        is not in the inbox returns a 404.
+      parameters:
+        - name: inbox_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The Inbox ID. An email address is not accepted.
+        - name: email_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The Email ID, as returned in `data[].id` by the list inbox emails endpoint.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetInboxThreadEmailResponseSuccess'
+  /inboxes/{inbox_id}/emails/{email_id}/reply:
+    post:
+      operationId: inboxes/reply-email
+      tags:
+        - Inboxes
+      summary: Reply to an inbox email
+      description: >-
+        Sends a reply from the inbox address right away, with no stored draft.
+        No Thread ID is needed. The request body is the same as the reply
+        thread email endpoint, and the response also has `object`.
+        The `to` recipients come from the email you reply to. For an email
+        the inbox received, the reply goes to its `Reply-To` addresses, or to
+        its sender when it has no `Reply-To`. For an email the inbox sent, the
+        reply goes to that email's `to` recipients. Set `reply_all` to also
+        copy the other recipients of the email. The reply threads under the
+        email through the `In-Reply-To` and `References` headers. When no
+        recipient can be found for the reply, the request returns a 422. The
+        whole email, encoded, can be at most 40 MB, or the request returns a
+        422.
+      parameters:
+        - in: header
+          name: Idempotency-Key
+          required: false
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 256
+          description: >-
+            A unique key for the request, so the reply is sent only once. A retry with the same key within 24 hours returns the first successful (2xx) response, with the `idempotent-replayed: true` header. A failed request is not stored, so it can be retried with the same key. Reusing the key with a different body, or while the first request is still running, returns a 409. An empty key, or one longer than 256 characters, returns a 400 `invalid_idempotency_key`. [Learn more](https://resend.com/docs/dashboard/emails/idempotency-keys)
+        - name: inbox_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The Inbox ID. An email address is not accepted.
+        - name: email_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The Email ID of the email to reply to, as returned in `data[].id` by the list inbox emails endpoint.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReplyInboxThreadEmailOptions'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReplyInboxEmailResponseSuccess'
   /inboxes/{inbox_id}/threads/{thread_id}/emails:
     get:
       operationId: inboxes/list-thread-emails
@@ -10086,6 +10216,21 @@ components:
       required:
         - id
       properties:
+        id:
+          type: string
+          format: uuid
+          description: The ID of the sent email. Use it with the emails endpoints.
+          example: 6a0c8e58-3d9e-4f7a-8b14-2e3f4a5b6c71
+    ReplyInboxEmailResponseSuccess:
+      type: object
+      required:
+        - object
+        - id
+      properties:
+        object:
+          type: string
+          description: The object type. Always `email`.
+          example: email
         id:
           type: string
           format: uuid
