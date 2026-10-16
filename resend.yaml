@@ -9840,53 +9840,13 @@ components:
         - type: object
           required:
             - matched_email_id
-            - highlights
           properties:
             matched_email_id:
               type: [string, "null"]
               format: uuid
               description: >-
-                Identifies the email in the thread that matched the search. When `query` has words or phrases, it is the most relevant match. Otherwise, it is the newest. The get, reply and forward thread email endpoints accept it as `email_id`, but it is not equal to the `id` those endpoints return. Null when the search index returns no matched email for the thread.
+                The ID of the email in the thread that matched the search. When `query` has words or phrases, it is the most relevant match. Otherwise, it is the newest. It is the same `id` that the list emails endpoints return, so use it as `email_id` with the get, reply and forward endpoints. Null when the search index returns no matched email for the thread.
               example: e8a3f1c6-2b9d-4e5a-a7c4-9d1b6f3e2a80
-            highlights:
-              type: object
-              description: >-
-                Where `query` matched the email in `matched_email_id`, as text fragments with each match wrapped in `**`. Only keys with a match are present. An empty object when there is no `query`.
-              properties:
-                subject:
-                  type: array
-                  items:
-                    type: string
-                body:
-                  type: array
-                  items:
-                    type: string
-                from:
-                  type: array
-                  items:
-                    type: string
-                to:
-                  type: array
-                  items:
-                    type: string
-                cc:
-                  type: array
-                  items:
-                    type: string
-                bcc:
-                  type: array
-                  items:
-                    type: string
-                attachments:
-                  type: array
-                  items:
-                    type: string
-              additionalProperties: false
-              example:
-                subject:
-                  - September **invoice**
-                attachments:
-                  - '**invoice**-2026-09.pdf'
     InboxThreadSummary:
       type: object
       description: The summary of a single thread.
