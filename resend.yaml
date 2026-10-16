@@ -3458,7 +3458,7 @@ paths:
         below the optional `html` or `text` note. The attachments of the original
         message are sent with the forward, together with any `attachments` you
         add. The request returns a 422 when they exceed 25 MB of `content` in
-        total. The number of files has no limit. An original attachment that was sent from a URL (`path`)
+        total. An original attachment that was sent from a URL (`path`)
         cannot be forwarded, and the request returns a 422. The whole email, encoded, can be at most 40 MB, or the request returns a 422.
       parameters:
         - in: header
