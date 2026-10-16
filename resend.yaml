@@ -2766,13 +2766,7 @@ paths:
         agent returns empty settings: `instructions` and `tone` are null and
         `actions` is an empty array.
       parameters:
-        - name: inbox_id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-          description: The Inbox ID. An email address is not accepted.
+        - $ref: '#/components/parameters/InboxIdOrEmailAddress'
       responses:
         '200':
           description: OK
@@ -2789,13 +2783,7 @@ paths:
         Updates the agent settings of the inbox. The agent is created when the
         inbox has none. Omitted fields keep their current value.
       parameters:
-        - name: inbox_id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-          description: The Inbox ID. An email address is not accepted.
+        - $ref: '#/components/parameters/InboxIdOrEmailAddress'
       requestBody:
         required: true
         content:
@@ -3361,13 +3349,7 @@ paths:
         is not an email of the thread returns a 404. An unknown thread returns
         a 404.
       parameters:
-        - name: inbox_id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-          description: The Inbox ID. An email address is not accepted.
+        - $ref: '#/components/parameters/InboxIdOrEmailAddress'
         - name: thread_id
           in: query
           required: true
@@ -3398,13 +3380,7 @@ paths:
         Returns one email of the inbox. No Thread ID is needed. An email that
         is not in the inbox returns a 404.
       parameters:
-        - name: inbox_id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-          description: The Inbox ID. An email address is not accepted.
+        - $ref: '#/components/parameters/InboxIdOrEmailAddress'
         - name: email_id
           in: path
           required: true
@@ -3448,13 +3424,7 @@ paths:
             maxLength: 256
           description: >-
             A unique key for the request, so the reply is sent only once. A retry with the same key within 24 hours returns the first successful (2xx) response, with the `idempotent-replayed: true` header. A failed request is not stored, so it can be retried with the same key. Reusing the key with a different body, or while the first request is still running, returns a 409. An empty key, or one longer than 256 characters, returns a 400 `invalid_idempotency_key`. [Learn more](https://resend.com/docs/dashboard/emails/idempotency-keys)
-        - name: inbox_id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-          description: The Inbox ID. An email address is not accepted.
+        - $ref: '#/components/parameters/InboxIdOrEmailAddress'
         - name: email_id
           in: path
           required: true
@@ -3488,13 +3458,7 @@ paths:
         both `after` and `before`, or a cursor that is not a UUID, returns a 422.
         A cursor that is not a message of the thread returns a 404.
       parameters:
-        - name: inbox_id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-          description: The Inbox ID. An email address is not accepted.
+        - $ref: '#/components/parameters/InboxIdOrEmailAddress'
         - name: thread_id
           in: path
           required: true
@@ -3519,13 +3483,7 @@ paths:
         - Inboxes
       summary: Retrieve a single thread email
       parameters:
-        - name: inbox_id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-          description: The Inbox ID. An email address is not accepted.
+        - $ref: '#/components/parameters/InboxIdOrEmailAddress'
         - name: thread_id
           in: path
           required: true
@@ -3572,13 +3530,7 @@ paths:
             maxLength: 256
           description: >-
             A unique key for the request, so the reply is sent only once. A retry with the same key within 24 hours returns the first successful (2xx) response, with the `idempotent-replayed: true` header. A failed request is not stored, so it can be retried with the same key. Reusing the key with a different body, or while the first request is still running, returns a 409. An empty key, or one longer than 256 characters, returns a 400 `invalid_idempotency_key`. [Learn more](https://resend.com/docs/dashboard/emails/idempotency-keys)
-        - name: inbox_id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-          description: The Inbox ID. An email address is not accepted.
+        - $ref: '#/components/parameters/InboxIdOrEmailAddress'
         - name: thread_id
           in: path
           required: true
@@ -3630,13 +3582,7 @@ paths:
             maxLength: 256
           description: >-
             A unique key for the request, so the forward is sent only once. A retry with the same key within 24 hours returns the first successful (2xx) response, with the `idempotent-replayed: true` header. A failed request is not stored, so it can be retried with the same key. Reusing the key with a different body, or while the first request is still running, returns a 409. An empty key, or one longer than 256 characters, returns a 400 `invalid_idempotency_key`. [Learn more](https://resend.com/docs/dashboard/emails/idempotency-keys)
-        - name: inbox_id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-          description: The Inbox ID. An email address is not accepted.
+        - $ref: '#/components/parameters/InboxIdOrEmailAddress'
         - name: thread_id
           in: path
           required: true
@@ -3677,13 +3623,7 @@ paths:
         cursors together, return a 422. A cursor that is not an unsent draft on
         this inbox returns a 404.
       parameters:
-        - name: inbox_id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-          description: The Inbox ID. An email address is not accepted.
+        - $ref: '#/components/parameters/InboxIdOrEmailAddress'
         - $ref: '#/components/parameters/PaginationLimit'
         - $ref: '#/components/parameters/PaginationAfter'
         - $ref: '#/components/parameters/PaginationBefore'
@@ -3730,13 +3670,7 @@ paths:
             maxLength: 256
           description: >-
             A unique key for the request, so the draft is created only once. A retry with the same key within 24 hours returns the first successful (2xx) response, with the `idempotent-replayed: true` header. A failed request is not stored, so it can be retried with the same key. Reusing the key with a different body, or while the first request is still running, returns a 409. An empty key, or one longer than 256 characters, returns a 400 `invalid_idempotency_key`. [Learn more](https://resend.com/docs/dashboard/emails/idempotency-keys)
-        - name: inbox_id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-          description: The Inbox ID. An email address is not accepted.
+        - $ref: '#/components/parameters/InboxIdOrEmailAddress'
       requestBody:
         required: true
         content:
@@ -3763,13 +3697,7 @@ paths:
         - Inboxes
       summary: Retrieve a single draft
       parameters:
-        - name: inbox_id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-          description: The Inbox ID. An email address is not accepted.
+        - $ref: '#/components/parameters/InboxIdOrEmailAddress'
         - name: draft_id
           in: path
           required: true
@@ -3800,13 +3728,7 @@ paths:
         during the request, returns a 409. The response holds only the
         Draft ID. Retrieve the draft to read its content.
       parameters:
-        - name: inbox_id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-          description: The Inbox ID. An email address is not accepted.
+        - $ref: '#/components/parameters/InboxIdOrEmailAddress'
         - name: draft_id
           in: path
           required: true
@@ -3836,13 +3758,7 @@ paths:
         Discards an unsent draft. A draft that was already sent, or that
         changed during the request, returns a 409.
       parameters:
-        - name: inbox_id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-          description: The Inbox ID. An email address is not accepted.
+        - $ref: '#/components/parameters/InboxIdOrEmailAddress'
         - name: draft_id
           in: path
           required: true
@@ -3881,13 +3797,7 @@ paths:
             maxLength: 256
           description: >-
             A unique key for the request, so the draft is sent only once. A retry with the same key within 24 hours returns the first successful (2xx) response, with the `idempotent-replayed: true` header. A failed request is not stored, so it can be retried with the same key. Reusing the key with a different body, or while the first request is still running, returns a 409. An empty key, or one longer than 256 characters, returns a 400 `invalid_idempotency_key`. [Learn more](https://resend.com/docs/dashboard/emails/idempotency-keys)
-        - name: inbox_id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-          description: The Inbox ID. An email address is not accepted.
+        - $ref: '#/components/parameters/InboxIdOrEmailAddress'
         - name: draft_id
           in: path
           required: true
