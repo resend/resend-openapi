@@ -2706,17 +2706,7 @@ paths:
         - Inboxes
       summary: Retrieve a single inbox by ID or email address
       parameters:
-        - name: inbox_id
-          in: path
-          required: true
-          schema:
-            type: string
-          description: >-
-            The Inbox ID or the inbox email address, such as
-            `support@acme.com`. A value that contains `@` must be a valid email
-            address, and the match is case-insensitive. Any other value must be
-            a UUID.
-          example: b3e2b2b6-3f0e-4c8e-9ad3-2f43a1e2c7f1
+        - $ref: '#/components/parameters/InboxIdOrEmailAddress'
       responses:
         '200':
           description: OK
@@ -2728,20 +2718,13 @@ paths:
       operationId: inboxes/update
       tags:
         - Inboxes
-      summary: Update an existing inbox
+      summary: Update an existing inbox by ID or email address
       description: >-
         Updates the internal name of the inbox or the name recipients see when
         mail is sent from it. At least one of `name` or `from_name` is
         required.
       parameters:
-        - name: inbox_id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-          description: The Inbox ID. An email address is not accepted.
-          example: b3e2b2b6-3f0e-4c8e-9ad3-2f43a1e2c7f1
+        - $ref: '#/components/parameters/InboxIdOrEmailAddress'
       requestBody:
         required: true
         content:
@@ -2759,19 +2742,12 @@ paths:
       operationId: inboxes/remove
       tags:
         - Inboxes
-      summary: Remove an existing inbox
+      summary: Remove an existing inbox by ID or email address
       description: >-
         Removes the inbox. An inbox that does not exist or was already removed
         returns a 404 not_found.
       parameters:
-        - name: inbox_id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-          description: The Inbox ID. An email address is not accepted.
-          example: b3e2b2b6-3f0e-4c8e-9ad3-2f43a1e2c7f1
+        - $ref: '#/components/parameters/InboxIdOrEmailAddress'
       responses:
         '200':
           description: OK
@@ -2841,13 +2817,7 @@ paths:
       summary: Retrieve a list of inbox labels
       description: Returns every label on the inbox, oldest first. The list is not paginated.
       parameters:
-        - name: inbox_id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-          description: The Inbox ID. An email address is not accepted.
+        - $ref: '#/components/parameters/InboxIdOrEmailAddress'
       responses:
         '200':
           description: OK
@@ -2866,13 +2836,7 @@ paths:
         without case. A duplicate name or a full inbox returns a 422
         validation_error.
       parameters:
-        - name: inbox_id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-          description: The Inbox ID. An email address is not accepted.
+        - $ref: '#/components/parameters/InboxIdOrEmailAddress'
       requestBody:
         required: true
         content:
@@ -2897,13 +2861,7 @@ paths:
         new name must not match another label on the inbox, compared without
         case, or the request returns a 422 validation_error.
       parameters:
-        - name: inbox_id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-          description: The Inbox ID. An email address is not accepted.
+        - $ref: '#/components/parameters/InboxIdOrEmailAddress'
         - name: label_id
           in: path
           required: true
@@ -2930,13 +2888,7 @@ paths:
       summary: Remove an existing inbox label
       description: Deletes the label and removes it from every thread that carries it.
       parameters:
-        - name: inbox_id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-          description: The Inbox ID. An email address is not accepted.
+        - $ref: '#/components/parameters/InboxIdOrEmailAddress'
         - name: label_id
           in: path
           required: true
@@ -2965,13 +2917,7 @@ paths:
         the selected folders returns a 404. To find threads by text, sender,
         recipient, attachment, or date, use the search threads endpoint.
       parameters:
-        - name: inbox_id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-          description: The Inbox ID. An email address is not accepted.
+        - $ref: '#/components/parameters/InboxIdOrEmailAddress'
         - name: folders
           in: query
           required: false
@@ -3052,13 +2998,7 @@ paths:
         `sent`, that means an email the inbox sent.
         When more than 10,000 threads match, search covers the 10,000 with the newest matching email.
       parameters:
-        - name: inbox_id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-          description: The Inbox ID. An email address is not accepted.
+        - $ref: '#/components/parameters/InboxIdOrEmailAddress'
         - name: query
           in: query
           required: false
@@ -3222,13 +3162,7 @@ paths:
         Returns the thread summary. The emails in the thread are listed with
         the list thread emails endpoint.
       parameters:
-        - name: inbox_id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-          description: The Inbox ID. An email address is not accepted.
+        - $ref: '#/components/parameters/InboxIdOrEmailAddress'
         - name: thread_id
           in: path
           required: true
@@ -3258,13 +3192,7 @@ paths:
         added labels, removed labels. They are not atomic, so a 404 for a label
         leaves the earlier changes applied.
       parameters:
-        - name: inbox_id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-          description: The Inbox ID. An email address is not accepted.
+        - $ref: '#/components/parameters/InboxIdOrEmailAddress'
         - name: thread_id
           in: path
           required: true
@@ -3295,13 +3223,7 @@ paths:
         This is reversible. To restore the thread, update its `folder` to
         `inbox`, `archive`, or `spam`, which also clears the deletion deadline.
       parameters:
-        - name: inbox_id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-          description: The Inbox ID. An email address is not accepted.
+        - $ref: '#/components/parameters/InboxIdOrEmailAddress'
         - name: thread_id
           in: path
           required: true
@@ -4330,6 +4252,19 @@ components:
       schema:
         type: string
       description: Return items before this cursor.
+    InboxIdOrEmailAddress:
+      in: path
+      name: inbox_id
+      required: true
+      schema:
+        type: string
+      description: >-
+        The Inbox ID or the inbox email address, such as `support@acme.com`.
+        A value that contains `@` must be a valid email address, and any other
+        value must be a UUID, or the request returns a 422. The address match
+        is case-insensitive and never falls back to the inbox `name`. An
+        address that matches no inbox returns a 404.
+      example: b3e2b2b6-3f0e-4c8e-9ad3-2f43a1e2c7f1
   schemas:
     SendEmailRequest:
       type: object
