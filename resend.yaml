@@ -2764,7 +2764,7 @@ paths:
       description: >-
         Returns the agent settings of the inbox. An inbox without a configured
         agent returns empty settings: `instructions` and `tone` are null and
-        `enabled_actions` is an empty array.
+        `actions` is an empty array.
       parameters:
         - name: inbox_id
           in: path
@@ -9481,7 +9481,7 @@ components:
         - object
         - instructions
         - tone
-        - enabled_actions
+        - actions
       properties:
         object:
           type: string
@@ -9501,9 +9501,9 @@ components:
             - null
           description: The tone the agent writes in. Null when no tone is set.
           example: concise_professional
-        enabled_actions:
+        actions:
           type: array
-          description: The actions the agent can take. Empty when no actions are enabled.
+          description: The actions the agent can take, in the order of the enum. Empty when no actions are enabled.
           items:
             type: string
             enum:
@@ -9512,8 +9512,8 @@ components:
               - add_labels
               - assign_thread
               - mark_as_spam
-              - archive_thread
-              - delete_thread
+              - archive
+              - move_to_trash
           example:
             - draft_reply
             - add_labels
@@ -9527,9 +9527,9 @@ components:
         - required:
             - tone
         - required:
-            - enabled_actions
+            - actions
       description: >-
-        At least one of `instructions`, `tone`, or `enabled_actions` must be provided. Omitted fields keep their current value.
+        At least one of `instructions`, `tone`, or `actions` must be provided. Omitted fields keep their current value.
       properties:
         instructions:
           type: [string, "null"]
@@ -9548,10 +9548,10 @@ components:
             - null
           description: The tone the agent writes in. Send null to clear the tone.
           example: concise_professional
-        enabled_actions:
+        actions:
           type: array
           description: >-
-            The actions the agent can take. Replaces the whole set. Duplicates are removed. Send an empty array to disable all actions.
+            The actions the agent can take. Replaces the whole set. Duplicates are removed. Send an empty array to disable all actions. The old names `archive_thread` and `delete_thread` return a 422. Use `archive` and `move_to_trash`.
           items:
             type: string
             enum:
@@ -9560,8 +9560,8 @@ components:
               - add_labels
               - assign_thread
               - mark_as_spam
-              - archive_thread
-              - delete_thread
+              - archive
+              - move_to_trash
           example:
             - draft_reply
             - add_labels
