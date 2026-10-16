@@ -9514,14 +9514,19 @@ components:
           description: Instructions the agent follows when it handles the threads of the inbox. Null when no instructions are set.
           example: Answer refund questions yourself. Escalate legal threats.
         tone:
-          type: [string, "null"]
-          enum:
-            - concise_professional
-            - concise_casual
-            - expanded_professional
-            - expanded_casual
-            - null
-          description: The tone the agent writes in. Null when no tone is set.
+          anyOf:
+            - type: string
+              enum:
+                - concise_professional
+                - concise_casual
+                - expanded_professional
+                - expanded_casual
+            - type: string
+              minLength: 1
+              maxLength: 64
+            - type: "null"
+          description: >-
+            The tone the agent writes in. One of the presets `concise_professional`, `concise_casual`, `expanded_professional` or `expanded_casual`, or custom text in the owner's own words. Tones saved before the presets are custom text, such as `Concise · Casual`. Null when no tone is set.
           example: concise_professional
         actions:
           type: array
@@ -9561,14 +9566,19 @@ components:
             Instructions the agent follows when it handles the threads of the inbox. Max 4000 characters. Leading and trailing whitespace is trimmed, and the trimmed value must not be empty. Send null to clear the instructions.
           example: Answer refund questions yourself. Escalate legal threats.
         tone:
-          type: [string, "null"]
-          enum:
-            - concise_professional
-            - concise_casual
-            - expanded_professional
-            - expanded_casual
-            - null
-          description: The tone the agent writes in. Send null to clear the tone.
+          anyOf:
+            - type: string
+              enum:
+                - concise_professional
+                - concise_casual
+                - expanded_professional
+                - expanded_casual
+            - type: string
+              minLength: 1
+              maxLength: 64
+            - type: "null"
+          description: >-
+            The tone the agent writes in. Send one of the presets `concise_professional`, `concise_casual`, `expanded_professional` or `expanded_casual`, or custom text in your own words. Custom text is trimmed, cannot be empty and is at most 64 characters, or the request returns a 422. Send null to clear the tone.
           example: concise_professional
         actions:
           type: array
