@@ -94,7 +94,7 @@
     },
     {
       "name": "Inboxes",
-      "description": "Create and manage Inboxes through the Resend API. Every Inboxes endpoint needs a full access API key. A sending access key returns a 401 `restricted_api_key`."
+      "description": "Create and manage Inboxes through the Resend API. A sending access key can call only these Inboxes endpoints: `POST /inboxes/{inbox_id}/threads/{thread_id}/emails/{email_id}/reply`, `POST /inboxes/{inbox_id}/threads/{thread_id}/emails/{email_id}/forward`, `POST /inboxes/{inbox_id}/drafts` and `POST /inboxes/{inbox_id}/drafts/{draft_id}/send`. When the key is limited to one domain, the inbox address must be on that domain, or the request returns a 403. Every other Inboxes endpoint needs a full access API key, and a sending access key returns a 401 `restricted_api_key`."
     }
   ],
   "paths": {
@@ -4316,14 +4316,7 @@
         "summary": "Retrieve a single inbox by ID or email address",
         "parameters": [
           {
-            "name": "inbox_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "The Inbox ID or the inbox email address, such as `support@acme.com`. A value that contains `@` must be a valid email address, and the match is case-insensitive. Any other value must be a UUID.",
-            "example": "b3e2b2b6-3f0e-4c8e-9ad3-2f43a1e2c7f1"
+            "$ref": "#/components/parameters/InboxIdOrEmailAddress"
           }
         ],
         "responses": {
@@ -4344,19 +4337,11 @@
         "tags": [
           "Inboxes"
         ],
-        "summary": "Update an existing inbox",
+        "summary": "Update an existing inbox by ID or email address",
         "description": "Updates the internal name of the inbox or the name recipients see when mail is sent from it. At least one of `name` or `from_name` is required.",
         "parameters": [
           {
-            "name": "inbox_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            },
-            "description": "The Inbox ID. An email address is not accepted.",
-            "example": "b3e2b2b6-3f0e-4c8e-9ad3-2f43a1e2c7f1"
+            "$ref": "#/components/parameters/InboxIdOrEmailAddress"
           }
         ],
         "requestBody": {
@@ -4387,19 +4372,11 @@
         "tags": [
           "Inboxes"
         ],
-        "summary": "Remove an existing inbox",
+        "summary": "Remove an existing inbox by ID or email address",
         "description": "Removes the inbox. An inbox that does not exist or was already removed returns a 404 not_found.",
         "parameters": [
           {
-            "name": "inbox_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            },
-            "description": "The Inbox ID. An email address is not accepted.",
-            "example": "b3e2b2b6-3f0e-4c8e-9ad3-2f43a1e2c7f1"
+            "$ref": "#/components/parameters/InboxIdOrEmailAddress"
           }
         ],
         "responses": {
@@ -4423,17 +4400,10 @@
           "Inboxes"
         ],
         "summary": "Retrieve the agent settings for an inbox",
-        "description": "Returns the agent settings of the inbox. An inbox without a configured agent returns empty settings: `instructions` and `tone` are null and `enabled_actions` is an empty array.",
+        "description": "Returns the agent settings of the inbox. An inbox without a configured agent returns empty settings: `instructions` and `tone` are null and `actions` is an empty array.",
         "parameters": [
           {
-            "name": "inbox_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            },
-            "description": "The Inbox ID. An email address is not accepted."
+            "$ref": "#/components/parameters/InboxIdOrEmailAddress"
           }
         ],
         "responses": {
@@ -4458,14 +4428,7 @@
         "description": "Updates the agent settings of the inbox. The agent is created when the inbox has none. Omitted fields keep their current value.",
         "parameters": [
           {
-            "name": "inbox_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            },
-            "description": "The Inbox ID. An email address is not accepted."
+            "$ref": "#/components/parameters/InboxIdOrEmailAddress"
           }
         ],
         "requestBody": {
@@ -4502,14 +4465,7 @@
         "description": "Returns every label on the inbox, oldest first. The list is not paginated.",
         "parameters": [
           {
-            "name": "inbox_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            },
-            "description": "The Inbox ID. An email address is not accepted."
+            "$ref": "#/components/parameters/InboxIdOrEmailAddress"
           }
         ],
         "responses": {
@@ -4534,14 +4490,7 @@
         "description": "A label is a named, colored tag that belongs to one inbox. An inbox can have at most 100 labels. Label names are unique per inbox, compared without case. A duplicate name or a full inbox returns a 422 validation_error.",
         "parameters": [
           {
-            "name": "inbox_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            },
-            "description": "The Inbox ID. An email address is not accepted."
+            "$ref": "#/components/parameters/InboxIdOrEmailAddress"
           }
         ],
         "requestBody": {
@@ -4578,14 +4527,7 @@
         "description": "Renames or recolors a label. Omitted fields keep their current value. A new name must not match another label on the inbox, compared without case, or the request returns a 422 validation_error.",
         "parameters": [
           {
-            "name": "inbox_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            },
-            "description": "The Inbox ID. An email address is not accepted."
+            "$ref": "#/components/parameters/InboxIdOrEmailAddress"
           },
           {
             "name": "label_id",
@@ -4629,14 +4571,7 @@
         "description": "Deletes the label and removes it from every thread that carries it.",
         "parameters": [
           {
-            "name": "inbox_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            },
-            "description": "The Inbox ID. An email address is not accepted."
+            "$ref": "#/components/parameters/InboxIdOrEmailAddress"
           },
           {
             "name": "label_id",
@@ -4673,14 +4608,7 @@
         "description": "Returns the threads in an inbox, most recently active first. A thread is a conversation made up of one or more emails. The `after` and `before` cursors take a thread ID, and only one of them can be passed. A cursor that is not a UUID, such as a date, returns a 422 validation_error. A cursor thread that is not in the selected folders returns a 404. To find threads by text, sender, recipient, attachment, or date, use the search threads endpoint.",
         "parameters": [
           {
-            "name": "inbox_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            },
-            "description": "The Inbox ID. An email address is not accepted."
+            "$ref": "#/components/parameters/InboxIdOrEmailAddress"
           },
           {
             "name": "folders",
@@ -4769,14 +4697,7 @@
         "description": "Finds threads by the text of their emails, who sent or received them, whether they have attachments, and their dates. Results are ordered by latest activity, newest first, and paginate like the list threads endpoint, so a cursor that is not a thread ID returns a 422. Search can be up to about a minute behind new emails. Different parameters combine, so a thread must match all of them. `folders`, `labels`, and `read` apply to the thread. `query`, `from`, `to`, `cc`, `bcc`, `has_attachment`, `start_date`, and `end_date` must all match the same email in the thread. When any of these email filters is set, the matching email must itself be in one of `folders`. For `sent`, that means an email the inbox sent. When more than 10,000 threads match, search covers the 10,000 with the newest matching email.",
         "parameters": [
           {
-            "name": "inbox_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            },
-            "description": "The Inbox ID. An email address is not accepted."
+            "$ref": "#/components/parameters/InboxIdOrEmailAddress"
           },
           {
             "name": "query",
@@ -4969,14 +4890,7 @@
         "description": "Returns the thread summary. The emails in the thread are listed with the list thread emails endpoint.",
         "parameters": [
           {
-            "name": "inbox_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            },
-            "description": "The Inbox ID. An email address is not accepted."
+            "$ref": "#/components/parameters/InboxIdOrEmailAddress"
           },
           {
             "name": "thread_id",
@@ -5008,17 +4922,10 @@
           "Inboxes"
         ],
         "summary": "Update an existing inbox thread",
-        "description": "Marks a thread read or unread, moves it to a folder, or adds and removes labels. At least one of `read`, `folder`, `add_label_ids`, or `remove_label_ids` is required. A label ID cannot be both added and removed in the same request. Removing a label from a thread keeps the label itself. Moving a thread out of `trash` restores it and clears its deletion deadline. The changes apply in this order: `read`, `folder`, added labels, removed labels. They are not atomic, so a 404 for a label leaves the earlier changes applied.",
+        "description": "Marks a thread read or unread, or moves it to a folder. At least one of `read` or `folder` is required. To change the labels of a thread, use the add, set, and remove thread labels endpoints. This endpoint ignores the removed `add_label_ids` and `remove_label_ids` fields, so a body with only those fields returns a 422 validation_error. Moving a thread out of `trash` restores it and clears its deletion deadline. The changes apply in this order: `read`, then `folder`. They are not atomic.",
         "parameters": [
           {
-            "name": "inbox_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            },
-            "description": "The Inbox ID. An email address is not accepted."
+            "$ref": "#/components/parameters/InboxIdOrEmailAddress"
           },
           {
             "name": "thread_id",
@@ -5063,14 +4970,7 @@
         "description": "Moves the thread to `trash` and schedules it for deletion in 30 days. This is reversible. To restore the thread, update its `folder` to `inbox`, `archive`, or `spam`, which also clears the deletion deadline.",
         "parameters": [
           {
-            "name": "inbox_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            },
-            "description": "The Inbox ID. An email address is not accepted."
+            "$ref": "#/components/parameters/InboxIdOrEmailAddress"
           },
           {
             "name": "thread_id",
@@ -5097,6 +4997,145 @@
         }
       }
     },
+    "/inboxes/{inbox_id}/threads/{thread_id}/labels": {
+      "post": {
+        "operationId": "inboxes/add-thread-labels",
+        "tags": [
+          "Inboxes"
+        ],
+        "summary": "Add labels to an inbox thread",
+        "description": "Applies one or more labels to the thread. Labels already on the thread stay on it. The response lists every label on the thread after the change. A label ID that is not a label of the inbox returns a 404 `Label not found.`, and nothing changes. A thread that does not exist in the inbox returns a 404 `Thread not found.`. To replace the labels of the thread, use the set thread labels endpoint.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/InboxIdOrEmailAddress"
+          },
+          {
+            "name": "thread_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "The Thread ID."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddInboxThreadLabelsOptions"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AddInboxThreadLabelsResponseSuccess"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "inboxes/set-thread-labels",
+        "tags": [
+          "Inboxes"
+        ],
+        "summary": "Set the labels of an inbox thread",
+        "description": "Replaces every label on the thread with the given labels, in one atomic change. Labels on the thread that are not in the list are taken off it. The labels themselves are kept. An empty array takes every label off the thread. The response lists every label on the thread after the change. A label ID that is not a label of the inbox returns a 404 `Label not found.`, and nothing changes. A thread that does not exist in the inbox returns a 404 `Thread not found.`.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/InboxIdOrEmailAddress"
+          },
+          {
+            "name": "thread_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "The Thread ID."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetInboxThreadLabelsOptions"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SetInboxThreadLabelsResponseSuccess"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/inboxes/{inbox_id}/threads/{thread_id}/labels/{label_id}": {
+      "delete": {
+        "operationId": "inboxes/remove-thread-label",
+        "tags": [
+          "Inboxes"
+        ],
+        "summary": "Remove a label from an inbox thread",
+        "description": "Takes one label off the thread. The label itself is kept, and stays on every other thread that carries it. To delete the label, use the remove inbox label endpoint. The response lists every label on the thread after the change. A label that is not on the thread returns a 200 with the current labels. A label ID that is not a label of the inbox returns a 404 `Label not found.`. A thread that does not exist in the inbox returns a 404 `Thread not found.`.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/InboxIdOrEmailAddress"
+          },
+          {
+            "name": "thread_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "The Thread ID."
+          },
+          {
+            "name": "label_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "The Label ID."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RemoveInboxThreadLabelResponseSuccess"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/inboxes/{inbox_id}/threads/{thread_id}/emails": {
       "get": {
         "operationId": "inboxes/list-thread-emails",
@@ -5107,14 +5146,7 @@
         "description": "Returns the messages of a thread, oldest first. Pass the `id` of the last message as `after` to get the next, newer page. Pass the `id` of the first message as `before` to get the previous, older page. Passing both `after` and `before`, or a cursor that is not a UUID, returns a 422. A cursor that is not a message of the thread returns a 404.",
         "parameters": [
           {
-            "name": "inbox_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            },
-            "description": "The Inbox ID. An email address is not accepted."
+            "$ref": "#/components/parameters/InboxIdOrEmailAddress"
           },
           {
             "name": "thread_id",
@@ -5159,14 +5191,7 @@
         "summary": "Retrieve a single thread email",
         "parameters": [
           {
-            "name": "inbox_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            },
-            "description": "The Inbox ID. An email address is not accepted."
+            "$ref": "#/components/parameters/InboxIdOrEmailAddress"
           },
           {
             "name": "thread_id",
@@ -5224,14 +5249,7 @@
             "description": "A unique key for the request, so the reply is sent only once. A retry with the same key within 24 hours returns the first successful (2xx) response, with the `idempotent-replayed: true` header. A failed request is not stored, so it can be retried with the same key. Reusing the key with a different body, or while the first request is still running, returns a 409. An empty key, or one longer than 256 characters, returns a 400 `invalid_idempotency_key`. [Learn more](https://resend.com/docs/dashboard/emails/idempotency-keys)"
           },
           {
-            "name": "inbox_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            },
-            "description": "The Inbox ID. An email address is not accepted."
+            "$ref": "#/components/parameters/InboxIdOrEmailAddress"
           },
           {
             "name": "thread_id",
@@ -5285,7 +5303,7 @@
           "Inboxes"
         ],
         "summary": "Forward a thread email",
-        "description": "Forwards a message from the inbox address right away, with no stored draft. The original message is quoted under a forwarded-message banner, below the optional `html` or `text` note. The attachments of the original message are sent with the forward, together with any `attachments` you add. The request fails when they exceed 10 files or 25 MB of `content` in total. An original attachment that was sent from a URL (`path`) cannot be forwarded, and the request returns a 422. The whole email, encoded, can be at most 40 MB, or the request returns a 422.",
+        "description": "Forwards a message from the inbox address right away, with no stored draft. The original message is quoted under a forwarded-message banner, below the optional `html` or `text` note. The attachments of the original message are sent with the forward, together with any `attachments` you add. The request returns a 422 when they exceed 25 MB of `content` in total. The number of files has no limit. An original attachment that was sent from a URL (`path`) cannot be forwarded, and the request returns a 422. The whole email, encoded, can be at most 40 MB, or the request returns a 422.",
         "parameters": [
           {
             "in": "header",
@@ -5299,14 +5317,7 @@
             "description": "A unique key for the request, so the forward is sent only once. A retry with the same key within 24 hours returns the first successful (2xx) response, with the `idempotent-replayed: true` header. A failed request is not stored, so it can be retried with the same key. Reusing the key with a different body, or while the first request is still running, returns a 409. An empty key, or one longer than 256 characters, returns a 400 `invalid_idempotency_key`. [Learn more](https://resend.com/docs/dashboard/emails/idempotency-keys)"
           },
           {
-            "name": "inbox_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            },
-            "description": "The Inbox ID. An email address is not accepted."
+            "$ref": "#/components/parameters/InboxIdOrEmailAddress"
           },
           {
             "name": "thread_id",
@@ -5363,14 +5374,7 @@
         "description": "Returns the unsent drafts on the inbox, most recently updated first. The `after` and `before` cursors take a Draft ID from the current page, and only one of them can be passed. A cursor that is not a UUID, or both cursors together, return a 422. A cursor that is not an unsent draft on this inbox returns a 404.",
         "parameters": [
           {
-            "name": "inbox_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            },
-            "description": "The Inbox ID. An email address is not accepted."
+            "$ref": "#/components/parameters/InboxIdOrEmailAddress"
           },
           {
             "$ref": "#/components/parameters/PaginationLimit"
@@ -5401,7 +5405,7 @@
           "Inboxes"
         ],
         "summary": "Create a draft",
-        "description": "Creates an unsent draft on the inbox. Omit `thread_id` and `reply_to_email_id` for a draft that starts a new thread. Pass both together for a reply draft in an existing thread. A reply draft without `to` is addressed to the sender of the email it replies to, or to its Reply-To when set. For an email the inbox sent, it defaults to that email's `to` recipients. Send `to: []` to leave it empty. At least one of `to`, `cc`, `bcc`, `subject`, `text`, `html` or `attachments` must be non-empty. The combined recipients of `to`, `cc` and `bcc` cannot exceed 50. Attachments are stored on the draft, so each one needs `content`, `filename` and `content_type`. Returns 201 for a new draft. Only one unsent reply draft can target an email, so a reply draft request for an email that already has one returns 200 with the ID of the existing draft. An unknown `thread_id`, or a `reply_to_email_id` that is not in that thread, returns a 404. That request ignores every other field, except `attachments`, which replaces the attachments of the existing draft when sent. A reply draft created without `subject` stores an empty subject and gets no `Re:` prefix, so set one before you send it.",
+        "description": "Creates an unsent draft on the inbox. Omit `thread_id` and `reply_to_email_id` for a draft that starts a new thread. Pass both together for a reply draft in an existing thread. A reply draft without `to` is addressed to the sender of the email it replies to, or to its Reply-To when set. For an email the inbox sent, it defaults to that email's `to` recipients. Send `to: []` to leave it empty. At least one of `to`, `cc`, `bcc`, `subject`, `text`, `html` or `attachments` must be non-empty. The combined recipients of `to`, `cc` and `bcc` cannot exceed 50. Attachments are stored on the draft, so each one needs `content`, `filename` and `content_type`. Returns 201 for a new draft. Only one unsent reply draft can target an email, so a reply draft request for an email that already has one returns 200 with the ID of the existing draft. An unknown `thread_id`, or a `reply_to_email_id` that is not in that thread, returns a 404. That request ignores every other field, except `attachments`, which replaces the attachments of the existing draft when sent. A reply draft created without `subject` stores an empty subject. When it is sent, it takes the thread subject, prefixed with `Re:` when it does not already start with it.",
         "parameters": [
           {
             "in": "header",
@@ -5415,14 +5419,7 @@
             "description": "A unique key for the request, so the draft is created only once. A retry with the same key within 24 hours returns the first successful (2xx) response, with the `idempotent-replayed: true` header. A failed request is not stored, so it can be retried with the same key. Reusing the key with a different body, or while the first request is still running, returns a 409. An empty key, or one longer than 256 characters, returns a 400 `invalid_idempotency_key`. [Learn more](https://resend.com/docs/dashboard/emails/idempotency-keys)"
           },
           {
-            "name": "inbox_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            },
-            "description": "The Inbox ID. An email address is not accepted."
+            "$ref": "#/components/parameters/InboxIdOrEmailAddress"
           }
         ],
         "requestBody": {
@@ -5468,14 +5465,7 @@
         "summary": "Retrieve a single draft",
         "parameters": [
           {
-            "name": "inbox_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            },
-            "description": "The Inbox ID. An email address is not accepted."
+            "$ref": "#/components/parameters/InboxIdOrEmailAddress"
           },
           {
             "name": "draft_id",
@@ -5507,17 +5497,10 @@
           "Inboxes"
         ],
         "summary": "Update an existing draft",
-        "description": "Updates the content of an unsent draft. Omitted fields are left unchanged. Send at least one of `to`, `cc`, `bcc`, `subject`, `text`, `html` or `attachments`. Sending `attachments` replaces every attachment on the draft. A request that sets `text` or `html` replaces the whole body. The body part you omit from that request becomes `null`. The merged draft must still contain at least one non-empty field, and its combined recipients cannot exceed 50. A draft that was already sent, or that changed during the request, returns a 409.",
+        "description": "Updates the content of an unsent draft. Omitted fields are left unchanged. Send at least one of `to`, `cc`, `bcc`, `subject`, `text`, `html` or `attachments`. Sending `attachments` replaces every attachment on the draft. A request that sets `text` or `html` replaces the whole body. The body part you omit from that request becomes `null`. The merged draft must still contain at least one non-empty field, and its combined recipients cannot exceed 50. A draft that was already sent, or that changed during the request, returns a 409. The response holds only the Draft ID. Retrieve the draft to read its content.",
         "parameters": [
           {
-            "name": "inbox_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            },
-            "description": "The Inbox ID. An email address is not accepted."
+            "$ref": "#/components/parameters/InboxIdOrEmailAddress"
           },
           {
             "name": "draft_id",
@@ -5562,14 +5545,7 @@
         "description": "Discards an unsent draft. A draft that was already sent, or that changed during the request, returns a 409.",
         "parameters": [
           {
-            "name": "inbox_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            },
-            "description": "The Inbox ID. An email address is not accepted."
+            "$ref": "#/components/parameters/InboxIdOrEmailAddress"
           },
           {
             "name": "draft_id",
@@ -5603,7 +5579,7 @@
           "Inboxes"
         ],
         "summary": "Send a draft",
-        "description": "Sends the draft from the inbox address. A reply draft is sent in its thread. A draft without a thread starts a new thread. The draft must have at least one `to` recipient, a non-empty `subject`, and `html` or `text`, or the request returns a 422. A draft that was already sent returns a 409. The request body is optional and takes only `headers`. The whole email, encoded, can be at most 40 MB, or the request returns a 422.",
+        "description": "Sends the draft from the inbox address. A reply draft is sent in its thread. A draft without a thread starts a new thread. The draft must have at least one `to` recipient and `html` or `text`, or the request returns a 422. A standalone draft also needs a non-empty `subject`. A reply draft with an empty `subject` is sent with the thread subject, prefixed with `Re:` when it does not already start with it. A draft that was already sent returns a 409. The request body is optional and takes only `headers`. The whole email, encoded, can be at most 40 MB, or the request returns a 422.",
         "parameters": [
           {
             "in": "header",
@@ -5617,14 +5593,7 @@
             "description": "A unique key for the request, so the draft is sent only once. A retry with the same key within 24 hours returns the first successful (2xx) response, with the `idempotent-replayed: true` header. A failed request is not stored, so it can be retried with the same key. Reusing the key with a different body, or while the first request is still running, returns a 409. An empty key, or one longer than 256 characters, returns a 400 `invalid_idempotency_key`. [Learn more](https://resend.com/docs/dashboard/emails/idempotency-keys)"
           },
           {
-            "name": "inbox_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            },
-            "description": "The Inbox ID. An email address is not accepted."
+            "$ref": "#/components/parameters/InboxIdOrEmailAddress"
           },
           {
             "name": "draft_id",
@@ -6434,7 +6403,7 @@
     "inbox.thread.labels.updated": {
       "post": {
         "summary": "Inbox thread labels updated",
-        "description": "Occurs whenever a label was applied to or removed from a thread. One event carries one label. Deleting a label does not send this event for the threads that had it.",
+        "description": "Occurs whenever labels were applied to or removed from a thread. One event lists every label that one request added to or removed from the thread. A request that changes no label sends no event. Deleting a label does not send this event for the threads that had it.",
         "tags": [
           "Webhook Events"
         ],
@@ -6588,6 +6557,16 @@
           "type": "string"
         },
         "description": "Return items before this cursor."
+      },
+      "InboxIdOrEmailAddress": {
+        "in": "path",
+        "name": "inbox_id",
+        "required": true,
+        "schema": {
+          "type": "string"
+        },
+        "description": "The Inbox ID or the inbox email address, such as `support@acme.com`. A value that contains `@` must be a valid email address, and any other value must be a UUID, or the request returns a 422. The address match is case-insensitive and never falls back to the inbox `name`. An address that matches no inbox returns a 404.",
+        "example": "b3e2b2b6-3f0e-4c8e-9ad3-2f43a1e2c7f1"
       }
     },
     "schemas": {
@@ -9084,8 +9063,10 @@
             "example": "660e8400-e29b-41d4-a716-446655440000"
           },
           "filename": {
-            "type": "string",
-            "nullable": true,
+            "type": [
+              "string",
+              "null"
+            ],
             "description": "The filename of the attachment.",
             "example": "document.pdf"
           },
@@ -9100,11 +9081,14 @@
             "example": "img001"
           },
           "content_disposition": {
-            "type": "string",
-            "nullable": true,
+            "type": [
+              "string",
+              "null"
+            ],
             "enum": [
               "inline",
-              "attachment"
+              "attachment",
+              null
             ],
             "description": "How the attachment should be displayed.",
             "example": "attachment"
@@ -9153,8 +9137,10 @@
                   "example": "660e8400-e29b-41d4-a716-446655440000"
                 },
                 "filename": {
-                  "type": "string",
-                  "nullable": true,
+                  "type": [
+                    "string",
+                    "null"
+                  ],
                   "description": "The filename of the attachment.",
                   "example": "document.pdf"
                 },
@@ -9169,11 +9155,14 @@
                   "example": "img001"
                 },
                 "content_disposition": {
-                  "type": "string",
-                  "nullable": true,
+                  "type": [
+                    "string",
+                    "null"
+                  ],
                   "enum": [
                     "inline",
-                    "attachment"
+                    "attachment",
+                    null
                   ],
                   "description": "How the attachment should be displayed.",
                   "example": "attachment"
@@ -9325,8 +9314,10 @@
                   "description": "The ID of the attachment."
                 },
                 "filename": {
-                  "type": "string",
-                  "nullable": true,
+                  "type": [
+                    "string",
+                    "null"
+                  ],
                   "description": "The filename of the attachment."
                 },
                 "content_type": {
@@ -9338,11 +9329,14 @@
                   "description": "The content ID for inline attachments."
                 },
                 "content_disposition": {
-                  "type": "string",
-                  "nullable": true,
+                  "type": [
+                    "string",
+                    "null"
+                  ],
                   "enum": [
                     "inline",
-                    "attachment"
+                    "attachment",
+                    null
                   ],
                   "description": "How the attachment should be displayed."
                 },
@@ -9456,8 +9450,10 @@
                         "description": "The ID of the attachment."
                       },
                       "filename": {
-                        "type": "string",
-                        "nullable": true,
+                        "type": [
+                          "string",
+                          "null"
+                        ],
                         "description": "The filename of the attachment."
                       },
                       "content_type": {
@@ -9469,11 +9465,14 @@
                         "description": "The content ID for inline attachments."
                       },
                       "content_disposition": {
-                        "type": "string",
-                        "nullable": true,
+                        "type": [
+                          "string",
+                          "null"
+                        ],
                         "enum": [
                           "inline",
-                          "attachment"
+                          "attachment",
+                          null
                         ],
                         "description": "How the attachment should be displayed."
                       },
@@ -13352,8 +13351,10 @@
             "example": "manual"
           },
           "source_id": {
-            "type": "string",
-            "nullable": true,
+            "type": [
+              "string",
+              "null"
+            ],
             "description": "Identifier of the event that caused the suppression, such as the email that bounced or complained.",
             "example": "479e3145-dd38-476b-932c-529ceb705947"
           },
@@ -13403,8 +13404,10 @@
                   "example": "manual"
                 },
                 "source_id": {
-                  "type": "string",
-                  "nullable": true,
+                  "type": [
+                    "string",
+                    "null"
+                  ],
                   "description": "Identifier of the event that caused the suppression, such as the email that bounced or complained.",
                   "example": "479e3145-dd38-476b-932c-529ceb705947"
                 },
@@ -13431,7 +13434,8 @@
           "unread",
           "drafts",
           "last_received",
-          "created_at"
+          "created_at",
+          "updated_at"
         ],
         "properties": {
           "object": {
@@ -13501,6 +13505,12 @@
             "format": "date-time",
             "description": "ISO 8601 timestamp when the inbox was created.",
             "example": "2026-08-01T09:12:44.512Z"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "ISO 8601 timestamp when the inbox was last updated.",
+            "example": "2026-08-03T10:20:05.118Z"
           }
         }
       },
@@ -13512,7 +13522,7 @@
         "properties": {
           "email_address": {
             "type": "string",
-            "description": "The inbox email address on one of your domains. The API trims and lowercases it. The part before the `@` is at most 64 characters and contains only letters, numbers, and `. _ % + -`. It cannot start or end with a dot or contain two dots in a row.",
+            "description": "The inbox email address on one of your domains. The API trims and lowercases it. The part before the `@` is at most 64 characters and contains only letters, numbers, and `. _ % -`. A `+` returns a 422. It cannot start or end with a dot or contain two dots in a row.",
             "example": "support@acme.com"
           },
           "name": {
@@ -13586,7 +13596,9 @@
                 "email_address",
                 "from_name",
                 "unread",
-                "last_received"
+                "last_received",
+                "created_at",
+                "updated_at"
               ],
               "properties": {
                 "id": {
@@ -13629,6 +13641,18 @@
                   "format": "date-time",
                   "description": "ISO 8601 timestamp of the newest received email in the Inbox folder. `null` when the folder has no received email.",
                   "example": "2026-08-05T14:03:11.229Z"
+                },
+                "created_at": {
+                  "type": "string",
+                  "format": "date-time",
+                  "description": "ISO 8601 timestamp when the inbox was created.",
+                  "example": "2026-08-01T09:12:44.512Z"
+                },
+                "updated_at": {
+                  "type": "string",
+                  "format": "date-time",
+                  "description": "ISO 8601 timestamp when the inbox was last updated.",
+                  "example": "2026-08-03T10:20:05.118Z"
                 }
               }
             }
@@ -13718,7 +13742,7 @@
           "object",
           "instructions",
           "tone",
-          "enabled_actions"
+          "actions"
         ],
         "properties": {
           "object": {
@@ -13739,12 +13763,19 @@
               "string",
               "null"
             ],
-            "description": "The tone the agent writes in, such as `friendly and concise`. Null when no tone is set.",
-            "example": "friendly and concise"
+            "enum": [
+              "concise_professional",
+              "concise_casual",
+              "expanded_professional",
+              "expanded_casual",
+              null
+            ],
+            "description": "The tone the agent writes in. Null when no tone is set.",
+            "example": "concise_professional"
           },
-          "enabled_actions": {
+          "actions": {
             "type": "array",
-            "description": "The actions the agent can take. Empty when no actions are enabled.",
+            "description": "The actions the agent can take, in the order of the enum. Empty when no actions are enabled.",
             "items": {
               "type": "string",
               "enum": [
@@ -13753,8 +13784,8 @@
                 "add_labels",
                 "assign_thread",
                 "mark_as_spam",
-                "archive_thread",
-                "delete_thread"
+                "archive",
+                "move_to_trash"
               ]
             },
             "example": [
@@ -13782,11 +13813,11 @@
           },
           {
             "required": [
-              "enabled_actions"
+              "actions"
             ]
           }
         ],
-        "description": "At least one of `instructions`, `tone`, or `enabled_actions` must be provided. Omitted fields keep their current value.",
+        "description": "At least one of `instructions`, `tone`, or `actions` must be provided. Omitted fields keep their current value.",
         "properties": {
           "instructions": {
             "type": [
@@ -13803,14 +13834,19 @@
               "string",
               "null"
             ],
-            "minLength": 1,
-            "maxLength": 64,
-            "description": "The tone the agent writes in, such as `friendly and concise`. Max 64 characters. Leading and trailing whitespace is trimmed, and the trimmed value must not be empty. Send null to clear the tone.",
-            "example": "friendly and concise"
+            "enum": [
+              "concise_professional",
+              "concise_casual",
+              "expanded_professional",
+              "expanded_casual",
+              null
+            ],
+            "description": "The tone the agent writes in. Send null to clear the tone.",
+            "example": "concise_professional"
           },
-          "enabled_actions": {
+          "actions": {
             "type": "array",
-            "description": "The actions the agent can take. Replaces the whole set. Duplicates are removed. Send an empty array to disable all actions.",
+            "description": "The actions the agent can take. Replaces the whole set. Duplicates are removed. Send an empty array to disable all actions. The old names `archive_thread` and `delete_thread` return a 422. Use `archive` and `move_to_trash`.",
             "items": {
               "type": "string",
               "enum": [
@@ -13819,8 +13855,8 @@
                 "add_labels",
                 "assign_thread",
                 "mark_as_spam",
-                "archive_thread",
-                "delete_thread"
+                "archive",
+                "move_to_trash"
               ]
             },
             "example": [
@@ -14159,8 +14195,7 @@
           {
             "type": "object",
             "required": [
-              "matched_email_id",
-              "highlights"
+              "matched_email_id"
             ],
             "properties": {
               "matched_email_id": {
@@ -14169,65 +14204,8 @@
                   "null"
                 ],
                 "format": "uuid",
-                "description": "Identifies the email in the thread that matched the search. When `query` has words or phrases, it is the most relevant match. Otherwise, it is the newest. The get, reply and forward thread email endpoints accept it as `email_id`, but it is not equal to the `id` those endpoints return. Null when the search index returns no matched email for the thread.",
+                "description": "The ID of the email in the thread that matched the search. When `query` has words or phrases, it is the most relevant match. Otherwise, it is the newest. It is the same `id` that the list thread emails endpoint returns, so use it as `email_id` with the get, reply and forward endpoints. Null when the search index returns no matched email for the thread.",
                 "example": "e8a3f1c6-2b9d-4e5a-a7c4-9d1b6f3e2a80"
-              },
-              "highlights": {
-                "type": "object",
-                "description": "Where `query` matched the email in `matched_email_id`, as text fragments with each match wrapped in `**`. Only keys with a match are present. An empty object when there is no `query`.",
-                "properties": {
-                  "subject": {
-                    "type": "array",
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "body": {
-                    "type": "array",
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "from": {
-                    "type": "array",
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "to": {
-                    "type": "array",
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "cc": {
-                    "type": "array",
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "bcc": {
-                    "type": "array",
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "attachments": {
-                    "type": "array",
-                    "items": {
-                      "type": "string"
-                    }
-                  }
-                },
-                "additionalProperties": false,
-                "example": {
-                  "subject": [
-                    "September **invoice**"
-                  ],
-                  "attachments": [
-                    "**invoice**-2026-09.pdf"
-                  ]
-                }
               }
             }
           }
@@ -14349,7 +14327,7 @@
       },
       "UpdateInboxThreadOptions": {
         "type": "object",
-        "description": "At least one of `read`, `folder`, `add_label_ids`, or `remove_label_ids` is required. A label ID cannot be both added and removed in the same request.",
+        "description": "At least one of `read` or `folder` is required. Use the thread labels endpoints to change labels.",
         "anyOf": [
           {
             "required": [
@@ -14359,16 +14337,6 @@
           {
             "required": [
               "folder"
-            ]
-          },
-          {
-            "required": [
-              "add_label_ids"
-            ]
-          },
-          {
-            "required": [
-              "remove_label_ids"
             ]
           }
         ],
@@ -14388,37 +14356,82 @@
             ],
             "description": "Moves the thread to this folder. `sent` is assigned automatically and cannot be set.",
             "example": "archive"
-          },
-          "add_label_ids": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 10,
-            "items": {
-              "type": "string",
-              "format": "uuid"
-            },
-            "description": "Label IDs to apply to the thread. Between 1 and 10 IDs. A label ID that does not exist in the inbox returns a 404.",
-            "example": [
-              "7f9c1d2e-4a6b-4c3d-8e15-9b0a7c6d5e34"
-            ]
-          },
-          "remove_label_ids": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 10,
-            "items": {
-              "type": "string",
-              "format": "uuid"
-            },
-            "description": "Label IDs to remove from the thread. Between 1 and 10 IDs. The labels themselves are kept. A label ID that does not exist in the inbox returns a 404.",
-            "example": [
-              "2b6d0f4e-8a1c-4e3b-9d57-1c0e8a6f4b21"
-            ]
           }
         }
       },
       "UpdateInboxThreadResponseSuccess": {
         "$ref": "#/components/schemas/InboxThreadSummary"
+      },
+      "AddInboxThreadLabelsOptions": {
+        "type": "object",
+        "required": [
+          "labels"
+        ],
+        "properties": {
+          "labels": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 10,
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "The IDs of the labels to apply to the thread. Between 1 and 10 IDs, each a label of the inbox.",
+            "example": [
+              "7f9c1d2e-4a6b-4c3d-8e15-9b0a7c6d5e34"
+            ]
+          }
+        }
+      },
+      "SetInboxThreadLabelsOptions": {
+        "type": "object",
+        "required": [
+          "labels"
+        ],
+        "properties": {
+          "labels": {
+            "type": "array",
+            "maxItems": 100,
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "The IDs of the labels the thread carries after the change. Up to 100 IDs, each a label of the inbox. Pass an empty array to take every label off the thread.",
+            "example": [
+              "7f9c1d2e-4a6b-4c3d-8e15-9b0a7c6d5e34"
+            ]
+          }
+        }
+      },
+      "InboxThreadLabelList": {
+        "type": "object",
+        "required": [
+          "object",
+          "data"
+        ],
+        "properties": {
+          "object": {
+            "type": "string",
+            "description": "Type of the response object.",
+            "example": "list"
+          },
+          "data": {
+            "type": "array",
+            "description": "Every label on the thread after the change.",
+            "items": {
+              "$ref": "#/components/schemas/InboxThreadLabel"
+            }
+          }
+        }
+      },
+      "AddInboxThreadLabelsResponseSuccess": {
+        "$ref": "#/components/schemas/InboxThreadLabelList"
+      },
+      "SetInboxThreadLabelsResponseSuccess": {
+        "$ref": "#/components/schemas/InboxThreadLabelList"
+      },
+      "RemoveInboxThreadLabelResponseSuccess": {
+        "$ref": "#/components/schemas/InboxThreadLabelList"
       },
       "RemoveInboxThreadResponseSuccess": {
         "type": "object",
@@ -14637,6 +14650,18 @@
       "ReplyInboxThreadEmailOptions": {
         "type": "object",
         "description": "At least one of `html` or `text` must contain more than whitespace.",
+        "anyOf": [
+          {
+            "required": [
+              "html"
+            ]
+          },
+          {
+            "required": [
+              "text"
+            ]
+          }
+        ],
         "properties": {
           "cc": {
             "description": "CC recipient email address. For multiple addresses, send as an array of strings. Without `reply_all`, the reply copies only these addresses. With `reply_all`, these addresses are merged with the copied recipients, without duplicates. `cc` and `bcc` combined must be fewer than 50 addresses. After the `to` recipients are added, the reply cannot exceed 50 recipients. Each address is `email@example.com` or `Name <email@example.com>`. An address that is not valid returns a 422.",
@@ -14708,7 +14733,7 @@
               "array",
               "null"
             ],
-            "description": "Files to attach, as on `POST /emails`. Each one needs `content` or `path`. Up to 10 files. The `content` of all files can total at most 25 MB. A `path` file counts toward the 10 files only, because it is fetched when the email is sent. An empty file, a blocked file type, a `path` that is not an `http` or `https` URL or that points to `localhost`, `127.0.0.1` or `0.0.0.0`, or a `content_type` that is not a valid MIME type returns a 422.",
+            "description": "Files to attach, as on `POST /emails`. Each one needs `content` or `path`. The `content` of all files can total at most 25 MB. A `path` file does not count toward the 25 MB, because it is fetched when the email is sent. An empty file, a blocked file type, a `path` that does not start with `http` or that starts with `http://localhost:`, or a `content_type` that is not a valid MIME type returns a 422. Other `path` problems fail the email when it is sent, not the request.",
             "items": {
               "$ref": "#/components/schemas/Attachment"
             }
@@ -14831,7 +14856,7 @@
               "array",
               "null"
             ],
-            "description": "Files to attach, as on `POST /emails`. Each one needs `content` or `path`. They share one limit with the attachments of the original message, which the forward also sends. Together they can have up to 10 files and at most 25 MB of `content`. A `path` file counts toward the 10 files only, because it is fetched when the email is sent. An empty file, a blocked file type, a `path` that is not an `http` or `https` URL or that points to `localhost`, `127.0.0.1` or `0.0.0.0`, or a `content_type` that is not a valid MIME type returns a 422.",
+            "description": "Files to attach, as on `POST /emails`. Each one needs `content` or `path`. They share one limit with the attachments of the original message, which the forward also sends. Together they can have at most 25 MB of `content`. A `path` file does not count toward the 25 MB, because it is fetched when the email is sent. An empty file, a blocked file type, a `path` that does not start with `http` or that starts with `http://localhost:`, or a `content_type` that is not a valid MIME type returns a 422. Other `path` problems fail the email when it is sent, not the request.",
             "items": {
               "$ref": "#/components/schemas/Attachment"
             }
@@ -15472,7 +15497,24 @@
         }
       },
       "UpdateInboxDraftResponseSuccess": {
-        "$ref": "#/components/schemas/InboxDraft"
+        "type": "object",
+        "required": [
+          "object",
+          "id"
+        ],
+        "properties": {
+          "object": {
+            "type": "string",
+            "description": "The object type. Always `inbox_draft`.",
+            "example": "inbox_draft"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The ID of the draft.",
+            "example": "c3a1e8b4-2d5f-4a7c-9e10-6b8d7f5a4c32"
+          }
+        }
       },
       "RemoveInboxDraftResponseSuccess": {
         "type": "object",
@@ -16040,7 +16082,7 @@
       },
       "InboxThreadLabelsUpdatedEventData": {
         "type": "object",
-        "description": "The data of an `inbox.thread.labels.updated` event. One event carries one label, in either `added` or `removed`.",
+        "description": "The data of an `inbox.thread.labels.updated` event. Adding labels fills only `added`. Removing one label fills only `removed`. Setting the labels of a thread can fill both.",
         "required": [
           "added",
           "removed",
