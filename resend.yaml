@@ -2923,9 +2923,10 @@ paths:
                 - trash
           description: >-
             Comma-separated folders to list, for example `inbox,sent`. Repeating
-            the parameter returns a 422 validation_error. A thread is returned
-            when any of its emails is in one of the folders, so a thread in
-            `inbox` with an email you sent matches both `inbox` and `sent`.
+            the parameter returns a 422 validation_error. The filter checks the
+            folder of each email in the thread, and a thread is returned when
+            any of its emails is in one of the folders. A thread whose emails
+            are in `inbox` and `sent` matches either filter.
             Defaults to `inbox`, or to `inbox,archive,sent` when `labels` is set.
             `spam` and `trash` are only included when you name them.
           example:
@@ -3097,8 +3098,10 @@ paths:
                 - trash
           description: >-
             Comma-separated folders to search, for example `inbox,sent`.
-            Repeating the parameter returns a 422 validation_error. A thread is
-            returned when any of its emails is in one of the folders. Defaults to
+            Repeating the parameter returns a 422 validation_error. The filter
+            checks the folder of each email in the thread, and a thread is
+            returned when any of its emails is in one of the folders. A thread
+            whose emails are in `inbox` and `sent` matches either filter. Defaults to
             `inbox`, or to `inbox,archive,sent` when `labels` is set. `spam` and
             `trash` are only included when you name them.
           example:
@@ -4235,7 +4238,7 @@ webhooks:
   inbox.draft.sent:
     post:
       summary: Inbox draft sent
-      description: Occurs whenever a draft was sent. This event fires from the send call. `inbox.email.sent` follows once the email is accepted for delivery.
+      description: Occurs whenever a draft was sent. This event fires from the send call. `inbox.email.sent` is also sent once the email is accepted for delivery. The two events come from separate paths, so their delivery order is not fixed.
       tags:
         - Webhook Events
       requestBody:
