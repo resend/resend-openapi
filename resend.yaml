@@ -3536,8 +3536,8 @@ paths:
         email's `to` recipients. Send `to: []` to leave it empty.
         At least one of `to`, `cc`, `bcc`, `subject`, `text`, `html` or
         `attachments` must be non-empty. The combined recipients of `to`, `cc`
-        and `bcc` cannot exceed 50. Attachments are stored on the draft, so each
-        one needs `content`, `filename` and `content_type`. Returns 201 for a
+        and `bcc` cannot exceed 50. Attachments are stored on the draft, so a
+        `path` file is downloaded when the request is made. Returns 201 for a
         new draft. Only one unsent
         reply draft can target an email, so a reply draft request for an
         email that already has one returns 200 with the ID of the existing draft.
@@ -10216,16 +10216,18 @@ components:
           example: 6a0c8e58-3d9e-4f7a-8b14-2e3f4a5b6c71
     InboxDraftAttachmentInput:
       type: object
-      description: A file to store on a draft. Unlike `POST /emails` attachments, a draft attachment cannot use `path` or `content_id`. A `path` without `content` returns a 422, and when both are sent, `path` is ignored.
+      description: A file to store on a draft. Send either `content` or a `path` URL. Unlike `POST /emails` attachments, a `path` file is downloaded when the request is made, not when the draft is sent, and a draft attachment cannot use `content_id`. When both `content` and `path` are sent, `path` is ignored.
       required:
-        - content
         - filename
-        - content_type
       properties:
         content:
           type: string
-          description: The content of the file, encoded in base64. It cannot be empty.
+          description: The content of the file, encoded in base64. It cannot be empty. Required without `path`.
           example: aGVsbG8gZTJl
+        path:
+          type: string
+          description: A URL to download the file from, starting with `http` or `https`. Required without `content`. A file that cannot be downloaded returns a 422, and so does a request whose downloads take more than 20 seconds together.
+          example: https://resend.com/static/sample/invoice.pdf
         filename:
           type: string
           minLength: 1
@@ -10235,7 +10237,7 @@ components:
           type: string
           minLength: 1
           description: >-
-            The MIME type of the attachment. It must be a valid MIME type, such as `application/pdf`, or the request returns a 422.
+            The MIME type of the attachment. It must be a valid MIME type, such as `application/pdf`, or the request returns a 422. Required with `content`. With `path`, it defaults to the content type of the downloaded file.
           example: application/pdf
     InboxDraftAttachment:
       type: object
@@ -10507,7 +10509,7 @@ components:
         attachments:
           type: [array, "null"]
           description: >-
-            Files to store on the draft. Each one needs `content`, `filename` and `content_type`. A `path` without `content` returns a 422, and when both are sent, `path` is ignored. A `content_id` returns a 422. The files on a draft can total at most 25 MB. An empty file or a blocked file type returns a 422.
+            Files to store on the draft. Each one needs a `filename` and either `content` or a `path` URL. A `path` file is downloaded when the request is made and stored on the draft. When both are sent, `path` is ignored. A `content_id` returns a 422. The files on a draft, downloaded ones included, can total at most 25 MB. A `path` that does not start with `http` or `https`, or that cannot be downloaded, returns a 422, and so does a request whose downloads take more than 20 seconds together. An empty file or a blocked file type returns a 422.
           items:
             $ref: '#/components/schemas/InboxDraftAttachmentInput'
         thread_id:
@@ -10605,7 +10607,7 @@ components:
         attachments:
           type: [array, "null"]
           description: >-
-            Files to store on the draft. Each one needs `content`, `filename` and `content_type`. A `path` without `content` returns a 422, and when both are sent, `path` is ignored. A `content_id` returns a 422. The files on a draft can total at most 25 MB. An empty file or a blocked file type returns a 422. Sending the field replaces every attachment on the draft. Send `[]` to remove them all. `null` also removes them all.
+            Files to store on the draft. Each one needs a `filename` and either `content` or a `path` URL. A `path` file is downloaded when the request is made and stored on the draft. When both are sent, `path` is ignored. A `content_id` returns a 422. The files on a draft, downloaded ones included, can total at most 25 MB. A `path` that does not start with `http` or `https`, or that cannot be downloaded, returns a 422, and so does a request whose downloads take more than 20 seconds together. An empty file or a blocked file type returns a 422. Sending the field replaces every attachment on the draft. Send `[]` to remove them all. `null` also removes them all.
           items:
             $ref: '#/components/schemas/InboxDraftAttachmentInput'
     UpdateInboxDraftResponseSuccess:
