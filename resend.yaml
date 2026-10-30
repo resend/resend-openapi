@@ -2924,8 +2924,7 @@ paths:
           description: >-
             Comma-separated folders to list, for example `inbox,sent`. Repeating
             the parameter returns a 422 validation_error. A thread is returned
-            when any of its emails is in one of the folders, so a thread in
-            `inbox` with an email you sent matches both `inbox` and `sent`.
+            when any of its emails is in one of the folders.
             Defaults to `inbox`, or to `inbox,archive,sent` when `labels` is set.
             `spam` and `trash` are only included when you name them.
           example:
@@ -4235,7 +4234,7 @@ webhooks:
   inbox.draft.sent:
     post:
       summary: Inbox draft sent
-      description: Occurs whenever a draft was sent. This event fires from the send call. `inbox.email.sent` follows once the email is accepted for delivery.
+      description: Occurs whenever a draft was sent. The order of this event and `inbox.email.sent` is not fixed.
       tags:
         - Webhook Events
       requestBody:
