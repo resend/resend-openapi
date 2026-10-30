@@ -10227,7 +10227,7 @@ components:
         path:
           type: string
           description: A URL to download the file from, starting with `http` or `https`. Required without `content`. A file that cannot be downloaded returns a 422, and so does a request whose downloads take more than 20 seconds together.
-          example: https://resend.com/static/sample/invoice.pdf
+          example: https://example.com/invoice.pdf
         filename:
           type: string
           minLength: 1
