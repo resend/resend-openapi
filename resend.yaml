@@ -632,6 +632,110 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/VerifyDomainResponse'
+  /domains/{domain_id}/forge:
+    post:
+      operationId: domains/enable-forge
+      tags:
+        - Domains
+      summary: Enable Forge for a domain
+      description: >-
+        Put a domain's sending on Resend Forge. The domain must be a sending
+        domain: receive-only domains, domains on a dedicated IP, and domains
+        with legacy DKIM get a `forge_unavailable` error. The response
+        includes the DNS record Forge needs. Add it to your DNS and call the
+        verify Forge endpoint, then poll the retrieve domain endpoint until
+        the Forge record's `status` is `verified`. The domain keeps sending
+        through its current records while the Forge record verifies, so there
+        is no interruption. Calling this endpoint again just returns the
+        current state.
+      parameters:
+        - in: header
+          name: Idempotency-Key
+          required: false
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 256
+          description: >-
+            A unique key for the request, so Forge is enabled only once. A retry with the same key within 24 hours returns the first successful (2xx) response, with the `idempotent-replayed: true` header. A failed request is not stored, so it can be retried with the same key. Reusing the key with a different body, or while the first request is still running, returns a 409. An empty key, or one longer than 256 characters, returns a 400 `invalid_idempotency_key`. [Learn more](https://resend.com/docs/dashboard/emails/idempotency-keys)
+        - name: domain_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The ID of the domain.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EnableForgeRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Domain'
+    patch:
+      operationId: domains/update-forge
+      tags:
+        - Domains
+      summary: Update the Forge return path
+      description: >-
+        Move a domain's Forge return path to another host. The path can only
+        change while the Forge record is still verifying. A verified record,
+        a new path that matches the legacy return path, or a host that
+        already has DNS records each gets a 422 `return_path_unavailable`
+        error. The response includes the new `CNAME` record. Add it to your
+        DNS and poll the retrieve domain endpoint until the record's `status`
+        is `verified`. Only the Forge record is re-verified, and sending
+        through the current records continues while the new record verifies.
+      parameters:
+        - name: domain_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The ID of the domain.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateForgeRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Domain'
+  /domains/{domain_id}/forge/verify:
+    post:
+      operationId: domains/verify-forge
+      tags:
+        - Domains
+      summary: Verify a Forge domain
+      description: >-
+        Trigger a DNS check of a domain's Forge records. Call this after
+        adding the record from enable Forge, then poll the retrieve domain
+        endpoint. The check covers only the Forge records, so other statuses
+        don't change. The response is the domain's `object` and `id`, the
+        same shape as verify domain.
+      parameters:
+        - name: domain_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The ID of the domain.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VerifyDomainResponse'
   /domains/claim:
     post:
       operationId: domains/create-claim
@@ -4949,6 +5053,26 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/DomainRecord'
+    EnableForgeRequest:
+      type: object
+      properties:
+        return_path:
+          type: string
+          minLength: 2
+          maxLength: 63
+          pattern: ^[a-zA-Z][a-zA-Z0-9-]*[a-zA-Z0-9]$
+          description: The subdomain label for the Forge return path, for example `forge` on `example.com` produces a `CNAME` record for `forge.example.com`. It must start with a letter, end with a letter or digit, and contain only letters, digits, and hyphens. When omitted, Resend picks a label that is free in your DNS. It cannot equal the domain's return path on the legacy engine, and the chosen host must not already have DNS records.
+    UpdateForgeRequest:
+      type: object
+      required:
+        - return_path
+      properties:
+        return_path:
+          type: string
+          minLength: 2
+          maxLength: 63
+          pattern: ^[a-zA-Z][a-zA-Z0-9-]*[a-zA-Z0-9]$
+          description: The new subdomain label for the Forge return path, for example `forge` on `example.com` produces a `CNAME` record for `forge.example.com`. It must start with a letter, end with a letter or digit, and contain only letters, digits, and hyphens.
     CreateDomainClaimRequest:
       type: object
       required:
