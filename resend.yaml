@@ -4938,12 +4938,6 @@ components:
         tracking_subdomain:
           type: string
           description: The subdomain to use for click and open tracking.
-        forge_return_path:
-          type: string
-          minLength: 2
-          maxLength: 63
-          pattern: ^[a-zA-Z][a-zA-Z0-9-]*[a-zA-Z0-9]$
-          description: 'Move the domain''s Forge return path to another host. The path can only change while the Forge record is still verifying. A verified record, a path that matches the legacy return path, or a host that already has DNS records each gets a `return_path_unavailable` error. Moving the path does not start verification: fetch the new record with the retrieve domain endpoint, add it to your DNS, then call the verify domain endpoint with `scope: ["forge"]`.'
     DomainRecord:
       type: object
       properties:
@@ -5037,12 +5031,12 @@ components:
     EnableForgeRequest:
       type: object
       properties:
-        return_path:
+        custom_return_path:
           type: string
           minLength: 2
           maxLength: 63
           pattern: ^[a-zA-Z][a-zA-Z0-9-]*[a-zA-Z0-9]$
-          description: The subdomain label for the Forge return path, for example `forge` on `example.com` produces a `CNAME` record for `forge.example.com`. It must start with a letter, end with a letter or digit, and contain only letters, digits, and hyphens. When omitted, Resend picks a label that is free in your DNS. It cannot equal the domain's return path on the legacy engine, and the chosen host must not already have DNS records.
+          description: The subdomain for the Forge Return-Path address, for example `forge` on `example.com` produces a `CNAME` record for `forge.example.com`. It must start with a letter, end with a letter or digit, and contain only letters, digits, and hyphens, and is stored lowercased. When omitted, Resend picks a subdomain that is free in your DNS. It is set once, when Forge is enabled, and cannot be changed afterwards. It cannot equal the domain's return path on the legacy engine, and the chosen host must not already have DNS records.
     VerifyDomainOptions:
       type: object
       properties:
