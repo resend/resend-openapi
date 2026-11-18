@@ -2395,6 +2395,35 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/AutomationRun'
+  /automations/{automation_id}/runs/{run_id}/cancel:
+    post:
+      operationId: automations/cancel-run
+      tags:
+        - Automations
+      summary: Cancel an automation run
+      description: Stops a running automation run. Steps that have not started yet are skipped. Returns 422 if the run has already finished.
+      parameters:
+        - name: automation_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The ID of the automation.
+        - name: run_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The ID of the automation run.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CancelAutomationRunResponse'
   /events:
     post:
       operationId: events/create
@@ -7824,6 +7853,20 @@ components:
           type: string
           description: The status of the automation after stopping.
           example: disabled
+    CancelAutomationRunResponse:
+      type: object
+      properties:
+        object:
+          type: string
+          description: Type of the response object.
+          example: automation_run
+        id:
+          type: string
+          description: The ID of the cancelled automation run.
+        status:
+          type: string
+          description: The status of the automation run after cancelling.
+          example: cancelled
     AutomationRunStep:
       type: object
       description: A step execution within an automation run.
