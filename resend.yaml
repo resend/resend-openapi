@@ -5046,7 +5046,7 @@ components:
             type: string
             enum:
               - forge
-          description: 'Limit the check to specific records. The only supported value is `forge`: only the Forge record is checked, and the other records are not checked and remain verified. Requires Forge to be enabled on the domain, otherwise the endpoint responds with a `forge_not_enabled` error. When omitted, all records are checked.'
+          description: 'Limit the check to specific records. The only supported value is `forge`: only the Forge record is checked, and the other records keep their current status. Requires Forge to be enabled on the domain, otherwise the endpoint responds with a `forge_not_enabled` error. When omitted, all records are checked.'
     CreateDomainClaimRequest:
       type: object
       required:
