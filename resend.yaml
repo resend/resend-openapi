@@ -321,6 +321,16 @@ paths:
             type: string
             format: uuid
           description: The ID of the received email.
+        - name: html_format
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - data_uri
+              - cid
+            default: data_uri
+          description: How inline images are referenced in `html`. `data_uri` returns them as base64 `data:` URIs. `cid` keeps the original `cid:` references, which match the `content_id` of an attachment. Emails too large to inline always return `cid`, so check `html_format` on the response.
       responses:
         '200':
           description: OK
@@ -6315,14 +6325,60 @@ components:
           type: [string, "null"]
           description: The HTML content of the email.
           example: '<p>Email content</p>'
+        html_format:
+          type: string
+          enum:
+            - data_uri
+            - cid
+          description: How inline images are referenced in `html`. Usually matches the requested `html_format`, but is `cid` when the email is too large to inline.
+          example: 'data_uri'
         text:
           type: [string, "null"]
           description: The plain text content of the email.
           example: 'Email content'
         headers:
           type: [object, "null"]
-          description: The email headers.
-          example: {'X-Custom-Header': 'value'}
+          additionalProperties:
+            type: string
+          description: The headers of the received message, keyed by lowercase header name. Every value is a string. A header with several values, such as `received` or `references`, holds them as a JSON-encoded array.
+          example:
+            subject: 'Hello World'
+            references: '["<a@example.com>","<b@example.com>"]'
+            x-custom-header: 'value'
+        authentication:
+          type: [object, "null"]
+          description: The SPF, DKIM, and DMARC results computed when the email was received. The receiving mail server computes them, so the sender cannot forge them. `null` for emails received before this field was introduced.
+          properties:
+            spf:
+              $ref: '#/components/schemas/ReceivedEmailAuthenticationVerdict'
+            dkim:
+              $ref: '#/components/schemas/ReceivedEmailAuthenticationVerdict'
+            dmarc:
+              $ref: '#/components/schemas/ReceivedEmailAuthenticationVerdict'
+          required:
+            - spf
+            - dkim
+            - dmarc
+          example:
+            spf: 'pass'
+            dkim: 'pass'
+            dmarc: 'pass'
+        raw:
+          type: [object, "null"]
+          description: A signed URL to download the original email file, attachments included. `null` when the raw email is not available.
+          properties:
+            download_url:
+              type: string
+              description: Signed URL to download the raw email file.
+              example: 'https://cloudfront.example.com/raw/message-id?Signature=...'
+            expires_at:
+              type: string
+              format: date-time
+              description: Timestamp when the download URL expires.
+              example: '2024-10-27T18:30:00.000Z'
+          required:
+            - download_url
+            - expires_at
         created_at:
           type: string
           format: date-time
@@ -6357,6 +6413,17 @@ components:
               size:
                 type: integer
                 description: Size of the attachment in bytes.
+    ReceivedEmailAuthenticationVerdict:
+      type: string
+      enum:
+        - pass
+        - fail
+        - gray
+        - processing_failed
+        - disabled
+        - unknown
+      description: The result of one authentication check. `gray` means the check gave no clear pass or fail.
+      example: 'pass'
     ListReceivedEmailsResponse:
       type: object
       properties:
