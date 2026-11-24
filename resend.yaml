@@ -6321,8 +6321,10 @@ components:
           example: 'Email content'
         headers:
           type: [object, "null"]
-          description: The email headers.
-          example: {'X-Custom-Header': 'value'}
+          additionalProperties:
+            type: string
+          description: The email headers, keyed by lowercase header name.
+          example: {'x-custom-header': 'value'}
         created_at:
           type: string
           format: date-time
