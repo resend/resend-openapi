@@ -6323,7 +6323,7 @@ components:
           type: [object, "null"]
           additionalProperties:
             type: string
-          description: The email headers, keyed by lowercase header name. Every value is a string.
+          description: The email headers, keyed by lowercase header name.
           example: {'x-custom-header': 'value'}
         created_at:
           type: string
