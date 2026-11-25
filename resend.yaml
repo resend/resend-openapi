@@ -300,6 +300,47 @@ paths:
             type: string
             format: uuid
           description: Pagination cursor to fetch results before this email ID. Cannot be used with 'after'.
+        - name: to
+          in: query
+          required: false
+          style: form
+          explode: false
+          schema:
+            type: array
+            maxItems: 20
+            items:
+              type: string
+          description: >-
+            Comma-separated recipient addresses. Each value must exactly match
+            the envelope recipient, with case. Returns emails that match any of
+            them. Up to 20 values.
+            Repeating the parameter returns a 422 validation_error.
+          example:
+            - support@example.com
+            - billing@example.com
+        - name: start_date
+          in: query
+          required: false
+          schema:
+            type: string
+          description: >-
+            Matches emails received on or after this date. Accepts a date like
+            `2026-09-01` or an ISO 8601 timestamp, in UTC unless the timestamp
+            has an offset.
+          example: '2026-09-01'
+        - name: end_date
+          in: query
+          required: false
+          schema:
+            type: string
+          description: >-
+            Matches emails received on or before this date. Same formats as
+            `start_date`. A date covers that whole day, so
+            `start_date=2026-09-01&end_date=2026-09-30` covers all of September.
+            A timestamp is used as given. An `end_date` before `start_date`
+            returns a 422 validation_error. A range entirely outside your data
+            retention also returns a 422.
+          example: '2026-09-30'
       responses:
         '200':
           description: OK
