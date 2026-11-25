@@ -7991,7 +7991,7 @@ components:
           description: The current status of the automation run. `cancelled` means it was stopped on purpose. `skipped` means it ended on its own because it could no longer continue, and `status_reason` says why. Neither is an error.
         status_reason:
           type: [string, "null"]
-          description: Why the run ended as `failed` or `skipped`, read from the step that ended it. For a failed run, it's the step's error code, or `unknown` when the run doesn't say. For a skipped run, it's the reason the run could no longer continue, for example `contact_deleted` when the contact it was for was deleted mid-run. Always `null` for the other statuses, including `cancelled`, which means the run was stopped on purpose.
+          description: Why the run ended as `failed` or `skipped`, read from the step that ended it. For a failed run, it's the step's error code. For a skipped run, it's the reason the run could no longer continue, for example `contact_deleted` when the contact it was for was deleted mid-run. It's `unknown` when the step doesn't say. Always `null` for the other statuses, including `cancelled`, which means the run was stopped on purpose.
           example: missing_variable
         started_at:
           type: [string, "null"]
@@ -8028,7 +8028,7 @@ components:
           description: The current status of the automation run. `cancelled` means it was stopped on purpose. `skipped` means it ended on its own because it could no longer continue, and `status_reason` says why. Neither is an error.
         status_reason:
           type: [string, "null"]
-          description: Why the run ended as `failed` or `skipped`, read from the step that ended it. For a failed run, it's the step's error code, or `unknown` when the run doesn't say. For a skipped run, it's the reason the run could no longer continue, for example `contact_deleted` when the contact it was for was deleted mid-run. Always `null` for the other statuses, including `cancelled`, which means the run was stopped on purpose.
+          description: Why the run ended as `failed` or `skipped`, read from the step that ended it. For a failed run, it's the step's error code. For a skipped run, it's the reason the run could no longer continue, for example `contact_deleted` when the contact it was for was deleted mid-run. It's `unknown` when the step doesn't say. Always `null` for the other statuses, including `cancelled`, which means the run was stopped on purpose.
           example: missing_variable
         started_at:
           type: [string, "null"]
