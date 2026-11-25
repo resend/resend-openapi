@@ -3814,7 +3814,7 @@
             "schema": {
               "type": "string"
             },
-            "description": "Filter runs by status. Comma-separated list of: running, completed, failed, cancelled."
+            "description": "Filter runs by status. Comma-separated list of: running, completed, failed, cancelled, quota_exceeded."
           },
           {
             "$ref": "#/components/parameters/PaginationLimit"
@@ -11767,9 +11767,18 @@
               "running",
               "completed",
               "failed",
-              "cancelled"
+              "cancelled",
+              "quota_exceeded"
             ],
             "description": "The current status of the automation run."
+          },
+          "status_reason": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Why the run ended as `failed` or `cancelled`, read from the step that ended it. For a failed run, it's the step's error code, or `unknown` when the run doesn't say. A cancelled run has `contact_deleted` when the contact it was for was deleted mid-run, and `null` when the run was stopped on purpose. Always `null` for the other statuses.",
+            "example": "missing_variable"
           },
           "started_at": {
             "type": [
@@ -11814,9 +11823,18 @@
               "running",
               "completed",
               "failed",
-              "cancelled"
+              "cancelled",
+              "quota_exceeded"
             ],
             "description": "The current status of the automation run."
+          },
+          "status_reason": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Why the run ended as `failed` or `cancelled`, read from the step that ended it. For a failed run, it's the step's error code, or `unknown` when the run doesn't say. A cancelled run has `contact_deleted` when the contact it was for was deleted mid-run, and `null` when the run was stopped on purpose. Always `null` for the other statuses.",
+            "example": "missing_variable"
           },
           "started_at": {
             "type": [
