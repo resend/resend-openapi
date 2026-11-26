@@ -11775,7 +11775,7 @@
           },
           "status_reason": {
             "type": "string",
-            "description": "Why the run ended as `failed` or `skipped`, read from the step that ended it. For a failed run, it's the step's error code. For a skipped run, it's the reason the run could no longer continue, for example `contact_deleted` when the contact it was for was deleted mid-run. It's `unknown` when the step doesn't say. Only present when `status` is `failed` or `skipped`.",
+            "description": "The reason behind a `failed` or `skipped` status, read from the run's steps. For a failed run, it's the error code of the step that failed. For a skipped run, it's what kept the run from continuing, for example `contact_deleted` when the contact it was for was deleted mid-run. It's `unknown` when the step doesn't say. Only present when `status` is `failed` or `skipped`.",
             "example": "missing_variable"
           },
           "started_at": {
@@ -11829,7 +11829,7 @@
           },
           "status_reason": {
             "type": "string",
-            "description": "Why the run ended as `failed` or `skipped`, read from the step that ended it. For a failed run, it's the step's error code. For a skipped run, it's the reason the run could no longer continue, for example `contact_deleted` when the contact it was for was deleted mid-run. It's `unknown` when the step doesn't say. Only present when `status` is `failed` or `skipped`.",
+            "description": "The reason behind a `failed` or `skipped` status, read from the run's steps. For a failed run, it's the error code of the step that failed. For a skipped run, it's what kept the run from continuing, for example `contact_deleted` when the contact it was for was deleted mid-run. It's `unknown` when the step doesn't say. Only present when `status` is `failed` or `skipped`.",
             "example": "missing_variable"
           },
           "started_at": {
