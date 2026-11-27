@@ -3814,7 +3814,7 @@
             "schema": {
               "type": "string"
             },
-            "description": "Filter runs by status. Comma-separated list of: running, completed, failed, cancelled."
+            "description": "Filter runs by status. Comma-separated list of: running, completed, failed, cancelled, quota_exceeded, skipped."
           },
           {
             "$ref": "#/components/parameters/PaginationLimit"
@@ -11767,9 +11767,16 @@
               "running",
               "completed",
               "failed",
-              "cancelled"
+              "cancelled",
+              "quota_exceeded",
+              "skipped"
             ],
-            "description": "The current status of the automation run."
+            "description": "The current status of the automation run. `cancelled` runs were stopped on purpose, `skipped` runs ended on their own."
+          },
+          "status_reason": {
+            "type": "string",
+            "description": "The reason behind the run's status, for example `missing_variable` or `contact_deleted`. Only present on `failed` and `skipped` runs.",
+            "example": "missing_variable"
           },
           "started_at": {
             "type": [
@@ -11814,9 +11821,16 @@
               "running",
               "completed",
               "failed",
-              "cancelled"
+              "cancelled",
+              "quota_exceeded",
+              "skipped"
             ],
-            "description": "The current status of the automation run."
+            "description": "The current status of the automation run. `cancelled` runs were stopped on purpose, `skipped` runs ended on their own."
+          },
+          "status_reason": {
+            "type": "string",
+            "description": "The reason behind the run's status, for example `missing_variable` or `contact_deleted`. Only present on `failed` and `skipped` runs.",
+            "example": "missing_variable"
           },
           "started_at": {
             "type": [
