@@ -7988,7 +7988,7 @@ components:
             - cancelled
             - quota_exceeded
             - skipped
-          description: The current status of the automation run. `cancelled` means it was stopped on purpose. `skipped` means it ended on its own because it could no longer continue, and `status_reason` says why. Neither is an error.
+          description: The current status of the automation run. `cancelled` runs were stopped on purpose, `skipped` runs ended on their own.
         status_reason:
           type: string
           description: The reason behind a `failed` or `skipped` status, read from the run's steps. For a failed run, it's the error code of the step that failed. For a skipped run, it's what kept the run from continuing, for example `contact_deleted` when the contact it was for was deleted mid-run. It's `unknown` when the step doesn't say. Only present when `status` is `failed` or `skipped`.
@@ -8025,7 +8025,7 @@ components:
             - cancelled
             - quota_exceeded
             - skipped
-          description: The current status of the automation run. `cancelled` means it was stopped on purpose. `skipped` means it ended on its own because it could no longer continue, and `status_reason` says why. Neither is an error.
+          description: The current status of the automation run. `cancelled` runs were stopped on purpose, `skipped` runs ended on their own.
         status_reason:
           type: string
           description: The reason behind a `failed` or `skipped` status, read from the run's steps. For a failed run, it's the error code of the step that failed. For a skipped run, it's what kept the run from continuing, for example `contact_deleted` when the contact it was for was deleted mid-run. It's `unknown` when the step doesn't say. Only present when `status` is `failed` or `skipped`.

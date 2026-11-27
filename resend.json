@@ -11771,7 +11771,7 @@
               "quota_exceeded",
               "skipped"
             ],
-            "description": "The current status of the automation run. `cancelled` means it was stopped on purpose. `skipped` means it ended on its own because it could no longer continue, and `status_reason` says why. Neither is an error."
+            "description": "The current status of the automation run. `cancelled` runs were stopped on purpose, `skipped` runs ended on their own."
           },
           "status_reason": {
             "type": "string",
@@ -11825,7 +11825,7 @@
               "quota_exceeded",
               "skipped"
             ],
-            "description": "The current status of the automation run. `cancelled` means it was stopped on purpose. `skipped` means it ended on its own because it could no longer continue, and `status_reason` says why. Neither is an error."
+            "description": "The current status of the automation run. `cancelled` runs were stopped on purpose, `skipped` runs ended on their own."
           },
           "status_reason": {
             "type": "string",
