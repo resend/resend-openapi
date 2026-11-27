@@ -7991,7 +7991,7 @@ components:
           description: The current status of the automation run. `cancelled` runs were stopped on purpose, `skipped` runs ended on their own.
         status_reason:
           type: string
-          description: The reason behind a `failed` or `skipped` status, read from the run's steps. For a failed run, it's the error code of the step that failed. For a skipped run, it's what kept the run from continuing, for example `contact_deleted` when the contact it was for was deleted mid-run. It's `unknown` when the step doesn't say. Only present when `status` is `failed` or `skipped`.
+          description: The reason behind the run's status, for example `missing_variable` or `contact_deleted`. Only present on `failed` and `skipped` runs.
           example: missing_variable
         started_at:
           type: [string, "null"]
@@ -8028,7 +8028,7 @@ components:
           description: The current status of the automation run. `cancelled` runs were stopped on purpose, `skipped` runs ended on their own.
         status_reason:
           type: string
-          description: The reason behind a `failed` or `skipped` status, read from the run's steps. For a failed run, it's the error code of the step that failed. For a skipped run, it's what kept the run from continuing, for example `contact_deleted` when the contact it was for was deleted mid-run. It's `unknown` when the step doesn't say. Only present when `status` is `failed` or `skipped`.
+          description: The reason behind the run's status, for example `missing_variable` or `contact_deleted`. Only present on `failed` and `skipped` runs.
           example: missing_variable
         started_at:
           type: [string, "null"]
